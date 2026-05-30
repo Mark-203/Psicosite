@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benessere nelle Aree di Lavoro — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  /* ─── ACCORDION ─── */
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 600px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  /* ─── QUIZ ─── */
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── MEMORY MATCH ─── */
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>Benessere nelle Aree di Lavoro</h1>
+  <p>Caratteristiche funzionali degli ambienti lavorativi — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">💡</div>
+      <h3>Illuminazione</h3>
+      <p>L'intensità luminosa ottimale migliora l'umore e la produttività. Né troppo fioca né eccessivamente intensa. Avere controllo personale sulla propria luce aumenta soddisfazione e prestazione.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌡️</div>
+      <h3>Temperatura</h3>
+      <p>Per compiti semplici: 26–31 °C. Per compiti complessi: temperature più basse. L'ideale è che sia il lavoratore stesso a controllare il proprio comfort termico.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🔊</div>
+      <h3>Suono</h3>
+      <p>Livello ottimale: 45–65 decibel. Zone rumorose e silenziose vanno tenute separate all'interno dell'edificio per tutelare la tranquillità dei lavoratori.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌿</div>
+      <h3>Vista e spazi verdi</h3>
+      <p>Avere accesso visivo a verde e natura riduce lo stress, migliora l'umore e la soddisfazione lavorativa. La vista su palazzi aumenta lo stress rispetto alla vista su alberi o giardini.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🪑</div>
+      <h3>Disposizione del mobilio</h3>
+      <p>Arredare lungo le pareti anziché al centro crea la percezione di maggiore spazio. Un ambiente stimolante ma comprensibile nelle sue funzioni favorisce l'apprendimento e la produttività.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎨</div>
+      <h3>Colori</h3>
+      <p>I colori brillanti (giallo, arancio, blu) migliorano le prestazioni cognitive rispetto ai colori spenti. Per pavimenti: colori caldi non troppo chiari. Per pareti: colori chiari e non a contrasto.</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>💡 L'illuminazione e i suoi effetti sull'umore</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Dagli anni '70 si è sviluppata una tradizione di ricerca che studia le caratteristiche fisiche degli ambienti di lavoro: illuminazione, comfort termico, suono, vista e colore.</p>
+        <ul>
+          <li><strong>Küller et al. (2006):</strong> luce fioca → umore basso; all'aumentare dell'intensità l'umore migliora, ma oltre una soglia massima torna a peggiorare per fastidio.</li>
+          <li><strong>Wotton (1989) e Kroner et al. (1992):</strong> il controllo personale dell'illuminazione (es. lampada da tavolo) aumenta sia la soddisfazione sia la produttività.</li>
+          <li><strong>Areni & Kim (1994):</strong> la luce può dirigere l'attenzione verso un elemento specifico.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌡️ Temperatura ottimale e controllo</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li>Compiti <strong>semplici</strong> (bassa attenzione): temperatura ottimale <strong>26–31 °C</strong>.</li>
+          <li>Compiti <strong>complessi</strong>: preferibili temperature <strong>più basse</strong>.</li>
+          <li><strong>Paciuk (1990):</strong> il controllo diretto della temperatura da parte del lavoratore è la soluzione migliore per incrementare la produttività (Kroner et al., 1992).</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔊 Rumore e comfort acustico</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li>Livello ottimale: <strong>45–65 decibel</strong> (Bonaiuto et al., 2004).</li>
+          <li>Nelle aziende è consigliabile <strong>separare fisicamente</strong> le zone rumorose da quelle che richiedono concentrazione.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌿 Vista su aree verdi e gestione degli spazi</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li><strong>Kaplan, Kaplan & Talbot (1988):</strong> anche solo vedere aree verdi aumenta soddisfazione e umore, riducendo lo stress. Chi guarda alberi/giardini sta meglio di chi guarda palazzi.</li>
+          <li><strong>Becker & Steele (1995):</strong> il posto "alla finestra" è percepito come privilegiato dai colleghi.</li>
+          <li><strong>Bonaiuto et al. (2004):</strong> arredare lungo le pareti dà percezione di maggiore spazio.</li>
+          <li><strong>Wollin & Montagne (1981):</strong> rinnovare una classe con luci soffuse, piante e poster ha migliorato significativamente i voti degli studenti dopo 5 settimane.</li>
+          <li><strong>Bonaiuto, Giannini & Biasi (1994):</strong> l'ambiente deve stimolare senza essere eccessivamente monotono o caotico.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎨 Colori: brillantezza, pareti e pavimenti</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li>I colori interagiscono con l'illuminazione: <strong>colori caldi + luce fredda (neon)</strong>; <strong>colori freddi + luce calda (incandescenza)</strong>.</li>
+          <li><strong>Gifford (2007):</strong> i punteggi QI in stanze con colori brillanti (giallo, arancio, blu) erano <strong>26 punti superiori</strong> rispetto a stanze con colori spenti (nero, grigio).</li>
+          <li><strong>Favretto & Fiorentini (1999):</strong> pavimento → colori caldi non troppo chiari, evitare superfici lucide; pareti → colori chiari, evitare contrasti e tinte molto intense.</li>
+          <li><strong>Pellegrini (1985):</strong> le variazioni del tono cromatico nell'ambiente aumentano i comportamenti cooperativi.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🏛️ Considerazioni conclusive: psicologia ambientale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La psicologia ambientale abbraccia molte discipline: psicologia generale (percezione del colore), psicologia sociale (rapporti persona-ambiente), neuroscienze (effetti della musica).</p>
+        <p style="margin-top:0.6rem">L'obiettivo finale è <strong>integrare psicologia e architettura</strong> per creare ambienti "su misura della persona", esteticamente piacevoli ma orientati al benessere psicofisico. Ciò richiede collaborazione tra psicologi, ingegneri e architetti.</p>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → dettaglio</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Concetto / Fonte</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Dettaglio / Dato</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Anni '70 — Nasce la ricerca sugli ambienti di lavoro</h4>
+      <p>Si delinea una tradizione di studio sulle caratteristiche fisiche degli ambienti lavorativi: illuminazione, comfort termico, suono, colore, vista e disposizione degli spazi.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Illuminazione: la "curva dell'umore"</h4>
+      <p>Luce fioca → umore basso. Aumento progressivo → miglioramento dell'umore. Superata una soglia massima → l'umore peggiora di nuovo per fastidio. La curva è invertita a U.</p>
+      <div class="tl-source">Küller, Ballal, Laike, Mikellides, Tonello (2006)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Temperatura: la regola della complessità</h4>
+      <p>Compiti semplici → 26–31 °C; compiti complessi → temperature più fresche. Il controllo diretto da parte del lavoratore è la strategia migliore.</p>
+      <div class="tl-source">Paciuk (1990); Kroner et al. (1992)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Suono: la finestra 45–65 dB</h4>
+      <p>Sotto i 45 dB l'ambiente è eccessivamente silenzioso; sopra i 65 dB il rumore disturba. Le zone rumorose e quelle tranquille vanno fisicamente separate.</p>
+      <div class="tl-source">Bonaiuto et al. (2004)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Verde e natura: l'effetto della finestra</h4>
+      <p>Chi vede alberi o giardini dalla propria postazione riporta stress inferiore e soddisfazione lavorativa superiore rispetto a chi guarda palazzi o cemento.</p>
+      <div class="tl-source">Kaplan, Kaplan & Talbot (1988); Becker & Steele (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Classe rinnovata → voti migliori</h4>
+      <p>Dopo 5 settimane dalla modifica di una classe (luci soffuse, piante, poster, cuscini, tappeti) i voti degli studenti erano significativamente superiori al gruppo di controllo.</p>
+      <div class="tl-source">Wollin & Montagne (1981)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Colori brillanti = +26 punti QI</h4>
+      <p>Stanze con colori brillanti (giallo, arancio, blu) producono punteggi QI mediamente 26 punti superiori rispetto a stanze con colori spenti (nero, grigio).</p>
+      <div class="tl-source">Gifford (2007)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Regole cromatiche per l'ufficio</h4>
+      <p>Pareti chiare (non troppo a contrasto); pavimenti con colori caldi non eccessivamente chiari; nessuna superficie lucida o riflettente per evitare abbagliamento.</p>
+      <div class="tl-source">Favretto & Fiorentini (1999)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La prospettiva della psicologia ambientale</h4>
+      <p>L'ambiente non può essere progettato senza tenere conto della persona che lo vive. L'obiettivo è creare ambienti "su misura della persona", integrando psicologia e architettura.</p>
+      <div class="tl-source">Petruccelli, Considerazioni conclusive</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è la temperatura ottimale per compiti semplici in un ambiente di lavoro?", a: "Tra 26 e 31 °C. Per compiti complessi sono preferibili temperature più basse." },
+  { q: "Qual è il range ottimale di decibel in un ambiente lavorativo?", a: "Tra 45 e 65 decibel (Bonaiuto et al., 2004)." },
+  { q: "Cosa ha dimostrato lo studio di Küller et al. (2006) sull'illuminazione?", a: "L'umore migliora con l'aumentare della luce fino a una soglia massima, oltre la quale peggiora di nuovo per fastidio." },
+  { q: "Quale effetto ha la vista su aree verdi per i lavoratori? (Kaplan et al., 1988)", a: "Aumenta soddisfazione lavorativa e umore, e riduce i livelli di stress." },
+  { q: "Secondo Gifford (2007), di quanti punti migliorano i punteggi QI in stanze con colori brillanti?", a: "Di 26 punti rispetto a stanze con colori spenti (nero o grigio)." },
+  { q: "Cosa suggeriscono Favretto e Fiorentini (1999) per i colori delle pareti in ufficio?", a: "Colori chiari, utili per ambienti più luminosi, evitando contrasti e tinte molto intense che stancano visivamente." },
+  { q: "Cosa ha osservato lo studio di Wollin e Montagne (1981) sulla classe rinnovata?", a: "Dopo 5 settimane di modifiche ambientali (piante, luci soffuse, poster...) i voti degli studenti erano significativamente superiori al gruppo di controllo." },
+  { q: "Perché è preferibile collocare gli arredi lungo le pareti piuttosto che al centro? (Bonaiuto et al., 2004)", a: "Perché favorisce la percezione da parte dei lavoratori di avere maggiore spazio a disposizione." },
+  { q: "Cosa consigliano Favretto e Fiorentini (1999) per il pavimento?", a: "Colori caldi ma non eccessivamente chiari. Evitare superfici lucide o riflettenti per non abbagliare." },
+  { q: "In che senso la psicologia ambientale deve integrarsi con l'architettura?", a: "Per creare linee guida che considerino il benessere della persona come esigenza fondamentale del progetto, costruendo ambienti 'su misura'." },
+  { q: "Cosa rappresenta la psicologia ambientale come campo di ricerca?", a: "Un settore che abbraccia psicologia generale (percezione del colore), psicologia sociale (persona-ambiente) e neuroscienze (effetti della musica)." },
+  { q: "Quale abbinamento è consigliato tra colori e tipo di illuminazione?", a: "Colori caldi con illuminazione fredda (neon); colori freddi con illuminazione calda (incandescenza)." },
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Quale range di temperatura è ottimale per compiti semplici?", opts:["18–22 °C","26–31 °C","32–37 °C","10–15 °C"], ans:1, expl:"Per compiti semplici che richiedono un'attenzione discreta, la temperatura ottimale oscilla tra i 26 e i 31 °C." },
+  { q: "Il livello sonoro ottimale in un ambiente lavorativo è:", opts:["20–40 dB","45–65 dB","70–90 dB","sotto i 20 dB"], ans:1, expl:"Bonaiuto et al. (2004) indicano 45–65 decibel come range ottimale." },
+  { q: "Secondo Küller et al. (2006), cosa succede all'umore quando la luce supera la soglia massima?", opts:["Migliora ulteriormente","Rimane stabile","Diminuisce per fastidio","Non è correlato alla luce"], ans:2, expl:"Oltre una soglia di massima luminosità l'umore torna a diminuire, probabilmente per il fastidio causato dall'eccessiva intensità." },
+  { q: "Gifford (2007) ha rilevato che i punteggi QI in stanze dai colori brillanti erano superiori di:", opts:["10 punti","26 punti","50 punti","5 punti"], ans:1, expl:"I punteggi QI in stanze dai colori brillanti (giallo, arancio o blu) erano di 26 punti maggiori rispetto a stanze con colori spenti." },
+  { q: "Per i colori delle pareti in ufficio, Favretto e Fiorentini (1999) consigliano:", opts:["Colori molto intensi e a contrasto","Colori scuri per rilassare","Colori chiari, evitando contrasti forti","Superfici lucide e riflettenti"], ans:2, expl:"Per le pareti si consigliano colori chiari, utili per creare ambienti luminosi, evitando contrasti e colori intensi che stancano." },
+  { q: "Lo studio di Wollin e Montagne (1981) ha mostrato che rinnovare fisicamente una classe ha portato a:", opts:["Nessun cambiamento nei voti","Una riduzione dei voti","Un miglioramento significativo dei voti dopo 5 settimane","Un peggioramento del comportamento"], ans:2, expl:"Dopo 5 settimane dalla modifica, i voti degli studenti nella classe rinnovata risultavano significativamente superiori a quelli del gruppo di controllo." },
+  { q: "Quale abbinamento colori/luce è consigliato?", opts:["Colori caldi + luce calda","Colori caldi + luce fredda (neon)","Colori freddi + luce fredda","Nessun abbinamento specifico"], ans:1, expl:"Si consigliano colori caldi se l'illuminazione è fredda (neon) e colori freddi se l'illuminazione è calda (incandescenza)." },
+  { q: "Perché è consigliabile disporre gli arredi lungo le pareti (Bonaiuto et al., 2004)?", opts:["Per facilitare la pulizia","Per favorire la percezione di maggiore spazio","Per aumentare il rumore ambientale","Per migliorare la vista dalla finestra"], ans:1, expl:"Disporre gli arredi lungo le pareti favorisce la percezione da parte dei lavoratori di avere maggiore spazio a disposizione." },
+  { q: "Kaplan, Kaplan e Talbot (1988) hanno dimostrato che la vista su aree verdi:", opts:["Distrae i lavoratori","Aumenta soddisfazione e riduce lo stress","Non ha effetti significativi","Aumenta la temperatura percepita"], ans:1, expl:"La vista di aree verdi incrementava i livelli di soddisfazione lavorativa e dell'umore, riducendo lo stress." },
+  { q: "L'approccio conclusivo del documento afferma che l'ambiente di lavoro ideale deve essere:", opts:["Standardizzato e uniforme","Esteticamente appetibile e 'su misura della persona'","Minimalista e privo di decorazioni","Il più silenzioso possibile"], ans:1, expl:"L'obiettivo è creare un ambiente esteticamente appetibile ma anche 'su misura della persona', integrando psicologia e architettura." },
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Hai risposto correttamente a tutto.' :
+      pct >= 0.7 ? '👍 Ben fatto! Ripassia qualche punto debole.' :
+      '📚 Continua a studiare — riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Küller et al. (2006)", right: "Luce e curva dell'umore a U invertita" },
+  { left: "Gifford (2007)", right: "+26 punti QI in stanze con colori brillanti" },
+  { left: "Wollin & Montagne (1981)", right: "Voti migliorati dopo 5 settimane di rinnovamento" },
+  { left: "Bonaiuto et al. (2004)", right: "Suono ottimale: 45–65 decibel" },
+  { left: "Kaplan, Kaplan & Talbot (1988)", right: "Vista su verde → meno stress, più soddisfazione" },
+  { left: "Favretto & Fiorentini (1999)", right: "Pareti chiare; pavimento caldo; no superfici lucide" },
+  { left: "Paciuk (1990)", right: "Controllo diretto della temperatura → più produttività" },
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>
