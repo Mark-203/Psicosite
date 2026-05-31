@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Approccio Strategico alla Comunicazione — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 1200px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>L'Approccio Strategico alla Comunicazione</h1>
+  <p>Costruttivismo, tecniche d'intervento e l'azione umana guidata da scopi — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🏗️</div>
+      <h3>Costruttivismo Sociale</h3>
+      <p>Gli individui costruiscono attivamente la propria realtà negoziando significati nelle relazioni. L'autodeterminazione e la responsabilità personale guidano le scelte future.</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">💬</div>
+      <h3>Linguaggio Suggestivo</h3>
+      <p>Invece di descrivere le cose, la terapia strategica usa un linguaggio suggestivo e ingiuntivo. Le metafore, i paradossi e le prescrizioni aggirano le resistenze emotive e comportamentali.</p>
+      <span class="pill">Tecniche d'intervento</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎯</div>
+      <h3>De-strutturazione</h3>
+      <p>Il sintomo non è una malattia, ma un atto comunicativo disfunzionale. L'obiettivo terapeutico è destrutturarlo attraverso micro-obiettivi concreti e concordati.</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👥</div>
+      <h3>Ricalco e Sintonia</h3>
+      <p>Adottare il linguaggio verbale, le posture e i movimenti del cliente (ricalco) crea fiducia. Sguardo costante e accoglienza superano l'opposizione e aprono alla cooperazione.</p>
+      <span class="pill">Tecniche d'intervento</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🔄</div>
+      <h3>Ristrutturazione</h3>
+      <p>Modifica lo sfondo concettuale del disagio ponendolo in una cornice alternativa. Cambia la realtà di secondo ordine (significati) lasciando immutata la realtà di primo ordine (fatti).</p>
+      <span class="pill">Tecniche d'intervento</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📐</div>
+      <h3>Modello GDA</h3>
+      <p>La Goal-Directed-Action (Von Cranach e Harré) definisce l'azione un triangolo dinamico: comportamento manifesto, cognizioni coscienti (piani e scopi) e significati sociali.</p>
+      <span class="pill">L'azione umana</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🏗️ Epistemologia Costruttivista e Ruolo del Sintomo</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'approccio strategico poggia sui presupposti del costruttivismo sociale, rifiutando l'idea di una realtà oggettiva precostituita da subire.</p>
+        <ul>
+          <li><strong>Costruzione attiva:</strong> La comunicazione è il cardine fondamentale responsabile del modo in cui ogni persona percepisce sé stessa, gli altri e il contesto.</li>
+          <li><strong>Autodeterminazione:</strong> L'individuo è un soggetto agente e responsabile, non una vittima passiva degli eventi.</li>
+          <li><strong>Natura del sintomo:</strong> Il cliente non è un "malato", ma un soggetto con un problema. Il sintomo non è l'effetto biologico di una patologia, bensì un vero e proprio <strong>atto comunicativo</strong> finalizzato a relazionarsi e definire la realtà, sebbene in modo rigido e disfunzionale.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>💬 La Pragmatica della Comunicazione Terapeutica</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il cambiamento si ottiene prima a livello percettivo-emotivo ed esecutivo, e solo in un secondo momento a livello cognitivo consapevole.</p>
+        <ul>
+          <li><strong>Linguaggio Suggestivo e Ingiuntivo:</strong> Sostituisce il classico linguaggio indicativo e descrittivo. Attraverso prescrizioni dirette, induce a compiere azioni ed esperire emozioni, aggirando le resistenze inconsce della mente.</li>
+          <li><strong>Uso strategico dell'ironia e dell'umorismo:</strong> L'uso di toni ironici (verbali e non) allevia la drammaticità del sintomo, riduce le resistenze, stimola la cooperazione e permette ristrutturazioni creative di situazioni altrimenti inaccettabili (Gulotta, 1997).</li>
+          <li><strong>Ricalco:</strong> (Bandler, Grinder, 1975). Rispecchiare la terminologia, i canali rappresentazionali, la postura e i movimenti del paziente per farlo sentire accolto e guidarlo dall'interno del suo sistema di riferimento.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🛠️ Principali Tecniche e Manovre Comunicazionali</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il terapeuta assume un ruolo direttivo applicando manovre studiate per spezzare i circoli viziosi delle "tentate soluzioni".</p>
+        <ul>
+          <li><strong>Ristrutturazione:</strong> Modifica la cornice emotiva o concettuale di una situazione per alterarne il significato (Watzlawick et al., 1974). Cambia la <strong>realtà di secondo ordine</strong> (valore attribuito) mantenendo ferma la <strong>realtà di primo ordine</strong> (fatti concreti).</li>
+          <li><strong>Illusione di alternative:</strong> Proporre due scelte apparentemente opposte ma che portano allo stesso risultato terapeutico, obbligando il soggetto ad assumere un impegno (Nardone, 1991).</li>
+          <li><strong>Tecnica della confusione:</strong> Porre domande assurde ed estranee in rapida successione con tono serio; il cliente si aggrapperà ai pochi messaggi chiari inseriti strategicamente dal clinico, assimilandoli senza opporsi.</li>
+          <li><strong>Dichiarazione d'impotenza:</strong> Ideale con clienti sabotatori. Ammettendo l'incapacità di aiutarli, il terapeuta sposta sul cliente la responsabilità del mancato cambiamento, sfidandolo a dimostrare il contrario (Gulotta, 1997).</li>
+          <li><strong>Prescrizioni del sintomo (Paradossali):</strong> Ingiungere di eseguire volontariamente il comportamento sintomatico involontario (es. l'ossessione) per prenderne il controllo e interrompere la rigidità reattiva.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎯 Classificazione dei Clienti e Adattamento Strategico</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Le manovre non sono universali, ma variano rigorosamente in base al livello di cooperazione mostrato dall'interlocutore.</p>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: left; padding: 0.5rem; color: var(--lavender);">Tipo di Cliente</th>
+              <th style="text-align: left; padding: 0.5rem; color: var(--lavender);">Strategia Comunicativa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 0.5rem; border-top: 1px solid var(--border);"><strong>Collaborativo</strong></td>
+              <td style="padding: 0.5rem; border-top: 1px solid var(--border);">Linguaggio logico, descrittivo e indicativo lineare.</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem; border-top: 1px solid var(--border);"><strong>Parzialmente Collaborativo</strong></td>
+              <td style="padding: 0.5rem; border-top: 1px solid var(--border);">Linguaggio suggestivo per fare breccia nel sistema rigido e sbloccare risorse latenti.</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem; border-top: 1px solid var(--border);"><strong>Oppositivo / Resistente</strong></td>
+              <td style="padding: 0.5rem; border-top: 1px solid var(--border);">Comunicazione paradossale, doppi legami e prescrizione della resistenza stessa.</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem; border-top: 1px solid var(--border);"><strong>Inibito</strong></td>
+              <td style="padding: 0.5rem; border-top: 1px solid var(--border);">Cautela estrema; protezione iniziale delle inibizioni per poi ridurle gradualmente.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📐 L'Azione Umana: Differenza tra Comportamento e Azione (GDA)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Nel capitolo finale si analizza l'azione secondo la psicologia psicosociale (De Leo et al., 2004; Von Cranach & Harré, 1982).</p>
+        <ul>
+          <li><strong>Comportamento vs Azione:</strong> Il comportamento costituisce l'aspetto puramente osservabile. L'azione è invece un comportamento intenzionale dotato di significato e orientato a scopi psicosociali.</li>
+          <li><strong>Le 4 caratteristiche dell'azione:</strong> È consapevolmente pianificata, diretta a scopi, accompagnata da vissuti emotivi e monitorata/controllata socialmente.</li>
+          <li><strong>I tre livelli gerarchici del significato (Harré, 1993):</strong>
+            <ul>
+              <li>Le <em>azioni</em> sono i significati di movimenti ed espressioni.</li>
+              <li>Gli <em>atti</em> sono i significati delle azioni (producono trasformazioni sociali).</li>
+              <li>Gli <em>impegni e le aspettative</em> costituiscono i significati finali degli atti.</li>
+            </ul>
+          </li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔄 Il Teorema GDA e la Svolta Discorsiva</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il triangolo concettuale della Goal-Directed-Action unisce la dimensione individuale a quella macro-sociale in modo retroattivo.</p>
+        <ul>
+          <li><strong>Corso Manifesto:</strong> Il comportamento visibile ordinato in scansioni spaziali e temporali.</li>
+          <li><strong>Cognizioni Coscienti:</strong> Piani d'azione, intenzioni, valori ed emozioni stimate dall'attore sociale.</li>
+          <li><strong>Significati Sociali / Contestuali:</strong> Norme e regole interpretative fornite dalla società o dalla situazione specifica che esercitano una funzione di controllo.</li>
+          <li><strong>Effetti dell'agire:</strong> Si dividono in <em>pragmatico-strumentali</em> (vantaggi pratici e scopi manifesti) ed <em>espressivo-comunicativi</em> (comunicazione dell'identità del Sé e delle relazioni).</li>
+          <li><strong>Svolta discorsiva (Anni '90):</strong> Considera le produzioni linguistiche e discorsive non come semplici specchi della mente, ma come vere e proprie azioni sociali in grado di plasmare la realtà interattiva.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → autore/dettaglio</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Concetto / Teoria</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Autore / Definizione Esatta</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA / PUNTI CHIAVE ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Epistemologia Costruttivista</h4>
+      <p>La realtà non è data, ma attivamente rinegoziata attraverso scambi linguistici interpersonali. L'essere umano si autodetermina e guida le proprie scelte terapeutiche e relazionali.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Sintomo come Atto Comunicativo</h4>
+      <p>Il disagio psicologico perde la connotazione medica di "malattia". Diventa una modalità relazionale rigida usata dal cliente per dare significato e posizionarsi nel proprio contesto vitale.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Linguaggio Suggestivo e Ingiuntivo</h4>
+      <p>L'efficacia strategica si basa sul superamento della logica ordinaria. Si prescrivono paradossi e metafore per generare un'esperienza percettiva ed emotiva concreta prima del cambiamento cognitivo.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Realtà di 1° e 2° Ordine</h4>
+      <p>La ristrutturazione strategica interviene lasciando immutati i fatti concreti (1° ordine) ma stravolgendo radicalmente i significati e i valori attribuiti ad essi dal paziente (2° ordine).</p>
+      <div class="tl-source">Watzlawick, Weakland, Fisch (1974)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Manovra del Ricalco</h4>
+      <p>Catturare l'alleanza e disarmare le resistenze riproducendo specularmente i canali comunicativi, il vocabolario, i gesti, la postura e le espressioni non verbali del cliente.</p>
+      <div class="tl-source">Bandler, Grinder (1975); Nardone (1991)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Azione vs Comportamento</h4>
+      <p>Il comportamento è il mero movimento manifesto intercettabile dall'esterno. L'azione racchiude l'intenzionalità soggettiva, la pianificazione conscia/inconscia e l'orientamento a scopi precisi.</p>
+      <div class="tl-source">De Leo, Patrizi, De Gregorio (2004)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il Triangolo del Modello GDA</h4>
+      <p>L'azione diretta allo scopo unisce tridimensionalmente in un loop retroattivo e gerarchico il corso manifesto, i piani cognitivi interni e i vincoli normativi dei contesti sociali.</p>
+      <div class="tl-source">Von Cranach, Harré (1982)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Effetti Strumentali ed Espressivi</h4>
+      <p>Ogni atto produce effetti pragmatico-strumentali (vantaggi materiali calcolati) ed effetti espressivo-comunicativi (veicolazione e negoziazione sotterranea dell'identità del Sé).</p>
+      <div class="tl-source">Austin (1962); Scuola di Palo Alto (1967)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Svolta Discorsiva</h4>
+      <p>La transizione paradigmatica degli anni Novanta che porta l'interazione psicologica a considerare i discorsi prodotti nella comunità non come descrizioni, ma come azioni sociali a tutti gli effetti.</p>
+      <div class="tl-source">Edwards, Potter (1993); De Grada, Bonaiuto (2002)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è il presupposto fondamentale dell'approccio strategico rispetto alla realtà?", a: "Riprende il costruttivismo sociale: gli individui costruiscono la realtà tramite la negoziazione di significati nelle interazioni." },
+  { q: "Come viene considerato il 'sintomo' nella psicoterapia strategica?", a: "Non come l'effetto manifesto di una malattia biologica, ma come un atto comunicativo che definisce la relazione e la realtà del soggetto." },
+  { q: "Quale tipo di linguaggio viene adoperato per aggirare la resistenza al cambiamento?", a: "Un linguaggio suggestivo e ingiuntivo, ricco di prescrizioni, metafore e paradossi, anziché un linguaggio puramente descrittivo." },
+  { q: "In cosa consiste la tecnica del 'Ricalco' (Bandler & Grinder)?", a: "Nel riprodurre il linguaggio, il sistema rappresentativo, la postura e i movimenti del cliente per farlo sentire accolto e aggirare le resistenze." },
+  { q: "Qual è la differenza fondamentale tra realtà di primo e secondo ordine secondo Watzlawick?", a: "La realtà di primo ordine riguarda i fatti concreti, mentre la realtà di secondo ordine riguarda i significati e il valore attribuiti a tali fatti." },
+  { q: "Come funziona la tecnica dell'illusione di alternative?", a: "Il terapeuta propone due scelte che portano allo stesso obiettivo clinico, dando al paziente l'illusione di scegliere liberamente ma vincolandolo all'azione." },
+  { q: "Quando viene utilizzata la 'dichiarazione d'impotenza' del terapeuta?", a: "Con clienti oppositivi o sabotatori che cercano di vanificare il lavoro clinico, costringendoli così a prendersi la responsabilità della terapia." },
+  { q: "Come si differenzia l'azione dal comportamento secondo De Leo?", a: "Il comportamento è la parte puramente osservabile; l'azione è un comportamento intenzionale dotato di significato, scopi e controllato socialmente." },
+  { q: "Quali sono le tre dimensioni del modello GDA di Von Cranach e Harré?", a: "1) Il comportamento osservabile (corso manifesto); 2) Le cognizioni coscienti (piani e scopi); 3) I significati sociali (regole e contesto)." },
+  { q: "Quali sono i due tipi di effetti che orientano l'azione sociale?", a: "Gli effetti pragmatico-strumentali (vantaggi concreti attesi) e gli effetti espressivo-comunicativi (affermazione dell'identità del Sé e relazioni)." },
+  { q: "Cosa si intende per 'Svolta Discorsiva' in psicologia sociale?", a: "Un filone di studi degli anni '90 che considera il discorso linguistico non come specchio interno, ma come una vera e propria azione sociale costruttiva." },
+  { q: "Come gestisce il terapeuta strategico un cliente apertamente oppositivo?", a: "Usa la comunicazione paradossale e i doppi legami, invitandolo a essere oppositivo in modo da incanalare la sua resistenza verso scopi terapeutici." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Secondo il costruttivismo sociale alla base dell'approccio strategico, gli individui sono:", opts:["Soggetti passivi determinati dagli eventi biologici","Soggetti attivi che co-costruiscono la propria realtà soggettiva","Ricevitori lineari di stimoli esterni","Pazienti affetti da patologie strutturali stabili"], ans:1, expl:"L'approccio ritiene gli individui soggetti attivi capaci di autodeterminazione e di negoziazione di significati nelle interazioni." },
+  { q: "Rispetto al linguaggio clinico ordinario, la psicoterapia strategica predilige un linguaggio:", opts:["Descrittivo e indicativo","Razionale-oggettivo","Suggestivo e ingiuntivo","Informativo e matematico"], ans:2, expl:"Il linguaggio suggestivo e ingiuntivo induce azioni ed emozioni concrete capaci di superare le barriere razionali del sintomo." },
+  { q: "La tecnica della 'Ristrutturazione' agisce modificando:", opts:["I fatti oggettivi della realtà di primo ordine","Il sistema nervoso centrale del cliente","La realtà di secondo ordine (i significati e i valori attribuiti)","La cooperazione spontanea lineare"], ans:2, expl:"La ristrutturazione cambia lo sfondo concettuale ed emozionale (realtà di secondo ordine) lasciando immutati i fatti (primo ordine)." },
+  { q: "Quale manovra costringe il cliente oppositivo a impegnarsi scegliendo tra due compiti studiati?", opts:["La dichiarazione d'impotenza","L'illusione di alternative","La tecnica della confusione","Il ricalco non verbale"], ans:1, expl:"L'illusione di alternative propone due opzioni polarizzate che producono in ogni caso l'esito desiderato dal terapeuta." },
+  { q: "In quale tipologia di cliente si deve usare un linguaggio logico-descrittivo senza manovre particolari?", opts:["Clienti inibiti","Clienti oppositivi","Clienti collaborativi","Clienti parzialmente collaborativi"], ans:2, expl:"Con i pazienti pienamente collaborativi non occorrono sotterfugi strategici; è sufficiente la logica ordinaria." },
+  { q: "Nel modello GDA (Von Cranach), il comportamento osservabile e geolocalizzabile prende il nome di:", opts:["Cognizione cosciente","Significato contestuale","Corso manifesto","Ordine espressivo"], ans:2, expl:"Il corso manifesto corrisponde all'azione agita visibile, definita da scansioni e tappe spazio-temporali." },
+  { q: "Secondo Harré (1993), gli atti sociali costituiscono nello specifico:", opts:["I significati dei movimenti motori","I significati delle azioni e delle regole","I criteri costitutivi del sistema biologico","I sinonimi dei comportamenti biologici"], ans:1, expl:"Harré schematizza che le azioni sono i significati dei movimenti e gli atti sono i significati delle azioni." },
+  { q: "Gli effetti pragmatico-strumentali dell'azione sociale fanno riferimento a:", opts:["Alla regolazione dell'identità del Sé","Agli scopi latenti e nascosti","Agli effetti concreti, manifesti e ai vantaggi cercati dal soggetto","Al controllo normativo della società"], ans:2, expl:"I pragmatico-strumentali indicano i vantaggi materiali e tangibili attesi coscientemente dall'attore." },
+  { q: "La tecnica della confusione si attua somministrando:", opts:["Silenzio prolungato ed espressioni fredde","Prescrizioni rigidamente logiche ed economiche","Una serie rapida di domande assurde con atteggiamento serio e messaggi chiari innestati","Esempi concreti e prolungati per chiarire questioni generiche"], ans:2, expl:"La raffica di domande assurde disorienta la mente logica del cliente, lasciandogli come unico appiglio i messaggi terapeutici incorporati." },
+  { q: "La svolta discorsiva degli anni Novanta interpreta la produzione linguistica come:", opts:["Un riflesso dei processi cognitivi interni","Una vera e propria azione sociale costruttiva","Una variabile disturbante dell'azione","Un comportamento manifesto non motivato"], ans:1, expl:"La svolta discorsiva postula che i discorsi non descrivano la realtà sociale, ma la producano e la eseguano operativamente." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Dominio assoluto della comunicazione strategica.' :
+      pct >= 0.7 ? '👍 Ottimo punteggio! Hai assimilato gran parte delle manovre.' :
+      '📚 Occorre un ricalco dello studio — ti conviene rileggere i concetti!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Costruttivismo", right: "Negoziazione attiva di significati e autodeterminazione" },
+  { left: "Ricalco (Bandler & Grinder)", right: "Specchiare linguaggio verbale e posture del paziente" },
+  { left: "Ristrutturazione", right: "Modificare la cornice senza cambiare i fatti di 1° ordine" },
+  { left: "Teorema GDA", right: "Modello ad albero gerarchico: comportamento, piani, regole" },
+  { left: "Effetti espressivo-comunicativi", right: "Orientamento dell'azione a manifestare l'identità e il Sé" },
+  { left: "Dichiarazione d'impotenza", right: "Manovra per indurre stupore e sbloccare i sabotatori" },
+  { left: "Svolta discorsiva", right: "Le produzioni linguistiche intese come vere azioni sociali" },
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>
