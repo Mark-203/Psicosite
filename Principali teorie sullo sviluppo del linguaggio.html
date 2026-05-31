@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sviluppo del Linguaggio — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  /* ─── ACCORDION ─── */
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  /* ─── QUIZ ─── */
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── MEMORY MATCH ─── */
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>Le principali teorie sullo sviluppo del linguaggio</h1>
+  <p>Analisi dei modelli psicolinguistici, cognitivi, storici e interazionisti — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🧬</div>
+      <h3>Innatismo Cognitivo</h3>
+      <p>Secondo Noam Chomsky, gli esseri umani possiedono una predisposizione biologica innata per il linguaggio guidata dal LAD (Language Acquisition Device) e da regole universali inconsce.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Comportamentismo</h3>
+      <p>Guidato da J.B. Watson. Il linguaggio è concepito come condizionamento motorio e apprendimento associativo basato sul rinforzo skinneriano. Il pensiero coincide con il discorso subvocalico.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌍</div>
+      <h3>Relatività Linguistica</h3>
+      <p>La teoria di B.L. Whorf afferma che la struttura e il lessico di una lingua madre determinano o condizionano fortemente il pensiero, la categorizzazione della realtà e la visione del mondo.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👶</div>
+      <h3>Costruttivismo Piagetiano</h3>
+      <p>Per Jean Piaget il linguaggio è subordinato allo sviluppo cognitivo generale. Emerge dopo lo stadio senso-motorio (18 mesi) ed è caratterizzato, fino ai 6 anni, dall'egocentrismo infantile.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👥</div>
+      <h3>Evoluzione Storico-Sociale</h3>
+      <p>Lev Vygotskij pone la cultura e le interazioni sociali al centro delle funzioni superiori. Introduce la "Zona di Sviluppo Prossimale", dove l'adulto e i pari supportano attivamente l'infante.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🔄</div>
+      <h3>Approccio Interazionista</h3>
+      <p>Bruner, Schaffer e Trevarthen uniscono natura e cultura. Il linguaggio si sviluppa all'interno di routine comunicative stabili e stili specifici di interazione (es. il "baby talk").</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧬 La Psicolinguistica: Il Modello Innato e Generativo</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>A partire dagli anni '60 la psicolinguistica indaga i meccanismi psicologici interni legati alla produzione e comprensione linguistica.</p>
+        <ul>
+          <li><strong>Noam Chomsky (1965):</strong> introduce il concetto di <em>Grammatica Universale</em>. Sostiene la presenza di strutture profonde inconsce definite universali linguistici.</li>
+          <li><strong>Il LAD (Language Acquisition Device):</strong> è un dispositivo mentale geneticamente definito e comune a tutta la specie umana che rende possibile l'acquisizione sintattica automatica.</li>
+          <li><strong>Periodo Critico:</strong> l'apprendimento naturale della lingua è vincolato alla forte plasticità neurale delle prime fasi di crescita, estendendosi fino all'adolescenza.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 Il Versante Comportamentista e Fisiologico</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li><strong>J.B. Watson (1914; 1930):</strong> rifiuta l'esistenza di attività mentali astratte non osservabili. Il linguaggio è concepito unicamente come un comportamento verbale esplicito basato su concatenazioni di risposte a stimoli.</li>
+          <li><strong>Il Pensiero come Discorso Subvocalico:</strong> nel corso della crescita il bambino sperimenta tre fasi: pensiero ad alta voce, bisbiglio, e infine interiorizzazione completa in età adulta (parlare silenziosamente con se stessi).</li>
+          <li>Le azioni mentali derivano da risposte di natura periferica (sensomotoria, articolatoria, viscerale), mentre la laringe fa da perno fisiologico agli apprendimenti associativi.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌍 Il Determinismo Linguistico di Whorf</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Questa impostazione si colloca all'estremo opposto rispetto all'innatismo universale di Chomsky.</p>
+        <ul>
+          <li><strong>B.L. Whorf (1956):</strong> enuncia la teoria della relatività linguistica. I modelli espressivi non sono identici, ma variano radicalmente da cultura a cultura, condizionando la percezione stessa degli eventi esterni.</li>
+          <li><strong>Ampiezza del Lessico:</strong> comunità esposte a specifici bisogni sviluppano dizionari iper-analitici. Gli eschimesi usano molti termini diversi per descrivere lo stato della neve; nelle Filippine esistono 92 lemmi differenti per il riso; le popolazioni arabe possiedono distinzioni analoghe per i cammelli.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👶 Jean Piaget e le Fasi di Sviluppo del Bambino</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Per la scuola piagetiana, lo sviluppo linguistico costituisce un sottosistema dipendente dai processi dell'intelligenza generale.</p>
+        <ul>
+          <li><strong>Fase Prelinguistica (0-3 mesi):</strong> strilli legati a bisogni biologici primari e precoce discriminazione acustica della voce materna.</li>
+          <li><strong>Lallazione (dal 3° mese):</strong> combinazioni consonante-vocale. Verso il 7°-8° mese le emissioni sonore si allineano con i fonemi nativi dell'ambiente circostante.</li>
+          <li><strong>Fase Monosillabica (10-12 mesi):</strong> uso intenzionale di singole parole per scopi pratici. Emergono i fenomeni di <em>iperestensione</em> (una parola per troppi oggetti) e <em>ipoestensione</em> (ristrettezza semantica eccessiva). Emerge dopo la conclusione dei primi 18 mesi del periodo senso-motorio.</li>
+          <li><strong>Linguaggio Telegrafico (18-24 mesi):</strong> enunciati essenziali composti da due o tre parole.</li>
+          <li><strong>Stadio Preoperatorio (2-6 anni):</strong> caratterizzato dall'<em>egocentrismo infantile</em>. I bambini attuano un "monologo collettivo", ossia parlano a se stessi pur trovandosi in gruppo, faticando a integrare il punto di vista dell'interlocutore.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👥 Lev Vygotskij: La Matrice Storico-Culturale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li>Ogni funzione cognitiva superiore si manifesta due volte nel corso dello sviluppo: prima a livello sociale ed esterno (<strong>interpsicologico</strong>) e successivamente all'interno della mente del soggetto (<strong>intrapsicologico</strong>).</li>
+          <li><strong>Zona di Sviluppo Prossimale (ZSP):</strong> rappresenta lo spazio cognitivo compreso tra il livello di rendimento autonomo del bambino e il potenziale massimo raggiungibile sotto la guida di un adulto o in collaborazione con i pari.</li>
+          <li><strong>Apprendimento per Imitazione:</strong> all'interno della ZSP il bambino apprende imitando le sequenze d'azione finalizzate degli adulti, strutturando così l'intenzionalità comunicativa.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔄 Le Teorie Interazioniste: Bruner, Schaffer e Trevarthen</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Gli interazionisti concepiscono lo sviluppo del linguaggio come il frutto di una costante coordinazione dinamica tra dotazione biologica innata e ambiente d'apprendimento.</p>
+        <ul>
+          <li><strong>H.R. Schaffer (1977):</strong> osserva la sintonizzazione diadica sin dal periodo dell'allattamento. L'alternanza biologica tra suzione e pause funge da vera e propria struttura protoconversazionale.</li>
+          <li><strong>C. Trevarthen (1979):</strong> descrive il <em>"materese" (baby talk)</em>, un codice comunicativo caratterizzato da alterazioni dell'intonazione e della frequenza vocale a cui il bambino risponde attivamente a partire dai 6-7 mesi.</li>
+          <li><strong>Jerome Bruner (1975; 1977):</strong> evidenzia il ruolo delle <em>routine comunicative familiari</em>. Le regole astratte del linguaggio vengono interiorizzate a partire dall'osservazione pratica dei contesti d'uso interattivi. Pensiero e linguaggio coincidono, differenziandosi solo dal punto di vista funzionale.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → dettaglio</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Concetto / Fonte</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Dettaglio / Dato</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Linguistica Strutturale (Anni Venti - Cinquanta)</h4>
+      <p>Lo studio del linguaggio è stato a lungo dominato dall'idea che la lingua costituisca un insieme astratto di segni analizzabili prevalentemente nelle sue strutture formali e statiche.</p>
+      <div class="tl-source">Ferdinand De Saussure (1916)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il Comportamentismo: L'azione verbale e periferica</h4>
+      <p>Il pensiero non gode di statuto mentale autonomo, bensì si realizza direttamente tramite le parole. Si evolve dall'esprimersi ad alta voce, passando dal bisbiglio, fino a tradursi in discorso subvocalico nell'adulto.</p>
+      <div class="tl-source">J.B. Watson (1914; 1930)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Nascita del LAD e della Grammatica Universale</h4>
+      <p>Viene teorizzata l'esistenza di un codice genetico innato della mente umana (Language Acquisition Device), comune a tutti gli individui e slegato dalle specifiche differenze culturali o geografiche.</p>
+      <div class="tl-source">Noam Chomsky (1965)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Relatività Linguistica: Le parole plasmano il mondo</h4>
+      <p>I modelli linguistici determinano la visione del mondo dei parlanti. Lo testimoniano le decine di lemmi usati dagli eschimesi per la neve o i novantadue nomi filippini per il riso.</p>
+      <div class="tl-source">B.L. Whorf (1956)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il primato dello sviluppo cognitivo generale</h4>
+      <p>Il linguaggio non è indipendente, ma è un sottosistema dell'intelligenza. L'acquisizione vera e propria si verifica solo al completamento della fase senso-motoria (primi 18 mesi).</p>
+      <div class="tl-source">Jean Piaget (1936)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Egocentrismo Infantile e il Monologo Collettivo</h4>
+      <p>Nello stadio preoperatorio (2-6 anni) l'infante sperimenta una comunicazione frammentata, incentrata sul proprio punto di vista. Nei contesti di gruppo si osserva il fenomeno del "monologo collettivo".</p>
+      <div class="tl-source">Jean Piaget (Stadio Preoperatorio)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Zona di Sviluppo Prossimale (ZSP)</h4>
+      <p>Lo sviluppo delle funzioni psichiche superiori poggia sulla distanza tra problem-solving autonomo e potenziale assistito. L'interazione interpsicologica precede sempre quella intrapsicologica.</p>
+      <div class="tl-source">Lev Vygotskij (1936)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La turnazione biologica dell'allattamento</h4>
+      <p>Le pause e i momenti di suzione alternati durante l'allattamento fungono da precursori sociali e biologici della conversazione linguistica, definendo il neonato come partner competente.</p>
+      <div class="tl-source">H.R. Schaffer (1977)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il "Materese" o Baby Talk</h4>
+      <p>Le madri e i neonati co-costruiscono uno stile espressivo unico incentrato su toni alti e modulazioni affettive. Verso i 6-7 mesi il bambino mostra aspettative precise verso tale interazione.</p>
+      <div class="tl-source">C. Trevarthen (1979)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Le Routine Comunicative Familiari</h4>
+      <p>Ciò che è innato non è una specifica regola grammaticale, ma la predisposizione alle relazioni sociali. Il linguaggio si apprende come strumento di regolazione del lavoro e dell'attenzione comune.</p>
+      <div class="tl-source">Jerome Bruner (1975; 1977)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è il concetto cardine della teoria di Noam Chomsky sul linguaggio?", a: "La presenza innata della Grammatica Universale e del LAD (Language Acquisition Device), strutture genetiche biologiche universali comuni a tutti gli uomini." },
+  { q: "In cosa consiste l'ipotesi del determinismo linguistico di Whorf?", a: "Sostiene che la cultura, per mezzo della lingua nativa, determina o influenza radicalmente il pensiero e il modo in cui le persone categorizzano la realtà." },
+  { q: "Cosa intende J.B. Watson per 'discorso subvocalico'?", a: "L'interiorizzazione del pensiero in età adulta. Il pensiero per i comportamentisti non è un'attività mentale astratta, ma parole pronunciate a se stessi in modo silenzioso." },
+  { q: "Qual è la posizione di Jean Piaget sul rapporto tra linguaggio e intelligenza?", a: "Il linguaggio è un sottosistema dello sviluppo cognitivo generale. Non può essere isolato ed è reso possibile solo dall'evoluzione dell'intelligenza." },
+  { q: "Cos'è il 'monologo collettivo' individuato da Piaget?", a: "Una forma di comunicazione tipica dell'egocentrismo infantile (2-6 anni) in cui i bambini, pur trovandosi insieme, parlano ciascuno a se stesso senza considerare l'interlocutore." },
+  { q: "Come definisce Lev Vygotskij la Zona di Sviluppo Prossimale?", a: "È la distanza tra il livello attuale di sviluppo autonomo del bambino e il livello di sviluppo potenziale raggiungibile mediante la collaborazione di adulti o pari." },
+  { q: "Quali sono le due tappe (sociale e individuale) descritte da Vygotskij per ogni funzione psichica?", a: "Ogni funzione compare prima a livello sociale esterno (interpsicologico) e successivamente viene interiorizzata a livello individuale interno (intrapsicologico)." },
+  { q: "Cosa dimostrano le ricerche di H.R. Schaffer sui neonati durante l'allattamento?", a: "Che l'alternanza regolare tra momenti di suzione e pause costituisce una prima forma naturale di interazione e coordinazione sociale interattiva (protoconversazione)." },
+  { q: "Cos'è il 'materese' o 'baby talk' secondo Trevarthen?", a: "Uno stile comunicativo speciale e transitorio tra madre e figlio, caratterizzato da un'intonazione e voce peculiari, a cui l'infante risponde attivamente a 6-7 mesi." },
+  { q: "Cosa sostiene Jerome Bruner circa l'acquisizione delle regole del linguaggio?", a: "Le regole linguistiche non sono innate in senso stretto, ma vengono apprese dal bambino osservando la loro applicazione pratica all'interno delle routine sociali con la madre." },
+  { q: "Quali sono i fenomeni semantici di iperestensione e ipoestensione nella fase monosillabica?", a: "Iperestensione: usare un'unica parola per indicare più oggetti (es. 'cane' per tutti gli animali). Ipoestensione: usare un termine generale per riferirsi solo a un oggetto specifico." },
+  { q: "Quali sono i limiti del modello psicologico tradizionale della comunicazione secondo il testo?", a: "Considera il linguaggio in modo lineare come mera prestazione verbale isolata dalle altre funzioni cognitive, trascurando la comprensione e il contesto d'uso socio-culturale." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Cosa indica l'acronimo LAD coniato da Noam Chomsky?", opts:["Language Acquisition Device","Linguistic Association Domain","Lateral Action Development","Logical Abstract Device"], ans:0, expl:"Il LAD è il Language Acquisition Device, un dispositivo mentale innato e geneticamente definito deputato all'acquisizione del linguaggio." },
+  { q: "Secondo Watson (comportamentismo), a cosa corrisponde il pensiero in età adulta?", opts:["A una struttura cognitiva profonda","A un discorso subvocalico del tutto interiorizzato","Alla zona di sviluppo prossimale","A un insieme astratto di simboli"], ans:1, expl:"Watson ritiene che il pensiero coincida direttamente con le parole e che in età adulta si strutturi come un discorso subvocalico interiorizzato." },
+  { q: "Quale autore ha studiato i bambini eschimesi e filippini per supportare la relatività linguistica?", opts:["N. Chomsky","J. Piaget","B.L. Whorf","J. Bruner"], ans:2, expl:"B.L. Whorf ha usato gli studi sui diversi termini per indicare la neve (eschimesi) o il riso (filippini) per dimostrare il determinismo linguistico." },
+  { q: "Secondo Jean Piaget, l'acquisizione del linguaggio avviene in seguito a quale fase?", opts:["Alla fase senso-motoria dei primi 18 mesi","Allo stadio preoperatorio","Alla fase di acquisizione grammaticale avanzata","Alla lallazione monosillabica precoce"], ans:0, expl:"Piaget sostiene che il linguaggio emerga solo dopo la conclusione della fase senso-motoria dei primi 18 mesi, legata all'esplorazione del mondo." },
+  { q: "Il fenomeno del 'monologo collettivo' fa parte di quale stadio dello sviluppo per Piaget?", opts:["Stadio senso-motorio","Stadio delle operazioni formali","Stadio preoperatorio","Fase prelinguistica"], ans:2, expl:"Il monologo collettivo si osserva nello stadio preoperatorio (2-6 anni) ed è una diretta espressione dell'egocentrismo infantile." },
+  { q: "La distanza tra il livello attuale di problem-solving autonomo e il livello potenziale assistito è:", opts:["Il LAD di Chomsky","La Zona di Sviluppo Prossimale di Vygotskij","Il relativismo lessicale di Whorf","La routine interazionista di Bruner"], ans:1, expl:"Si tratta della Zona di Sviluppo Prossimale teorizzata da Vygotskij, ambito in cui avviene l'incontro tra sviluppo naturale e culturale." },
+  { q: "Secondo Vygotskij, ogni funzione dello sviluppo culturale del bambino si manifesta prima a livello:", opts:["Intrapsicologico (individuale)","Biologico (innato)","Interpsicologico (sociale)","Subvocalico (fisiologico)"], ans:2, expl:"Per Vygotskij le funzioni compaiono prima a livello sociale durante le interazioni (interpsicologico) e poi dentro l'individuo (intrapsicologico)." },
+  { q: "Quale autore ha evidenziato l'alternanza tra suzione e pause nell'allattamento come protoconversazione?", opts:["H.R. Schaffer","N. Chomsky","J.B. Watson","B.L. Whorf"], ans:0, expl:"Schaffer (1977) ha individuato in questa coordinazione biologica innata la prova che il neonato è un partner sociale e comunicativo competente." },
+  { q: "Il 'materese' o 'baby talk' studiato da Trevarthen è caratterizzato da:", opts:["Uso esclusivo di gesti simbolici complessi","Un peculiare tipo di voce, intonazione e modulazione affettiva","Assenza totale di fonemi linguistici reali","Strutture sintattiche telegrafiche rigide"], ans:1, expl:"Il baby talk è uno stile vocale affettivo e intonato, co-costruito tra madre e neonato per sintonizzare lo scambio comunicativo." },
+  { q: "Per Jerome Bruner, il linguaggio e il pensiero si differenziano:", opts:["Esclusivamente a livello funzionale","In modo totale ed ereditario","Solo in base alla cultura di appartenenza","Perché il pensiero è innato e il linguaggio è appreso"], ans:0, expl:"Bruner fa equivalere il processo del linguaggio al processo cognitivo. Essi coincidono e vanno a differenziarsi unicamente a livello funzionale." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Hai risposto correttamente a tutto.' :
+      pct >= 0.7 ? '👍 Ben fatto! Ripassa qualche punto debole.' :
+      '📚 Continua a studiare — riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Noam Chomsky", right: "LAD e Grammatica Universale" },
+  { left: "J.B. Watson", right: "Discorso subvocalico interiorizzato" },
+  { left: "B.L. Whorf", right: "Relatività e determinismo linguistico" },
+  { left: "Jean Piaget", right: "Linguaggio subordinato alla cognizione" },
+  { left: "Lev Vygotskij", right: "Zona di Sviluppo Prossimale (ZSP)" },
+  { left: "H.R. Schaffer", right: "Suzione e pause nell'allattamento" },
+  { left: "Jerome Bruner", right: "Routine e scambi sociali familiari" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>
