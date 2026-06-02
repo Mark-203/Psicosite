@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Conflitti Sociali — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  /* ─── ACCORDION ─── */
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  /* ─── QUIZ ─── */
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── MEMORY MATCH ─── */
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>I Confronti e i Conflitti Sociali</h1>
+  <p>Processi intragruppo, intergruppi, delegittimazione e deumanizzazione — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">⚔️</div>
+      <h3>Natura del Conflitto</h3>
+      <p>Il conflitto è un processo dinamico che si dispiega nel tempo. Può essere latente o manifesto, influenzato da cause macro (politiche, economiche) e filtrato da processi cognitivi soggettivi.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👥</div>
+      <h3>Relazioni Intergruppi</h3>
+      <p>I comportamenti riflettono gli interessi del gruppo. Interessi contrapposti creano competizione e ostilità; scopi sovraordinati e comuni promuovono la cooperazione.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🆔</div>
+      <h3>Identità Sociale</h3>
+      <p>Il comportamento umano oscilla lungo un continuum interpersonale/intergruppi. Più ci si sposta verso l'estremo intergruppi, più emerge la depersonalizzazione e il pensiero stereotipato.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🛑</div>
+      <h3>Conflitti Intrattabili</h3>
+      <p>Conflitti prolungati, violenti e a "somma zero", guidati da questioni di identità profonda (etnica o religiosa). Generano un pensiero speculare e l'ideologia dell'antagonismo.</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🚫</div>
+      <h3>Delegittimazione</h3>
+      <p>Processo di categorizzazione dell'outgroup in classi sociali estremamente negative, poste fuori dalle norme accettabili. Spiana la strada ad atti di discriminazione e violenza collettiva.</p>
+      <span class="pill">Sezione 4</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🤖</div>
+      <h3>Deumanizzazione</h3>
+      <p>Forma estrema di esclusione morale. Può essere animalistica (negazione di tratti unicamente umani) o meccanicistica (negazione della natura umana, riducendo l'altro a un oggetto).</p>
+      <span class="pill">Sezione 4</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⚔️ Le Origini e le Cause del Conflitto Umano</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il conflitto è un processo dinamico che si sviluppa e si trasforma nel tempo. Può assumere forme dirette (guerre, aggressioni) o rimanere latente per decenni sotto forme indirette e sottili.</p>
+        <ul>
+          <li><strong>Macro-livello:</strong> Interessa dinamiche politiche, culturali, economiche, storiche, etniche e religiose (es. la crisi economica globale del 2008 come innesco oggettivo di conflitti sociali).</li>
+          <li><strong>Filtro Cognitivo:</strong> La realtà oggettiva viene costantemente filtrata da processi percettivi e attribuzionali soggettivi. Un semplice fraintendimento può escalare a causa di interpretazioni troppo personali di toni o battute.</li>
+          <li><strong>Cause principali:</strong> Emozioni non gestite, ignoranza, rigidità cognitiva (stereotipi e pregiudizi), comunicazione bloccata, incompatibilità di interessi e cattiva gestione organizzativa dei compiti.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👥 Studi Intergruppi e Scopi Sovraordinati (Sherif)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Gli atteggiamenti e i comportamenti delle persone riflettono strettamente gli interessi oggettivi del proprio gruppo di appartenenza.</p>
+        <ul>
+          <li><strong>Esperimento di Robber's Cave (Sherif, 1966):</strong> Condotto in un campo estivo, ha dimostrato che quando gli interessi di due gruppi sono in conflitto si genera competizione, pregiudizio e ostilità aperta verso l'outgroup.</li>
+          <li><strong>Cooperazione:</strong> Se gli interessi dei gruppi coincidono per il raggiungimento di uno scopo comune (scopo sovraordinato), scaturisce naturalmente un atteggiamento cooperativo e amichevole.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🆔 Il Continuum Interpersonale-Intergruppi e la Depersonalizzazione</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Henri Tajfel (1981) propone un modello in cui il comportamento umano è posto lungo un continuum teorico:</p>
+        <ul>
+          <li><strong>Estremo Interpersonale:</strong> L'interazione è determinata dalle relazioni personali e dalle caratteristiche uniche dei singoli (es. una coppia mista o amici di nazionalità diverse). Massima variabilità di comportamento.</li>
+          <li><strong>Estremo Intergruppi:</strong> L'interazione è interamente guidata dall'appartenenza categoriale. I membri dell'outgroup vengono visti come elementi indifferenziati e interscambiabili ("tutte le donne", "tutti gli stranieri"), portando a forti giudizi di valore e pregiudizi.</li>
+          <li><strong>Depersonalizzazione (Turner, 1982):</strong> La ridefinizione cognitiva del Sé (da individuo unico a membro interscambiabile di un gruppo). Genera coesione interna, cameratismo e solidarietà ("Senso del Noi"), ma polarizza l'ostilità verso l'esterno.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🛑 Conflitti Risolvibili vs Intrattabili</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I conflitti sociali estremi si dividono radicalmente in base a gravità e durata:</p>
+        <ul>
+          <li><strong>Conflitti Risolvibili:</strong> Hanno durata limitata, obiettivi negoziabili, basso coinvolgimento esistenziale. Le parti intravedono soluzioni e usano la mediazione, evitando la violenza estrema.</li>
+          <li><strong>Conflitti Intrattabili:</strong> Prolungati nel tempo, distruttivi, legati a identità nazionali, etniche o religiose. Presentano un carattere <strong>totalizzante</strong> (minaccia all'esistenza stessa del gruppo) e sono giochi a <strong>somma zero</strong> (se uno vince, l'altro perde tutto).</li>
+          <li><strong>Ideologia dell'Antagonismo:</strong> Si crea un pensiero speculare e un'immagine rigidamente stereotipata del nemico. L'inimicizia diventa parte integrante dell'identità collettiva del gruppo ("Noi" vs "Loro" mutualmente nemici), bloccando ogni via di riconciliazione.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🚫 Il Processo di Delegittimazione (Bar-Tal)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Daniel Bar-Tal (1990) descrive il modello che prepara e accompagna le forme più violente di discriminazione collettiva:</p>
+        <ul>
+          <li><strong>Definizione:</strong> Consiste nell'inserire un intero gruppo in categorie sociali estremamente negative, collocandolo al di fuori delle norme e dei valori socialmente accettabili.</li>
+          <li><strong>Esclusione Radicale:</strong> Al gruppo delegittimato viene negato ogni contatto sociale, un'esclusione regolata da rigide norme del proprio gruppo e accompagnata da intense emozioni negative (fino ad arrivare all'annientamento fisico).</li>
+          <li><strong>Fattori favorenti:</strong> Il desiderio di elevare il proprio ingroup, la necessità di sfruttare l'outgroup, la percezione di una forte <strong>minaccia</strong> e la marcata differenza percepita (divisione netta fra bene e male, come nel caso degli ebrei nel regime nazista).</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🤖 Le Forme di Deumanizzazione (Haslam e Leyens)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La deumanizzazione è il sintomo più grave dell'<strong>esclusione morale</strong> (Susan Opotow, 1990), che sposta le vittime fuori dai confini della giustizia e rende normale l'inaccettabile.</p>
+        <ul>
+          <li><strong>Infraumanizzazione (Leyens, 2000):</strong> Tendenza ad attribuire all'outgroup pochissime "emozioni secondarie" (emozioni unicamente umane come vergogna, tenerezza, imbarazzo), considerandoli biologicamente inferiori.</li>
+          <li><strong>Modello di Nick Haslam (2006) - Due Tipi di Deumanizzazione:</strong>
+            <br>1. <strong>Deumanizzazione Animalistica:</strong> Vengono negate le caratteristiche <i>Unicamente Umane (UH)</i> (cultura, finezza, moralità, logica). Gli altri sono visti come animali, rozzi, ignoranti e schiavi degli istinti. Storicamente associata ai genocidi (es. ebrei visti come topi, i tutsi in Ruanda visti come scarafaggi).
+            <br>2. <strong>Deumanizzazione Meccanicistica:</strong> Vengono negate le qualità della <i>Natura Umana (HN)</i> (calore emotivo, empatia, apertura mentale, profondità). L'altro viene percepito come un robot, una macchina fredda, inerte e insensibile.</li>
+          <li><strong>Oggettivazione e Dolore (Morris et al., 2018):</strong> Gli studi dimostrano che l'oggettivazione incentrata sull'apparenza genera deumanizzazione meccanicistica. Chi viene percepito come un "oggetto" viene considerato meno capace di provare dolore, eliminando il freno morale durante le violenze.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 15</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → dettaglio</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Concetto / Fonte</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Dettaglio / Dato</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 8</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Natura Soggettiva del Conflitto</h4>
+      <p>I conflitti reali (es. innescati dalla crisi economica del 2008) non dipendono solo dalla realtà oggettiva, ma vengono filtrati da attribuzioni causali e bias comunicativi spiccatamente individuali.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1966 — Gli Scopi Sovraordinati di Sherif</h4>
+      <p>Gli esperimenti di Robber's Cave dimostrano che gli interessi materiali contrapposti creano ostilità aperta, mentre scopi comuni che richiedono interdipendenza positiva azzerano i pregiudizi.</p>
+      <div class="tl-source">Muzafer Sherif (1966)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1981 — Il Continuum del Comportamento Sociale</h4>
+      <p>Tajfel teorizza lo spostamento dal comportamento interpersonale (basato su caratteristiche individuali) a quello intergruppi (basato su categorie rigide e uniformità dell'ingroup).</p>
+      <div class="tl-source">Henri Tajfel (1981)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1982 — La Depersonalizzazione nel Gruppo</h4>
+      <p>Il passaggio psicologico dal Sé individuale al senso del "Noi". Produce cameratismo interno, ma rende gli individui interscambiabili ed esaspera la dicotomia ingroup/outgroup.</p>
+      <div class="tl-source">John Turner (1982)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>I Conflitti Intrattabili a "Somma Zero"</h4>
+      <p>Si differenziano dai conflitti risolvibili. Hanno valore totalizzante, durano decenni, non ammettono compromessi (se uno vince l'altro perde tutto) e si basano sull'ideologia dell'antagonismo.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1990 — Il Modello di Delegittimazione</h4>
+      <p>La categorizzazione sistematica dell'outgroup in classi sociali poste al di fuori dei confini morali. È alimentata dal senso di minaccia ed è il preludio alle violenze di massa.</p>
+      <div class="tl-source">Daniel Bar-Tal (1990)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1990 — Il Concetto di Esclusione Morale</h4>
+      <p>Il processo psicologico insidioso che pone determinati individui o gruppi al di fuori dei confini delle norme, della giustizia e della considerazione morale, normalizzando l'ingiusto.</p>
+      <div class="tl-source">Susan Opotow (1990)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>2000 — L'Infraumanizzazione e le Emozioni</h4>
+      <p>Gli studi provano che le persone tendono a negare all'outgroup la capacità di provare "emozioni secondarie" (unicamente umane, come la vergogna o la tenerezza), riservandole solo all'ingroup.</p>
+      <div class="tl-source">Jacques-Philippe Leyens (2000)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>2006 — La Doppia Mappa della Deumanizzazione</h4>
+      <p>Haslam divide il fenomeno in Deumanizzazione Animalistica (mancanza di cultura e razionalità) e Deumanizzazione Meccanicistica (mancanza di calore ed empatia, riducendo l'altro a un robot).</p>
+      <div class="tl-source">Nick Haslam (2006)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>2018 — Oggettivazione Meccanicistica e Dolore</h4>
+      <p>Viene sperimentalmente dimostrato che trattare l'essere umano come un mero oggetto (es. oggettivazione sull'apparenza) riduce la percezione della sua capacità di provare dolore fisico.</p>
+      <div class="tl-source">Morris, Goldenberg & Boyd (2018)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è la differenza principale tra conflitti risolvibili e intrattabili?", a: "I risolvibili hanno durata limitata e obiettivi negoziabili; gli intrattabili durano nel tempo, sono a somma zero (senza compromessi) e intaccano l'identità profonda dei gruppi." },
+  { q: "Cosa dimostrò Muzafer Sherif (1966) nell'esperimento di Robber's Cave?", a: "Che gli interessi conflittuali tra gruppi generano ostilità e pregiudizio, mentre il perseguimento di scopi comuni (sovraordinati) promuove la cooperazione." },
+  { q: "Cos'è il continuum del comportamento sociale proposto da Tajfel (1981)?", a: "Una linea teorica tra il comportamento interpersonale (guidato da caratteristiche individuali) e il comportamento intergruppi (guidato interamente dall'appartenenza di gruppo)." },
+  { q: "Cosa si intende per 'depersonalizzazione' secondo Turner (1982)?", a: "Il processo cognitivo per cui l'individuo smette di vedersi come singolo unico e si percepisce come membro interscambiabile del proprio gruppo." },
+  { q: "Qual è la caratteristica dell'effetto 'totalizzante' nei conflitti sociali estremi?", a: "Il fatto che il conflitto coinvolga valori e obiettivi indispensabili per la sopravvivenza stessa o per l'esistenza biologica e culturale del gruppo." },
+  { q: "Cos'è un gioco a 'somma zero' nei contesti di conflitto?", a: "Una situazione in cui non esiste spazio per il compromesso: la vittoria totale di una parte coincide necessariamente con la perdita totale e distruttiva dell'altra." },
+  { q: "Come definisce Daniel Bar-Tal (1990) il processo di delegittimazione?", a: "La categorizzazione di determinati gruppi in classi sociali estremamente negative, escludendoli in modo permanente dai valori e dalle norme accettabili." },
+  { q: "Quali sono le due condizioni principali che facilitano la delegittimazione?", a: "La percezione di un forte senso di minaccia da parte dell'outgroup e l'esistenza di marcate e rigide differenze percepite tra i gruppi." },
+  { q: "Cos'è l'esclusione morale secondo Susan Opotow (1990)?", a: "Un processo psicologico insidioso in cui persone o gruppi vengono collocati fuori dai confini morali, della giustizia e delle norme comuni, rendendo normale ciò che è ingiusto." },
+  { q: "In cosa consiste l'infraumanizzazione indagata da Leyens (2000)?", a: "Nella tendenza ad attribuire ai membri dell'outgroup meno emozioni secondarie (unicamente umane come vergogna, tenerezza o imbarazzo) rispetto all'ingroup." },
+  { q: "Quali sono le due forme di deumanizzazione teorizzate da Nick Haslam (2006)?", a: "La deumanizzazione animalistica (rifiuto delle caratteristiche unicamente umane) e la deumanizzazione meccanicistica (negazione delle qualità della natura umana)." },
+  { q: "Cos'è la deumanizzazione animalistica?", a: "Il percepire gli altri come privi di cultura, logica e moralità, considerandoli come bruti, selvaggi e schiavi degli istinti biologici." },
+  { q: "Cos'è la deumanizzazione meccanicistica?", a: "Il percepire gli altri come freddi, privi di empatia, privi di flessibilità cognitiva e calore umano, assimilandoli ad oggetti, robot o macchine." },
+  { q: "Cosa ha dimostrato lo studio di Morris et al. (2018) sull'oggettivazione?", a: "Che l'oggettivazione sessuale genera deumanizzazione animalistica, mentre l'oggettivazione sull'apparenza causa deumanizzazione meccanicistica." },
+  { q: "Quale drammatica conseguenza cognitiva è legata alla deumanizzazione meccanicistica?", a: "L'altro viene percepito come un oggetto e, di conseguenza, considerato biologicamente meno capace di provare dolore, legittimando condotte violente." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Negli studi di Sherif (1966), cosa riduce significativamente l'ostilità intergruppi?", opts:["La discussione teorica dei pregiudizi","L'introduzione di scopi sovraordinati comuni","L'isolamento prolungato dei gruppi","L'aumento della competizione"], ans:1, expl:"Sherif ha dimostrato che quando gli interessi dei gruppi coincidono per uno scopo comune, si attiva un comportamento cooperativo." },
+  { q: "Secondo Tajfel (1981), più una situazione si avvicina all'estremo 'intergruppi':", opts:["Maggiore sarà la variabilità dei comportamenti individuali","Maggiore sarà l'uniformità mostrata dai membri dell'ingroup","Minore sarà il ricorso a stereotipi","Maggiore sarà l'attenzione alle affinità personali"], ans:1, expl:"Tajfel afferma che all'estremo intergruppi aumenta l'uniformità d'azione e la tendenza a considerare l'outgroup come una categoria indifferenziata." },
+  { q: "Il concetto di 'depersonalizzazione' (Turner, 1982) implica che il soggetto:", opts:["Perda totalmente la propria salute mentale","Si veda come relativamente intercambiabile con gli altri membri dell'ingroup","Sviluppi un'ostilità verso il proprio gruppo","Rifiuti le etichette formali"], ans:1, expl:"La depersonalizzazione consiste nella ridefinizione del Sé come membro di un gruppo, rendendosi interscambiabile con gli alleati." },
+  { q: "Quale caratteristica definisce propriamente un conflitto 'intrattabile'?", opts:["La presenza di obiettivi di scarsa importanza","Il fatto che sia un gioco a somma zero senza compromessi","La sua breve durata nel tempo","La facilità nel trovare una mediazione"], ans:1, expl:"I conflitti intrattabili sono prolungati, violenti e vissuti come giochi a somma zero, dove la vittoria di uno implica la distruzione dell'altro." },
+  { q: "Cos'è l'ideologia dell'antagonismo nei conflitti estremi?", opts:["Un sistema di leggi internazionali di pace","La percezione dell'altro come nemico integrata nella propria identità collettiva","Un processo di negoziazione politica","Il rifiuto totale della violenza"], ans:1, expl:"È la distorsione cognitiva per cui l'inimicizia verso l'outgroup diventa parte integrante e necessaria dell'esistenza stessa del proprio gruppo." },
+  { q: "Bar-Tal (1990) definisce la delegittimazione come un processo derivante da:", opts:["L'inclusione morale di tutti i gruppi","La categorizzazione di gruppi valutati tramite categorie sociali estremamente negative","Il superamento degli stereotipi etnici","La cooperazione internazionale guidata dall'economia"], ans:1, expl:"La delegittimazione inserisce l'altro in categorie talmente negative da posizionarlo stabilmente ai limiti dei valori sociali accettabili." },
+  { q: "Nel modello di Leyens (2000), l'infraumanizzazione si manifesta quando si negano all'altro:", opts:["Le emozioni primarie (rabbia, paura)","Le emozioni secondarie (vergogna, tenerezza, imbarazzo)","I bisogni biologici primari","Le capacità motorie di base"], ans:1, expl:"Leyens ha provato che l'infraumanizzazione colpisce le emozioni secondarie, considerate unicamente e specificamente umane." },
+  { q: "Secondo Nick Haslam (2006), la deumanizzazione meccanicistica nega:", opts:["Le caratteristiche unicamente umane (UH) come la cultura","Le qualità della natura umana (HN) come il calore e l'empatia","Gli istinti biologici animali","La razionalità logica formale"], ans:1, expl:"La deumanizzazione meccanicistica colpisce le qualità della natura umana (HN), percependo l'altro come un oggetto freddo o un robot." },
+  { q: "Gli storici esempi della Shoah o del genocidio in Ruanda mostrano l'attivazione di:", opts:["Deumanizzazione meccanicistica basata sulla tecnologia","Deumanizzazione animalistica (topi, scarafaggi) con conseguente disimpegno morale","Semplici dinamiche interpersonali di coppia","Conflitti risolvibili a breve termine"], ans:1, expl:"Assimilare gli esseri umani ad animali parassiti (topi o scarafaggi) costituisce la forma classica della deumanizzazione animalistica." },
+  { q: "Nello studio di Morris et al. (2018), una persona disumanizzata meccanicisticamente viene percepita come:", opts:["Più intelligente della media","Meno capace di provare dolore fisico","Fortemente empatica e affettuosa","Schiava dei propri istinti sessuali"], ans:1, expl:"L'oggettivazione meccanicistica riduce la capacità percepita della vittima di provare dolore, facilitando e legittimando l'azione violenta." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Hai padronanza assoluta della psicologia dei conflitti.' :
+      pct >= 0.7 ? '👍 Ben fatto! Ottima conoscenza dei modelli teorici.' :
+      '📚 Continua a studiare — ripassa i concetti di Haslam, Tajfel e Bar-Tal!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Muzafer Sherif (1966)", right: "Esperimento Robber's Cave e scopi sovraordinati" },
+  { left: "Henri Tajfel (1981)", right: "Continuum comportamento interpersonale-intergruppi" },
+  { left: "John Turner (1982)", right: "Ridefinizione cognitiva del Sé e depersonalizzazione" },
+  { left: "Daniel Bar-Tal (1990)", right: "Modello di delegittimazione ed esclusione radicale" },
+  { left: "Susan Opotow (1990)", right: "Esclusione morale fuori dai confini della giustizia" },
+  { left: "Jacques Leyens (2000)", right: "Infraumanizzazione e negazione di emozioni secondarie" },
+  { left: "Nick Haslam (2006)", right: "Deumanizzazione animalistica vs meccanicistica" },
+  { left: "Morris et al. (2018)", right: "Oggettivazione e minor percezione del dolore fisico" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>
