@@ -29,6 +29,7 @@
     overflow-x: hidden;
   }
 
+  /* ─── NOISE OVERLAY ─── */
   body::before {
     content: '';
     position: fixed;
@@ -38,6 +39,7 @@
     z-index: 0;
   }
 
+  /* ─── HEADER ─── */
   header {
     position: relative;
     text-align: center;
@@ -76,6 +78,7 @@
     font-size: 1rem;
   }
 
+  /* ─── NAV TABS ─── */
   nav {
     display: flex;
     justify-content: center;
@@ -109,10 +112,12 @@
     border-color: var(--lavender);
   }
 
+  /* ─── SECTIONS ─── */
   .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
   .section.active { display: block; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* ─── SECTION TITLE ─── */
   .section-title {
     font-family: 'Syne', sans-serif;
     font-size: 1.7rem;
@@ -124,6 +129,7 @@
   }
   .section-title span.emoji { font-size: 1.5rem; }
 
+  /* ─── SUMMARY CARDS ─── */
   .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
   .summary-card {
     background: var(--card);
@@ -151,6 +157,7 @@
     border-radius: 100px;
   }
 
+  /* ─── ACCORDION ─── */
   .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
   .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   .acc-header {
@@ -169,12 +176,13 @@
   .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
   .acc-item.open .acc-arrow { transform: rotate(180deg); }
   .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-  .acc-item.open .acc-body { max-height: 1000px; }
+  .acc-item.open .acc-body { max-height: 800px; }
   .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
   .acc-body-inner strong { color: var(--gold); }
   .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
   .acc-body-inner li { margin-bottom: 0.4rem; }
 
+  /* ─── QUIZ ─── */
   .quiz-container { max-width: 680px; margin: 0 auto; }
   .quiz-progress-bar {
     height: 4px;
@@ -241,6 +249,7 @@
   }
   .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
 
+  /* ─── FLASHCARDS ─── */
   .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
   .flashcard {
     width: 100%;
@@ -294,6 +303,7 @@
   .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
   .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
 
+  /* ─── MEMORY MATCH ─── */
   .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
   .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
   .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
@@ -331,6 +341,7 @@
   }
   .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
 
+  /* ─── TIMELINE ─── */
   .timeline { position: relative; padding-left: 2rem; }
   .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
   .tl-item { position: relative; margin-bottom: 1.8rem; }
@@ -351,6 +362,7 @@
 
   hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 
+  /* ─── RESPONSIVE ─── */
   @media (max-width: 600px) {
     .match-grid { grid-template-columns: 1fr; }
     .flashcard { aspect-ratio: 4/3; }
@@ -362,7 +374,7 @@
 <header>
   <div class="tag">Università Mercatorum · Irene Petruccelli</div>
   <h1>L'Azione Deviante Comunicativa</h1>
-  <p>Analisi sequenziale, paradigmi ecologici ed effetti espressivi della devianza</p>
+  <p>Studio psicologico-giuridico e funzioni metacomunicative dell'atto sociale — studio interattivo</p>
 </header>
 
 <nav>
@@ -380,39 +392,39 @@
   <div class="summary-grid">
     <div class="summary-card">
       <div class="card-icon">🧠</div>
-      <h3>Ottica Socio-Costruzionista</h3>
-      <p>Superamento del vecchio modello psicopatologico. L'attore deviante viene considerato come un costruttore consapevole delle proprie azioni in interazione continua e reciproca con il suo ambiente sociale.</p>
-      <span class="pill">Introduzione</span>
+      <h3>Socio-Costruzionismo</h3>
+      <p>Superata la vecchia visione puramente psicopatologica. L'attore deviante è oggi considerato un costruttore consapevole delle sue azioni in interazione con l'ambiente.</p>
+      <span class="pill">Sezione 1</span>
     </div>
     <div class="summary-card">
       <div class="card-icon">💬</div>
       <h3>Messaggi Metacomunicativi</h3>
-      <p>L'atto criminale o deviante non è un mero scarto strutturale, bensì un potente atto sociale che veicola specifici significati espressivi sull'identità del suo autore e sulle sue reali aspettative relazionali.</p>
-      <span class="pill">Introduzione</span>
+      <p>La devianza agisce come un atto sociale che veicola significati sull'identità dell'autore e sulle sue precise aspettative relazionali e di risultato.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📣</div>
+      <h3>Amplificazione della Regola</h3>
+      <p>Trasgredire le norme sociali serve ad amplificare la comunicazione, costringendo i sistemi di controllo (formali e informali) a reagire fornendo un feedback di significazione.</p>
+      <span class="pill">Sezione 2</span>
     </div>
     <div class="summary-card">
       <div class="card-icon">🔄</div>
-      <h3>Analisi Sequenziale</h3>
-      <p>Modello del Prof. De Leo che traccia la storia del soggetto, il significato soggettivo del crimine rispetto alla continuazione del Sé e le tappe evolutive verso l'assunzione di uno stabile stile di vita delinquenziale.</p>
-      <span class="pill">Il pensiero di De Leo</span>
+      <h3>Effetti Anticipati del Sé</h3>
+      <p>L'azione deviante esprime "cosa" e "come" il soggetto comunica a se stesso e agli altri sulla propria identità, fungendo da sperimentazione della propria soggettività.</p>
+      <span class="pill">Sezione 2</span>
     </div>
     <div class="summary-card">
-      <div class="card-icon">📢</div>
-      <h3>Amplificazione del Messaggio</h3>
-      <p>Infrangere le norme sociali attira le reazioni del sistema di controllo formale e informale. Questo scambio di feedback ricorsivo tra la società e il deviante dà forma ai processi clinici e sociali di significazione.</p>
-      <span class="pill">Il pensiero di De Leo</span>
+      <div class="card-icon">⏳</div>
+      <h3>Le 3 Fasi Processuali</h3>
+      <p>Il percorso della devianza attraversa gli antecedenti storici, una fase intermedia di crisi (in cui la devianza è vista come unico canale comunicativo) e la stabilizzazione dell'identità deviante.</p>
+      <span class="pill">Sezione 3</span>
     </div>
     <div class="summary-card">
-      <div class="card-icon">⚡</div>
-      <h3>Gli Effetti Anticipati</h3>
-      <p>L'azione persegue intenzionalmente specifici effetti articolati in quattro aree principali: Effetti del Sé, Effetti di Relazione, Effetti di Controllo e infine Effetti di Cambiamento terapeutico o interpersonale.</p>
-      <span class="pill">Il pensiero di De Leo</span>
-    </div>
-    <div class="summary-card">
-      <div class="card-icon">🎯</div>
-      <h3>Goal-Directed Action</h3>
-      <p>Attraverso l'analisi metodologica della narrazione e dei discorsi dell'autore di reato si giunge a ricostruire la struttura cognitiva complessa (azione orientata allo scopo) analizzando il legame tra passato, presente e futuro.</p>
-      <span class="pill">Funzioni Comunicative</span>
+      <div class="card-icon">🤝</div>
+      <h3>Approccio Trattamentale</h3>
+      <p>In sede di mediazione reo-vittima, la comunicazione permette al reo di smontare i meccanismi di disimpegno cognitivo e alla vittima di recuperare un Sé positivo.</p>
+      <span class="pill">Sezione 3</span>
     </div>
   </div>
 </section>
@@ -424,77 +436,74 @@
 
     <div class="acc-item">
       <div class="acc-header" onclick="toggleAcc(this)">
-        <span>🧠 1. Dall'etichettamento all'ottica ecologico-relazionale</span>
+        <span>🧠 Il Passaggio di Paradigma dagli anni '60 ad Oggi</span>
         <span class="acc-arrow">▾</span>
       </div>
       <div class="acc-body"><div class="acc-body-inner">
-        <p>A partire dagli anni Sessanta, gli studi criminologici si distaccano da visioni unicamente deterministiche o riduttive:</p>
+        <p>A partire dagli anni Sessanta, gli studi sulla spiegazione dell'azione deviante hanno abbandonato le rigide cornici clinico-psicopatologiche o i punti di vista esterni basati sul puro etichettamento.</p>
         <ul>
-          <li><strong>Superamento del modello psicopatologico:</strong> Il deviante smette di essere analizzato come un semplice "scarto della società" o etichettato passivamente.</li>
-          <li><strong>Punto di vista ecologico e socio-costruzionista:</strong> L'autore del reato è inteso come attore attivo, consapevole, integrato in una rete ricorsiva e autoreferenziale con sé stesso e con i sistemi relazionali (famiglia e contesti sociali).</li>
-          <li><strong>Radici teoriche:</strong> Si fa riferimento alla Pragmatica della comunicazione della Scuola di Palo Alto, all'approccio strategico e alle teorie discorsive o narrative. L'agire manifesto rivela un sistema cognitivo organizzato.</li>
+          <li><strong>Ottica Ecologica e Socio-Costruzionista:</strong> Considera l'attore deviante come un costruttore consapevole delle sue scelte, inserito in un'interazione ricorsiva con i sistemi relazionali (famiglia e società).</li>
+          <li><strong>Teorie Sistemico-Comunicative:</strong> Si rifanno alla Pragmatica della comunicazione della Scuola di Palo Alto, ai metodi strategici e alle teorie narrative. L'agire manifesto mostra una profondità significativa in cui la scelta del reato comunica precisi stati cognitivi.</li>
         </ul>
       </div></div>
     </div>
 
     <div class="acc-item">
       <div class="acc-header" onclick="toggleAcc(this)">
-        <span>📋 2. Il modello sequenziale e l'amplificazione secondo De Leo</span>
+        <span>💬 Il Pensiero di De Leo e l'Amplificazione del Messaggio</span>
         <span class="acc-arrow">▾</span>
       </div>
       <div class="acc-body"><div class="acc-body-inner">
-        <p>Il Prof. De Leo e collaboratori (2004) definiscono la devianza come <strong>"una forma potente, particolare ed estrema di comunicazione"</strong>. L'analisi non valuta solo il contenuto ("cosa") ma la guida espressivo-conoscitiva ("come"):</p>
+        <p>De Leo e collaboratori (2004) definiscono la devianza come "una forma potente, particolare ed estrema di comunicazione", focalizzandosi non solo sul contenuto del crimine ("cosa") ma anche sulla narrazione e sulle modalità espressive ("come").</p>
         <ul>
-          <li><strong>Analisi sequenziale:</strong> Esplora la storia personale, la continuazione del Sé, e i passaggi processuali che portano alla carriera delinquenziale.</li>
-          <li><strong>Amplificazione (Matza, 1969):</strong> Trasgredire le regole costringe i sistemi di controllo sociali (formali e informali) a reagire, amplificando a dismisura il messaggio e costringendo alla diffusione dei significati (es. omicidi di mafia).</li>
-          <li><strong>Feedback ricorsivo:</strong> Il soggetto manda e riceve messaggi sul significato sociale di sé. La dimensione espressiva si potenzia quando vi è un'incongruenza strumentale (es. omicidio del partner che minaccia di andare via).</li>
+          <li><strong>David Matza (1969):</strong> Sottolinea che l'azione deviante agisce come un amplificatore comunicativo. Infrangere la norma attira inevitabilmente l'attenzione dei sistemi di controllo formali e informali.</li>
+          <li><strong>Esempio di Spicco:</strong> Le diverse tipologie di omicidio perpetrate dalle organizzazioni mafiose vengono lette come messaggi espliciti volti a comunicare motivi simbolici e di potere a livello sociale.</li>
+          <li><strong>Scambio di feedback:</strong> La risposta punitiva o sanzionatoria della società costituisce il feedback simbolico che completa il processo di co-costruzione del significato dell'atto deviante.</li>
         </ul>
       </div></div>
     </div>
 
     <div class="acc-item">
       <div class="acc-header" onclick="toggleAcc(this)">
-        <span>⚡ 3. I quattro effetti espressivi anticipati dell'azione</span>
+        <span>⚙️ I Quattro Effetti Espressivi Anticipati</span>
         <span class="acc-arrow">▾</span>
       </div>
       <div class="acc-body"><div class="acc-body-inner">
-        <p>L'attore sociale ricerca e ottiene in modo mirato specifici effetti attraverso l'atto deviante:</p>
+        <p>Quando la funzione espressiva supera quella puramente strumentale (situazione tipica dei crimini passionali o della devianza adolescenziale), il soggetto ricerca attivamente quattro tipologie di effetti:</p>
         <ul>
-          <li><strong>a) Effetti del Sé:</strong> Cosa e come l'individuo intende comunicare a sé e agli altri sulla propria identità e storia relazionale. Permette la sperimentazione e l'elaborazione dell'identità sociale.</li>
-          <li><strong>b) Effetti di relazione:</strong> Regolano la comunicazione, definiscono ruoli, poteri e obiettivi. Ad esempio, nella violenza carnale l'autore esprime dinamiche di deprivazione del ruolo sessuale e perdita di legittimazione; nella devianza adolescenziale si esprime spesso un bisogno di attenzione e contenimento da parte degli adulti.</li>
-          <li><strong>c) Effetti di controllo:</strong> Messaggi diretti alle agenzie di controllo e normativo-istituzionali. Il soggetto si autoregola su norme proprie (es. devianza minorile contro il sistema familiare).</li>
-          <li><strong>d) Effetti di cambiamento:</strong> Mirano a rompere equilibri disfunzionali allo sviluppo del Sé o a ricercare forzatamente stabilità se il cambiamento è vissuto come minaccia (es. liti familiari che svelano realtà sommerse).</li>
+          <li><strong>Effetti del Sé:</strong> Informazioni su "cosa" e "come" l'individuo comunica a se stesso e agli altri sulla propria identità e storia relazionale (collegato alla presentazione del Sé di Goffman).</li>
+          <li><strong>Effetti di Relazione:</strong> Messaggi volti a stabilire ruoli, poteri e obiettivi. Ad esempio, nello stupro il reo esprime il suo vissuto di deprivazione sessuale e perdita di legittimazione; nell'adolescenza la trasgressione comunica bisogno di ascolto e contenimento.</li>
+          <li><strong>Effetti di Controllo:</strong> Comunicazioni dirette alle agenzie normative. Il soggetto si autoregola su norme proprie sfidando palesemente il sistema formale o l'equilibrio familiare.</li>
+          <li><strong>Effetti di Cambiamento:</strong> Tentativi volti a rompere equilibri familiari disfunzionali/violenti oppure, al contrario, a bloccare un mutamento esterno percepito come grave minaccia per il Sé.</li>
         </ul>
       </div></div>
     </div>
 
     <div class="acc-item">
       <div class="acc-header" onclick="toggleAcc(this)">
-        <span>🎯 4. Le tre fasi processuali della devianza e la Goal-Directed Action</span>
+        <span>⏳ L'Analisi Sequenziale e le Tre Fasi della Devianza</span>
         <span class="acc-arrow">▾</span>
       </div>
       <div class="acc-body"><div class="acc-body-inner">
-        <p>L'azione è sintesi di cognizione, emozione, relazioni e simboli, suddivisa in un percorso a tre stadi evolutivi:</p>
+        <p>L'azione comunicativa sintetizza la dimensione temporale del soggetto (passato, presente e futuro) condensandola nell'atto. Il processo di sviluppo della condotta criminale si divide in tre momenti chiave:</p>
         <ul>
-          <li><strong>Fase 1: Antecedenti storici.</strong> Il soggetto ricorre alla funzione espressiva iniziale per rendere visibili agli altri i propri bisogni interni insoddisfatti.</li>
-          <li><strong>Fase 2: Crisi intermedia.</strong> Fase di transizione tra episodi agiti e percepiti come devianti. Il soggetto sente di non avere altri canali comunicativi efficaci e vede la devianza come unica via. In questa fase permane flessibilità per un recupero adattativo.</li>
-          <li><strong>Fase 3: Stabilizzazione della devianza.</strong> L'individuo definisce la propria identità in senso totalmente deviante, eleggendola a unica forma comunicativa stabile di sé.</li>
-          <li><strong>Goal-directed-action:</strong> Ricostruibile scientificamente dall'esperto tramite metodologie discorsive e narrative (il racconto della propria storia nel qui ed ora).</li>
+          <li><strong>1. Fase degli Antecedenti Storici:</strong> Il retroterra personale, sociale e relazionale in cui maturano i primi disagi del soggetto.</li>
+          <li><strong>2. Fase Intermedia di Crisi:</strong> Periodo critico tra gli episodi agiti e quelli percepiti internamente come devianti. Il soggetto sente di non avere altri canali comunicativi validi per esprimere i propri bisogni e sceglie la devianza come unica via possibile. *Nota: in questo stadio vi è ancora flessibilità per interventi preventivi o adattivi.*</li>
+          <li><strong>3. Fase di Stabilizzazione:</strong> L'individuo definisce rigidamente la propria identità in senso deviante, eleggendo il crimine a forma esclusiva di comunicazione personale e sociale.</li>
         </ul>
       </div></div>
     </div>
 
     <div class="acc-item">
       <div class="acc-header" onclick="toggleAcc(this)">
-        <span>🤝 5. Interventi trattamentali e mediazione reo-vittima</span>
+        <span>🤝 Dimensione Trattamentale e Mediazione Reo-Vittima</span>
         <span class="acc-arrow">▾</span>
       </div>
       <div class="acc-body"><div class="acc-body-inner">
-        <p>L'approccio comunicativo trova applicazione clinica e terapeutica concreta nel lavoro sul legame e sulla relazione reo-vittima:</p>
+        <p>A livello terapeutico e clinico-giuridico, comprendere l'azione come costrutto comunicativo permette l'attivazione di percorsi trattamentali di tipo breve strategico applicati alla mediazione:</p>
         <ul>
-          <li><strong>Recupero di un Sé positivo:</strong> Ottenibile mediante la rilettura guidata e reciproca delle rispettive condotte durante i percorsi istituzionali o clinici.</li>
-          <li><strong>Spazio alla vittima:</strong> Può sfogare la propria rabbia legittima ed esigere risposte o spiegazioni reali dal carnefice sul danno subìto.</li>
-          <li><strong>Lavoro cognitivo sul reo:</strong> L'ascolto attivo e protetto stimola l'empatia dell'autore di reato, mettendolo a confronto diretto con le sue distorsioni cognitive e con i suoi radicati meccanismi di disimpegno morale. Questo modello è tipico dell'approccio psicologico breve strategico in sede di mediazione.</li>
+          <li><strong>Il Ruolo della Vittima:</strong> Ottiene la possibilità di chiedere spiegazioni dirette sulle motivazioni del crimine e di elaborare e scaricare la propria rabbia repressa, favorendo la ricostruzione di un Sé positivo.</li>
+          <li><strong>Il Ruolo del Reo:</strong> Attraverso il confronto emotivo e verbale con le parole e la sofferenza della vittima, viene forzato a sviluppare capacità empatica, mettendo a confronto i vissuti reali della controparte con le proprie distorsioni cognitive e con i classici meccanismi di disimpegno morale.</li>
         </ul>
       </div></div>
     </div>
@@ -551,67 +560,73 @@
   <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
   <div class="match-grid">
     <div class="match-col">
-      <h4>Concetto / Autore</h4>
+      <h4>Concetto / Fonte</h4>
       <div id="match-left"></div>
     </div>
     <div class="match-col">
-      <h4>Dettaglio / Definizione</h4>
+      <h4>Dettaglio / Dato</h4>
       <div id="match-right"></div>
     </div>
   </div>
-  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 8</div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
   <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
 </section>
 
-<!-- ════════════════════════════════ CRONOLOGIA / PUNTI CHIAVE ════════════════════════════════ -->
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
 <section id="cronologia" class="section">
   <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
   <div class="timeline">
     <div class="tl-item">
       <div class="tl-dot"></div>
-      <h4>Anni '60 — Svolta Socio-Costruzionista</h4>
-      <p>Lo studio della devianza supera l'ottica deterministica, medica e psicopatologica pura per accogliere concezioni interattive ed ecologiche dell'attore sociale.</p>
+      <h4>Anni '60 — Il Cambio di Paradigma</h4>
+      <p>La spiegazione della devianza esce dall'ambito puramente psicopatologico ed entra in una visione ecologica e socio-costruzionista: il reo è attore consapevole.</p>
     </div>
     <div class="tl-item">
       <div class="tl-dot"></div>
-      <h4>La Devianza come Comunicazione Estrema</h4>
-      <p>L'azione non è solo una violazione strutturale ma un evento metacomunicativo complesso focalizzato sul "come" il soggetto esprime e narra sé stesso.</p>
+      <h4>La Devianza come potente Comunicazione</h4>
+      <p>L'analisi sequenziale e approfondita si concentra non solo sul contenuto del reato ("cosa"), ma sulle modalità discorsive, scopi e narrazioni del Sé ("come").</p>
       <div class="tl-source">De Leo et al. (2004)</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot"></div>
-      <h4>Amplificazione del Messaggio sociale</h4>
-      <p>La violazione intenzionale della norma amplifica la comunicazione poiché costringe i sistemi di controllo formali e informali a produrre feedback immediati.</p>
-      <div class="tl-source">Matza (1969)</div>
+      <h4>La Funzione di Amplificazione</h4>
+      <p>Infrangere le regole sociali e commettere un illecito serve ad amplificare l'impatto del messaggio, attirando forzatamente la risposta delle agenzie di controllo.</p>
+      <div class="tl-source">David Matza (1969)</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot"></div>
-      <h4>Effetti del Sé</h4>
-      <p>I cambiamenti strutturali negoziati e prodotti dall'azione sul sistema agente che permettono la continua elaborazione attiva della soggettività.</p>
-      <div class="tl-source">Goffman (1959)</div>
+      <h4>Gli Effetti del Sé</h4>
+      <p>Cambiamenti negoziati prodotti dall'atto criminale sulla propria organizzazione soggettiva; l'azione permette di inviare e ricevere informazioni sulla propria identità.</p>
+      <div class="tl-source">Goffman (1959); Patrizi (2004)</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot"></div>
-      <h4>Effetti di Relazione</h4>
-      <p>Ridefinizione della natura dei rapporti, dei ruoli, del potere. Spiega bisogni di contenimento o vissuti di forte deprivazione del proprio ruolo originario.</p>
+      <h4>La Devianza Minorile come Sfida Relazionale</h4>
+      <p>I comportamenti criminali o trasgressivi in adolescenza esprimono, a livello relazionale anticipato, un profondo bisogno di attenzione e contenimento da parte degli adulti.</p>
       <div class="tl-source">Centrella et al. (2004)</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot"></div>
-      <h4>La fase intermedia di Crisi</h4>
-      <p>Fase di stallo in cui il soggetto percepisce l'azione criminale come l'unico canale espressivo possibile rimasto, pur mantenendo margini di flessibilità clinica.</p>
-      <div class="tl-source">De Leo & Patrizi (2002)</div>
+      <h4>La Fase di Crisi Intermedia</h4>
+      <p>Fase clinica cruciale in cui il soggetto reputa la devianza come l'unico canale comunicativo rimasto a disposizione per esprimere esigenze di cambiamento. Permane flessibilità adattiva.</p>
+      <div class="tl-source">De Leo e Patrizi (2002)</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot"></div>
-      <h4>Stabilizzazione dell'Identità Deviante</h4>
-      <p>Fase finale del percorso in cui la condotta criminale viene integralmente eletta dal soggetto a forma esclusiva e definitiva di espressione di sé.</p>
-      <div class="tl-source">De Leo & Patrizi (2002)</div>
+      <h4>La Fase di Stabilizzazione Identitaria</h4>
+      <p>Fase terminale in cui il soggetto abbraccia pienamente e stabilmente l'identità deviante, trasformandola nella sua unica e rigida forma di espressione nel sociale.</p>
+      <div class="tl-source">De Leo e Patrizi (2002)</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot"></div>
-      <h4>Mediazione Breve Strategica</h4>
-      <p>Metodologia trattamentale volta ad accrescere le capacità empatiche del reo, smantellando i suoi meccanismi cognitivi di disimpegno morale.</p>
+      <h4>L'Incongruenza Strumentale / Espressiva</h4>
+      <p>La dimensione comunicativo-espressiva emerge con massima forza nei reati (es. uxoricidio) dove vi è una totale illogicità tra i vantaggi pratici attesi e le reali conseguenze distruttive.</p>
+      <div class="tl-source">De Leo et al. (2004)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Mediazione Strategica Breve</h4>
+      <p>L'uso della narrazione in sede di trattamento permette di decostruire le distorsioni cognitive del reo e far recuperare equilibrio emotivo alla vittima.</p>
       <div class="tl-source">Petruccelli (2002)</div>
     </div>
   </div>
@@ -636,18 +651,18 @@ function toggleAcc(header) {
 
 /* ─── FLASHCARDS ─── */
 const flashcards = [
-  { q: "Cosa si intende per approccio socio-costruzionista nell'analisi della devianza?", a: "Un'ottica che considera l'attore deviante come costruttore consapevole delle sue azioni in interazione reciproca con l'ambiente, superando la visione puramente psicopatologica." },
-  { q: "Come definiscono la devianza De Leo e collaboratori (2004)?", a: "La definiscono 'una forma potente, particolare ed estrema di comunicazione', andando oltre il contenuto del reato." },
-  { q: "Qual è il ruolo dell'amplificazione secondo Matza (1969)?", a: "La violazione delle regole amplifica il messaggio perché suscita le reazioni e l'interesse dei sistemi sociali di controllo formali e informali." },
-  { q: "Cosa sono gli 'Effetti del Sé' in un'azione deviante?", a: "Ciò che l'autore comunica a se stesso e agli altri sulla propria identità, permettendo l'elaborazione e la sperimentazione della propria soggettività." },
-  { q: "Cosa esprime, a livello relazionale, la violazione delle regole in adolescenza?", a: "Esprime spesso un forte bisogno di attenzione, ascolto e contenimento da parte delle figure adulte di riferimento." },
-  { q: "In cosa consistono gli 'Effetti di controllo' nell'azione criminale?", a: "Messaggi destinati alle agenzie di controllo formali o informali, in cui l'autore dimostra di autoregolarsi sulla base di norme puramente personali." },
-  { q: "Qual è lo scopo degli 'Effetti di cambiamento' cercati dal reo?", a: "Rompere equilibri relazionali disfunzionali allo sviluppo di sé, oppure difendere la stabilità quando una modifica esterna viene vissuta come minaccia." },
-  { q: "Cosa dimostra l'esempio criminologico dell'omicidio del partner che vuole lasciare la casa?", a: "Un potenziamento della dimensione espressiva a discapito di quella strumentale, rendendo visibili gli incastri disfunzionali della diade." },
-  { q: "Quali sono le tre fasi del percorso processuale della devianza?", a: "1) Antecedenti storici (bisogni visibili), 2) Fase di crisi intermedia (scelta della devianza come unico canale), 3) Stabilizzazione (identità eletta a devianza)." },
-  { q: "Cos'è la 'Goal-Directed-Action' e come si ricostruisce?", a: "È l'azione orientata a uno scopo, individuabile metodologicamente analizzando i discorsi e la struttura narrativa dell'autore di reato." },
-  { q: "In cosa consiste l'uso della comunicazione a livello trattamentale tra reo e vittima?", a: "Un percorso di mediazione per ridefinire le condotte, in cui la vittima esprime la rabbia e il reo riduce le proprie distorsioni cognitive ed evoca l'empatia." },
-  { q: "Quali scuole teoriche sostengono la profondità psicologica delle apparenze comportamentali?", a: "La Pragmatica della comunicazione (Palo Alto), l'approccio strategico e le teorie discorsive o narrative." }
+  { q: "Quale mutamento di paradigma si è verificato a partire dagli anni Sessanta nello studio della devianza?", a: "Si è passati da un'ottica puramente clinico-psicopatologica a un approccio socio-costruzionista ed ecologico, vedendo il deviante come attore consapevole." },
+  { q: "Come definiscono la devianza De Leo e collaboratori (2004)?", a: "La definiscono 'una forma potente, particolare ed estrema di comunicazione', focalizzandosi sia sul 'cosa' sia sul 'come' il reo parla di sé." },
+  { q: "Qual è la funzione della devianza secondo gli studi di David Matza?", a: "La devianza ha una funzione di amplificazione comunicativa: serve a diffondere messaggi e a forzare una reazione (feedback) da parte della società." },
+  { q: "Che cosa si intende per 'Effetti del Sé' nell'azione deviante?", a: "Ciò che l'attore intende comunicare a se stesso e agli altri sulla propria identità, storia personale e stile di interazione durante l'atto." },
+  { q: "Cosa esprimono gli 'Effetti di Relazione' nel caso della violenza carnale?", a: "Esprimono il modo del reo di intendere i rapporti, ma anche vissuti profondi di deprivazione del ruolo sessuale e perdita di legittimazione sociale." },
+  { q: "Quali sono le tre fasi dell'analisi sequenziale del processo deviante?", a: "1) Antecedenti storici, 2) Fase intermedia di crisi (tra episodi agiti e percepiti), 3) Stabilizzazione dell'azione e dell'identità deviante." },
+  { q: "Cosa caratterizza la fase intermedia di crisi nel percorso deviante?", a: "Il soggetto ritiene di non poter usare altri canali per esprimere bisogni di cambiamento, ma conserva ancora una flessibilità verso esiti adattivi." },
+  { q: "Cosa succede nella fase finale di stabilizzazione della devianza?", a: "L'individuo definisce permanentemente la propria identità in senso deviante, eleggendola a unica forma comunicativa di sé." },
+  { q: "In quali tipi di crimine si osserva maggiormente il potenziamento della dimensione espressiva?", a: "Nelle azioni in cui vi è una forte incongruenza strumentale tra attese ed esiti distruttivi reali, come nell'omicidio del partner." },
+  { q: "Come viene sfruttata la comunicazione nell'approccio breve strategico in sede di mediazione?", a: "Permette alla vittima di esprimere la rabbia e avere risposte, e forza il reo a confrontarsi con le proprie distorsioni cognitive e meccanismi di disimpegno." },
+  { q: "Da quali discipline trae fondamento l'approccio sistemico-comunicativo alla devianza?", a: "Dalla pragmatica della comunicazione (Scuola di Palo Alto), dall'approccio strategico, dalla psicologia sociale discorsiva e dalle teorie narrative." },
+  { q: "Quale significato assumono le violazioni delle regole negli adolescenti secondo Centrella (2004)?", a: "Esprimono un effetto relazionale anticipato volto a richiedere attenzione, ascolto e contenimento da parte delle figure adulte." }
 ];
 
 let fcIndex = 0;
@@ -665,16 +680,16 @@ updateCard();
 
 /* ─── QUIZ ─── */
 const questions = [
-  { q: "A partire da quale decennio gli studi sulla devianza hanno abbracciato l'ottica socio-costruzionista?", opts:["Anni Quaranta","Anni Sessanta","Anni Novanta","Anni Duemila"], ans:1, expl:"Il testo evidenzia che a partire dagli anni Sessanta il focus si è spostato uscendo dall'ottica puramente psicopatologica." },
-  { q: "Chi definisce la devianza come una forma potente, particolare ed estrema di comunicazione?", opts:["Matza","Goffman","De Leo e collaboratori","Watzlawick"], ans:2, expl:"Il contributo fondamentale di De Leo e collaboratori (2004) si incentra proprio su questa definizione." },
-  { q: "Secondo Matza (1969), la messa in atto di un comportamento deviante permette di:", opts:["Azzerare i feedback","Cancellare la storia personale","Amplificare la comunicazione del messaggio","Evitare il controllo sociale"], ans:2, expl:"La trasgressione amplifica i messaggi poiché attira le reazioni immediate dei sistemi formali e informali di controllo." },
-  { q: "Quale effetto espressivo mira a stabilire ruoli, obiettivi e dinamiche di potere?", opts:["Effetto del Sé","Effetto di relazione","Effetto di controllo","Effetto di stabilità"], ans:1, expl:"Gli effetti di relazione definiscono l'azione stessa, stabilendo i ruoli, i poteri e i vissuti relazionali sottostanti." },
-  { q: "In quale fase del processo della devianza si sperimenta la crisi e si sceglie la devianza come unico canale possibile?", opts:["Prima fase (Antecedenti)","Seconda fase (Crisi intermedia)","Terza fase (Stabilizzazione)","Fase post-trattamentale"], ans:1, expl:"Nella seconda fase il soggetto ritiene di non poter disporre di altri canali comunicativi, pur mantenendo ancora una certa flessibilità adattiva." },
-  { q: "Nello studio dei comportamenti degli adolescenti, quale funzione risulta spesso predominante?", opts:["Funzione economica","Funzione strumentale","Funzione espressiva","Funzione istituzionale"], ans:2, expl:"Nei comportamenti adolescenziali la funzione espressiva risulta solitamente di maggiore importanza rispetto a quella strumentale." },
-  { q: "La Goal-Directed-Action si raggiunge a livello metodologico attraverso l'analisi di:", opts:["Dati statistici sul reato","Narrazioni e racconti dell'autore","Tratti biologici ed ereditari","Solamente le conseguenze strutturali"], ans:1, expl:"Le metodologie discorsive e narrative costituiscono la guida espressivo-conoscitiva per cogliere la profondità dell'azione." },
-  { q: "In sede di mediazione reo-vittima, l'ascolto delle parole della vittima permette al reo di:", opts:["Aumentare il disimpegno morale","Accrescere la capacità empatica e contrastare le distorsioni cognitive","Ottenere l'assoluzione automatica","Modificare gli antecedenti storici"], ans:1, expl:"L'ascolto mette a confronto il reo con gli effetti del danno, intaccando le sue distorsioni e i suoi meccanismi di disimpegno." },
-  { q: "L'esempio degli omicidi commessi dalle organizzazioni mafiose viene citato nel testo per illustrare:", opts:["La mancanza di scopi espressivi","L'amplificazione e diffusione dei significati del messaggio","La disfunzione cognitiva giovanile","La pragmatica della Scuola di Palo Alto"], ans:1, expl:"Gli omicidi di mafia sono portati come esempio di azioni volte a rendere evidente ed amplificare il messaggio veicolato dall'autore." },
-  { q: "Gli effetti espressivi legati alla sfida in aperta rottura contro il sistema familiare fanno parte di:", opts:["Effetti del Sé","Effetti strumentali puri","Effetti di controllo","Effetti neuroscientifici"], ans:2, expl:"Gli effetti di controllo sono centrali nelle azioni che sfidano o veicolano messaggi diretti alle agenzie di controllo e alle regole trasgredite." }
+  { q: "A partire dagli anni Sessanta, l'approccio socio-costruzionista considera l'attore deviante come:", opts:["Un soggetto affetto da patologie mentali innate","Un costruttore consapevole delle sue azioni in interazione con l'ambiente","Un mero elemento passivo di etichettamento sociale","Un soggetto privo di capacità metacomunicativa"], ans:1, expl:"Il paradigma ecologico e socio-costruzionista restituisce centralità all'attore come generatore cosciente di significati relazionali." },
+  { q: "Secondo De Leo (2004), la devianza è descritta principalmente come:", opts:["Una carenza di socializzazione secondaria","Un deficit cognitivo ereditario","Una forma potente, particolare ed estrema di comunicazione","Un fallimento strutturale delle istituzioni scolastiche"], ans:2, expl:"De Leo pone l'accento sulla profonda valenza espressiva e comunicativa insita nell'azione deviante." },
+  { q: "Secondo David Matza, la trasgressione delle regole sociali permette di:", opts:["Azzerare i feedback della società","Ridurre l'autoconsapevolezza dell'attore","Amplificare la comunicazione e diffondere i messaggi dell'autore","Evitare il coinvolgimento delle agenzie di controllo"], ans:2, expl:"La violazione normativa agisce da potente cassa di risonanza per costringere il contesto a prestare attenzione al messaggio." },
+  { q: "Quale effetto espressivo mira a ridefinire ruoli, poteri e obiettivi della comunicazione?", opts:["Effetti del Sé","Effetti di controllo","Effetti di relazione","Effetti di stabilità strutturale"], ans:2, expl:"Gli effetti di relazione definiscono la natura dell'interazione, i poteri reciproci e le posizioni relazionali dei soggetti coinvolti." },
+  { q: "Un chiaro esempio di potenziamento della dimensione espressiva a scapito di quella strumentale è:", opts:["Un furto di beni primari dettato da necessità economiche","L'omicidio del partner che minaccia l'abbandono","La falsificazione di un documento contabile d'ufficio","Un reato societario pianificato razionalmente"], ans:1, expl:"Nei delitti passionali vi è una palese incongruenza strumentale: l'esito (morte del partner) distrugge l'obiettivo di vicinanza, mostrando la prevalenza dell'effetto espressivo." },
+  { q: "La fase intermedia di crisi nel percorso processuale della devianza è caratterizzata da:", opts:["Una totale assenza di ripensamenti cognitivi","La stabilizzazione dell'identità deviante permanente","La percezione della devianza come unico canale comunicativo rimasto, pur mantenendo flessibilità","L'attivazione immediata degli antecedenti storici familiari"], ans:2, expl:"Nella seconda fase il soggetto sperimenta una crisi e vede la devianza come unica via d'uscita espressiva, sebbene vi sia ancora un margine di correzione adattiva." },
+  { q: "Nella mediazione reo-vittima (Petruccelli, 2002), l'ascolto della vittima spinge il reo a:", opts:["Rafforzare le proprie difese psicopatologiche","Confrontarsi con le proprie distorsioni cognitive e meccanismi di disimpegno","Richiedere un giudizio abbreviato formale","Esercitare effetti di controllo sulle agenzie esterne"], ans:1, expl:"Il dialogo strutturato disinnesca le giustificazioni interne e i processi di disimpegno morale attraverso cui il reo minimizzava l'atto." },
+  { q: "Cosa sostiene la prospettiva ecologica sul focus espressivo individuale?", opts:["Che l'azione manifesta non ha legami con la mente del soggetto","Che la condotta non può mai essere spiegata tramite metodologie narrative","Che nel focus espressivo si rintracciano le informazioni per spiegare la condotta e la natura della relazione","Che solo i fattori biologici spiegano il crimine"], ans:2, expl:"L'approccio ecologico guarda al fenomeno dall'interno, rintracciando la profondità e lo scopo dell'azione nei vissuti espressi dal protagonista." },
+  { q: "Gli effetti espressivi anticipati di 'controllo' si manifestano tipicamente:", opts:["Nei comportamenti di devianza minorile in aperta sfida contro il sistema familiare o normativo","Nei reati economici commessi da colletti bianchi","Nel recupero del Sé positivo della vittima","Nello studio statistico dei tassi di criminalità"], ans:0, expl:"Gli effetti di controllo riguardano i messaggi indirizzati alle agenzie e alle regole formali o informali che si intendono sfidare." },
+  { q: "Nell'analisi sequenziale dell'azione deviante, l'atto criminale integra:", opts:["Solo ed esclusivamente la dimensione passata del reo","Le istanze temporali di passato, presente e futuro che confluiscono nel fare","Esclusivamente gli effetti strumentali futuri","Esclusivamente il feedback istituzionale"], ans:1, expl:"L'azione è un costrutto complesso in cui confluiscono, nel qui ed ora dell'atto manifesto, cognizioni, memorie storiche e progetti futuri del soggetto." }
 ];
 
 let qIndex = 0, qScore = 0, qAnswered = false;
@@ -727,9 +742,9 @@ function nextQuestion() {
     document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
     const pct = qScore / questions.length;
     document.getElementById('result-msg').textContent =
-      pct === 1 ? '🏆 Perfetto! Hai compreso appieno l'approccio comunicativo.' :
-      pct >= 0.7 ? '👍 Ben fatto! Ottima conoscenza dei modelli di De Leo.' :
-      '📚 Ti consigliamo di rileggere le sezioni sugli effetti espressivi dell'azione.';
+      pct === 1 ? '🏆 Perfetto! Hai compreso appieno azione deviante comunicativa.' :
+      pct >= 0.7 ? '👍 Ottimo punteggio! Ripassa le distinzioni sugli effetti espressivi.' :
+      '📚 Rileggi i concetti di De Leo e riprova il test!';
   } else {
     loadQuestion();
   }
@@ -744,14 +759,13 @@ loadQuestion();
 
 /* ─── MATCHING ─── */
 const matchPairs = [
-  { left: "De Leo (2004)", right: "Devianza come forma potente ed estrema di comunicazione" },
-  { left: "Matza (1969)", right: "Amplificazione dei messaggi tramite la reazione sociale" },
-  { left: "Effetti del Sé", right: "Fornire informazioni sulla propria identità e storia relazionale" },
-  { left: "Effetti di relazione", right: "Ridefinire l'azione stessa stabilendo ruoli e poteri" },
-  { left: "Effetti di controllo", right: "Messaggi alle agenzie formali guidati da norme proprie" },
-  { left: "Fase di stabilizzazione", right: "L'identità si definisce in senso stabilmente deviante" },
-  { left: "Petruccelli (2002)", right: "Mediazione reo-vittima e destrutturazione dei disimpegni morali" },
-  { left: "Ottica ecologica", right: "Studio dei messaggi metacomunicativi dell'atto dall'interno" }
+  { left: "De Leo et al. (2004)", right: "Devianza come forma estrema di comunicazione" },
+  { left: "David Matza (1969)", right: "Amplificazione dei messaggi tramite la violazione" },
+  { left: "Effetti del Sé", right: "Comunicazione su identità e stile di interazione" },
+  { left: "Effetti di Relazione", right: "Ridefinizione di ruoli, poteri e obiettivi diadici" },
+  { left: "Fase Intermedia di Crisi", right: "Scelta della devianza come unico canale espressivo rimasto" },
+  { left: "Fase di Stabilizzazione", right: "Definizione dell'identità stabilmente eletta a reato" },
+  { left: "Mediazione Reo-Vittima", right: "Decostruzione del disimpegno e stimolo dell'empatia" }
 ];
 
 let matchSelected = null, matchCorrect = 0;
@@ -785,6 +799,7 @@ function buildMatch() {
 function selectMatch(el) {
   if (el.classList.contains('matched')) return;
   if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
     el.classList.add('selected');
     matchSelected = el;
   } else {
