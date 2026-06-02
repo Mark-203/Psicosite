@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disturbo Borderline di Personalità — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 1000px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/10;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(0.95rem, 2.5vw, 1.2rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.9rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 750px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Roberto Maniglio</div>
+  <h1>Disturbo Borderline di Personalità</h1>
+  <p>Analisi clinica, caratteristiche generali, aspetti funzionali e psicoterapeutici</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🎭</div>
+      <h3>Instabilità Pervasiva</h3>
+      <p>Il disturbo è definito da un pattern costante di instabilità che compromette relazioni, immagine di sé, affettività e condotta fin dalla prima età adulta.</p>
+      <span class="pill">Criteri DSM-5</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">💔</div>
+      <h3>Paura dell'Abbandono</h3>
+      <p>Sforzi disperati per evitare abbandoni reali o immaginari. Spesso genera scenari a doppio taglio in cui l'eccessiva richiesta di rassicurazioni allontana il partner.</p>
+      <span class="pill">Relazioni</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🔄</div>
+      <h3>Dicotomia e Altalena</h3>
+      <p>Pattern interpersonali intensi dominati dall'alternanza tra gli estremi ideali: iperidealizzazione iniziale ("tutto bianco") e improvvisa svalutazione cupa ("tutto nero").</p>
+      <span class="pill">Meccanismi Cognitivi</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌩️</div>
+      <h3>Disfunzione Emotiva</h3>
+      <p>Marcata reattività dell'umore (disforia cronica, irritabilità, ansia) legata a una disfunzione temperamentale della regolazione affettiva e a contesti infantili disconfermanti.</p>
+      <span class="pill">Aspetti Funzionali</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🚨</div>
+      <h3>Impulsività e Rischio</h3>
+      <p>Azioni potenzialmente dannose in almeno due aree (spese folli, sesso promiscuo, abuso di sostanze, guida spericolata) associate a elevato autolesionismo o condotte suicidarie.</p>
+      <span class="pill">Comportamento</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🩺</div>
+      <h3>Schema Therapy & CBT</h3>
+      <p>Trattamento basato sull'identificazione di 4 modalità di schema disfunzionali (Bambino Abusato, Bambino Arrabbiato, Genitore Punitivo, Protezione Distaccata) per integrare l'Adulto Sano.</p>
+      <span class="pill">Psicoterapia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📋 I 9 Criteri Diagnostici del DSM-5</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il DSM-5 specifica che devono essere soddisfatti almeno <strong>cinque (o più)</strong> dei seguenti elementi clinici:</p>
+        <ul>
+          <li><strong>1) Sforzi disperati</strong> per evitare un reale o immaginario abbandono.</li>
+          <li><strong>2) Relazioni instabili e intense</strong>, oscillanti tra iperidealizzazione e svalutazione.</li>
+          <li><strong>3) Alterazione dell'identità</strong>, con immagine di sé o percezione di sé costantemente instabili.</li>
+          <li><strong>4) Impulsività in almeno due aree</strong> potenzialmente dannose (spese sconsiderate, sesso promiscuo, abuso di sostanze, guida spericolata, abbuffate).</li>
+          <li><strong>5) Ricorrenti comportamenti, gesti o minacce suicidari</strong>, o comportamento automutilante.</li>
+          <li><strong>6) Instabilità affettiva</strong> dovuta a una marcata reattività dell'umore (disforia, irritabilità o ansia episodica della durata di poche ore).</li>
+          <li><strong>7) Sentimenti cronici di vuoto</strong> (percezione di essere "emotivamente morti").</li>
+          <li><strong>8) Rabbia inappropriata e intensa</strong> o grave difficoltà a controllarla (frequenti accessi d'ira).</li>
+          <li><strong>9) Ideazione paranoide transitoria</strong> legata allo stress o gravi sintomi dissociativi.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👶 Aspetti Funzionali: L'Ambiente Disconfermante e l'Origine del Disturbo</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Le radici del disturbo combinano fattori temperamentali e contesti relazionali primari:</p>
+        <ul>
+          <li><strong>Disfunzione temperamentale:</strong> Provoca risposte emotive amplificate agli stressogeni e tempi lunghissimi per tornare ai livelli biologici di base.</li>
+          <li><strong>Ambiente primario disconfermante:</strong> Risposte rifiutanti, punitive o errate dei genitori verso le emozioni del bambino gli impediscono di imparare a regolare e tollerare i propri affetti.</li>
+          <li><strong>Nucleo profondo:</strong> Il paziente vive la condizione di un bambino spaventato, abusato o abbandonato, lasciato solo in un mondo malevolo, desideroso di aiuto ma terrorizzato dalla vicinanza.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎭 Le 4 Modalità di Schema (Schema Therapy)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I pazienti borderline mostrano repentini capovolgimenti emotivi saltando da una modalità organizzata all'altra:</p>
+        <ul>
+          <li><strong>Bambino Abusato e/o Abbandonato:</strong> Stato di disperazione totale. Credenze: "Il mondo è malevolo", "Nessuno si prenderà cura di me", "Sarò sempre solo". Bramano amore ma lo temono.</li>
+          <li><strong>Genitore Punitivo:</strong> Grave stato auto-punitivo internalizzato. Il paziente si condanna come malvagio, si auto-mutila o distrugge le cose buone. Domina un senso di colpa paralizzante.</li>
+          <li><strong>Bambino Arrabbiato e/o Impulsivo:</strong> Esplosione incontrollata della rabbia precedentemente repressa. Credenze: "I miei diritti sono insoddisfatti, devo combattere o prendere ciò di cui ho bisogno per sopravvivere".</li>
+          <li><strong>Protezione Distaccata:</strong> Stile di sopravvivenza in cui la persona si anestetizza, evita i sentimenti e le relazioni per non soffrire. Può apparire falsamente razionale, ma usa l'evitamento cognitivo, l'abuso di sostanze o il sonno.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 Caratteristiche Cognitive e Assunti di Base</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il mantenimento del disturbo è alimentato da tre assunti di base centrali e da specifiche distorsioni:</p>
+        <ul>
+          <li><strong>I tre assunti cardine:</strong> 1. "Il mondo è pericoloso e malevolo"; 2. "Sono impotente e vulnerabile"; 3. "Sono intrinsecamente inaccettabile".</li>
+          <li><strong>Il paradosso relazionale:</strong> La combinazione tra <em>assunti di dipendenza</em> (sentirsi deboli e vedere gli altri forti) e <em>assunti paranoici</em> (credere che gli altri siano bugiardi e malevoli) genera un ciclo distruttivo in cui il paziente si aggrappa e poi respinge le persone per sfiducia.</li>
+          <li><strong>Pensiero Dicotomico:</strong> Tendenza a pensare in "bianco o nero". Incapacità di valutare le sfumature di grigio, portando a giudizi oscillanti e brusche rotture relazionali.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🩺 L'Approccio Psicoterapeutico Cognitivo-Comportamentale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La psicoterapia CBT e gli interventi integrati mirano all'identificazione e modifica attiva delle strutture disfunzionali:</p>
+        <ul>
+          <li><strong>Posizione Dialettica del Terapeuta:</strong> Da un lato accetta empaticamente il dolore emotivo del paziente (validazione), dall'altro spinge per modificare gli antecedenti dello stress e i comportamenti disadattivi.</li>
+          <li><strong>Sviluppo di Abilità (Skills):</strong> L'obiettivo cardine è far acquisire al paziente solide capacità di tolleranza della frustrazione e di regolazione autonoma delle emozioni.</li>
+          <li><strong>Ristrutturazione dei Core Beliefs:</strong> Modifica mirata delle credenze maladattive radicate all'interno di tutte le modalità di schema attivate (in particolare disinnescare la modalità Genitore Punitivo).</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → dettaglio</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Concetto Clinico</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Caratteristica / Credenza Sottostante</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ PUNTI CHIAVE ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Soglia Diagnostica del DSM-5</h4>
+      <p>Il disturbo si configura come un pattern pervasivo di instabilità interpersonale, dell'immagine di sé e dell'umore combinato a una marcata impulsività. Richiede la presenza di almeno 5 criteri su 9.</p>
+      <div class="tl-source">Manuale Diagnostico e Statistico (DSM-5)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Statistiche sul Rischio Suicidario</h4>
+      <p>I comportamenti autolesionistici e le minacce non vanno mai sottovalutati: circa il 70% dei pazienti borderline compie almeno un tentativo di suicidio nella vita, e quasi il 10% ci riesce.</p>
+      <div class="tl-source">Dati Clinici Nazionali / Internazionali</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Origine nell'Ambiente Disconfermante</h4>
+      <p>L'invalidazione precoce emotiva da parte delle figure di attaccamento (punizioni, rifiuti o risposte errate alle emozioni del bambino) blocca lo sviluppo delle competenze di autoregolazione.</p>
+      <div class="tl-source">Modello Eziopatogenetico Funzionale</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il Paradosso dei Due Assunti</h4>
+      <p>L'altalena relazionale del borderline (avvicinarsi disperatamente ed escludere l'altro) è guidata dalla fusione simultanea di assunti di dipendenza ("sono debole") e assunti paranoici ("gli altri sono malevoli").</p>
+      <div class="tl-source">Meccanismi Cognitivi di Mantenimento</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Trappola del Genitore Punitivo</h4>
+      <p>Questa modalità internalizzata spinge il soggetto a considerarsi intrinsecamente malvagio e meritevole di castigo. È la causa principale di agiti autolesivi e della distruzione attiva delle cose positive della propria vita.</p>
+      <div class="tl-source">Schema Therapy (Young et al.)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Maschera della Protezione Distaccata</h4>
+      <p>Anche se famosi per le loro crisi eclatanti, i pazienti borderline passano moltissimo tempo in uno stato anestetizzato e privo di contatto emotivo reale, abusando di sostanze o isolandosi cognitivamente.</p>
+      <div class="tl-source">Stili di Coping Disadattivi</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il Pensiero Dicotomico (Bianco o Nero)</h4>
+      <p>La marcata incapacità cognitiva di integrare le sfumature e i "gradi di grigio" della realtà porta il soggetto a scivolare repentinamente da valutazioni di massima perfezione all'odio totale.</p>
+      <div class="tl-source">Distorsioni Cognitive Centrali</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Obiettivo Dialettico della Terapia</h4>
+      <p>La CBT mira a un equilibrio ottimale: il terapeuta deve validare e accettare il dolore emotivo del paziente ma, contemporaneamente, allearsi con l'Adulto Sano per modificare attivamente le risposte comportamentali disfunzionali.</p>
+      <div class="tl-source">Linee Guida Psicoterapeutiche</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Quanti criteri minimi richiede il DSM-5 per la diagnosi di disturbo borderline?", a: "Richiede la presenza di almeno 5 (o più) dei 9 criteri descritti nel manuale." },
+  { q: "Cosa si intende per 'scenari a doppio taglio' nella paura dell'abbandono?", a: "Più il paziente cerca disperatamente rassicurazioni continue, più rende pesante la relazione rischiando di allontanare realmente il partner." },
+  { q: "Quali sono le percentuali legate al rischio di suicidio nel disturbo?", a: "Circa il 70% dei pazienti compie almeno un tentativo di suicidio durante la vita, e quasi il 10% dei tentativi ha successo." },
+  { q: "Qual è la funzione fondamentale della modalità 'Protezione Distaccata'?", a: "Proteggere la persona dall'attaccamento e dal dolore emotivo, portandola a isolarsi, abusare di sostanze o apparire falsamente distaccata." },
+  { q: "Cosa causa il 'Pensiero Dicotomico' nelle relazioni?", a: "L'instabilità estrema: impedisce di vedere la complessità e porta a oscillare tra l'iperidealizzazione e la svalutazione totale del partner." },
+  { q: "Quali sono le credenze fondamentali della modalità 'Bambino Abusato/Abbandonato'?", a: "Che gli altri sono malevoli, che non ci si può fidare, che il dolore emotivo non finirà mai e che si sarà sempre soli." },
+  { q: "Quali vissuti dominano la modalità del 'Genitore Punitivo'?", a: "Un profondo senso di colpa e l'idea di essere intrinsecamente cattivi e meritevoli di punizioni, espressa spesso attraverso l'autolesionismo." },
+  { q: "Quali sono i tre assunti di base centrali individuati nel disturbo?", a: "'Il mondo è pericoloso e malevolo', 'Sono impotente e vulnerabile' e 'Sono intrinsecamente inaccettabile'." },
+  { q: "Come interagiscono gli assunti di dipendenza e paranoici?", a: "Alimentano l'instabilità interpersonale: il paziente si aggrappa all'altro perché si sente debole, ma lo respinge subito dopo per profonda sfiducia." },
+  { q: "Cosa comporta l'instabilità affettiva tipica di questo disturbo?", a: "Un'intensa reattività dell'umore (episodi di disforia, ansia o irritabilità) che insorge in pochi secondi, dura poche ore e raramente supera i pochi giorni." },
+  { q: "Quali sono le aree tipiche in cui si manifesta l'impulsività dannosa?", a: "Spese sconsiderate, sesso promiscuo, abuso di sostanze, guida spericolata e abbuffate alimentari." },
+  { q: "Qual è il focus centrale della posizione dialettica del terapeuta?", a: "Accettare e validare il dolore emotivo del paziente da un lato, e guidarlo nel modificare i comportamenti impulsivi e disfunzionali dall'altro." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Quanti criteri diagnostici del DSM-5 devono manifestarsi per diagnosticare il Disturbo Borderline?", opts:["Almeno 3","Almeno 5","Esattamente 9","Almeno 7"], ans:1, expl:"Il DSM-5 indica che il pattern pervasivo deve essere evidenziato da 5 o più elementi descritti nei criteri." },
+  { q: "Quale percentuale di persone con disturbo borderline porta a termine con successo il suicidio?", opts:["Circa il 5%","Quasi il 10%","Oltre il 25%","Meno dell'1%"], ans:1, expl:"Il testo riporta che circa il 70% fa almeno un tentativo e per quasi il 10% l'atto ha esito fatale." },
+  { q: "Quale combinazione paradossale di assunti alimenta l'instabilità interpersonale?", opts:["Assunti di superiorità e di sottomissione","Assunti di dipendenza e assunti paranoici","Assunti depressivi e maniacali","Assunti narcisistici e fobici"], ans:1, expl:"L'alternanza tra l'aggrapparsi e il respingere nasce dal sentirsi deboli/dipendenti ma ritenere simultaneamente gli altri malevoli/bugiardi (paranoici)." },
+  { q: "Qual è il sentimento preminente ed emotivo vissuto nella modalità 'Genitore Punitivo'?", opts:["La rabbia esplosiva","Il senso di vuoto","Il senso di colpa","L'ansia da separazione"], ans:2, expl:"Nella modalità Genitore Punitivo, il soggetto internalizza accuse severe, considerandosi malvagio. Il senso di colpa è la sensazione preminente." },
+  { q: "In quale modalità il paziente utilizza strategie come l'evitamento cognitivo, il sonno eccessivo e l'abuso di sostanze?", opts:["Bambino Arrabbiato","Adulto Sano","Protezione Distaccata","Genitore Punitivo"], ans:2, expl:"La Protezione Distaccata serve proprio a disconnettersi dal mondo e dai propri sentimenti per anestetizzare il potenziale dolore." },
+  { q: "Il pensiero 'bianco o nero' che impedisce di cogliere le sfumature intermedie si chiama:", opts:["Pensiero paranoide","Pensiero dicotomico","Sintomo dissociativo","Alterazione dell'identità"], ans:1, expl:"Il pensiero dicotomico è la distorsione cognitiva che porta a valutare le persone o le situazioni in modo estremo (o perfette o orribili)." },
+  { q: "In psicoterapia CBT, qual è il duplice compito dialettico del terapeuta?", opts:["Assecondare ogni comportamento e somministrare farmaci","Validare/accettare il dolore ed indurre il cambiamento comportamentale","Analizzare i sogni del paziente e colpevolizzare la famiglia","Ignorare la rabbia e premiare l'impulsività"], ans:1, expl:"Il terapeuta adotta una posizione dialettica accettando il dolore emotivo da una parte, e spingendo per cambiare le modalità di reazione allo stress dall'altra." },
+  { q: "I sentimenti cronici di vuoto portano spesso il paziente a:", opts:["Isolarsi stabilmente e pacificamente","Cercare di attirare l'attenzione attraverso drammi emotivi e crisi","Sviluppare doti artistiche eccellenti","Dormire meno di tre ore a notte"], ans:1, expl:"La sensazione cronica di vuoto e di essere emotivamente morti può spingere a comportamenti drammatici per generare una crisi e sentirsi vivi o considerati." },
+  { q: "Le oscillazioni dell'umore nella reattività affettiva borderline durano solitamente:", opts:["Molti mesi consecutivi","Pochi secondi in tutto","Poche ore e raramente più di pochi giorni","Esattamente due settimane"], ans:2, expl:"Il DSM-5 evidenzia che l'instabilità affettiva (disforia, ansia, irritabilità) è transitoria: dura poche ore e solo raramente supera i pochi giorni." },
+  { q: "Quale caratteristica definisce l'ambiente primario in cui è cresciuto il paziente borderline?", opts:["Ambiente iperprotettivo ed entusiasta","Ambiente disconfermante e invalidante","Ambiente stimolante ed equilibrato","Ambiente privo di stimoli cognitivi"], ans:1, expl:"Risposte rifiutanti, punitive o errate (ambiente disconfermante) bloccano la capacità del bambino di comprendere e regolare le proprie emozioni." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Hai una conoscenza clinica eccellente.' :
+      pct >= 0.7 ? '👍 Ottimo lavoro! Hai assimilato i concetti cardine del disturbo.' :
+      '📚 Rileggi il PDF di Maniglio per chiarire i dubbi — riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Pensiero Dicotomico", right: "Scivolare dagli estremi di iperidealizzazione a svalutazione" },
+  { left: "Genitore Punitivo", right: "Sentimenti di colpa ed esecuzione di condotte autolesionistiche" },
+  { left: "Protezione Distaccata", right: "Evitamento emotivo, anestesia e comportamenti di occultamento" },
+  { left: "Assunto di Dipendenza", right: "Credenza profonda di essere deboli, fragili e totalmente incapaci" },
+  { left: "Bambino Arrabbiato", right: "Accumulo di tensione repressa che esplode in modo incontrollato" },
+  { left: "Ambiente Disconfermante", right: "Risposte genitoriali punitive o errate ai bisogni emotivi del figlio" },
+  { left: "Assunto Paranoico", right: "Credenza costante che il mondo sia ostile e gli altri bugiardi" },
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>
