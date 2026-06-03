@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disturbo Narcisistico di Personalità — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  /* ─── ACCORDION ─── */
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 1000px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  /* ─── QUIZ ─── */
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/10;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── MEMORY MATCH ─── */
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 800px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Roberto Maniglio · Materiale Didattico Universitario</div>
+  <h1>Disturbo Narcisistico di Personalità</h1>
+  <p>Studio interattivo su caratteristiche generali, aspetti funzionali e approcci psicoterapeutici</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del disturbo</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">👑</div>
+      <h3>Pattern Diagnostico (DSM-5)</h3>
+      <p>Un modello pervasivo di grandiosità, costante necessità di ammirazione e marcata mancanza di empatia. Inizia entro la prima età adulta e si manifesta in svariati contesti attraverso almeno 5 criteri caratteristici.</p>
+      <span class="pill">Caratteristiche Generali</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎭</div>
+      <h3>La Credenza Centrale Sottostante</h3>
+      <p>A dispetto delle apparenze gloriose, la vera credenza di base del narcisista è un profondo senso di inferiorità, impotenza o scarso valore personale, attivata e svelata solo in condizioni di minaccia all'autostima.</p>
+      <span class="pill">Aspetti Funzionali</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🛡️</div>
+      <h3>Strategie Compensatorie</h3>
+      <p>L'auto-esagerazione cosciente e l'atteggiamento di superiorità ("Sono unico e speciale") fungono da scudo protettivo per nascondere i sentimenti intollerabili di inferiorità e per evitare il fallimento relazionale.</p>
+      <span class="pill">Aspetti Funzionali</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🛠️</div>
+      <h3>Relazioni Strumentali</h3>
+      <p>Gli altri vengono visti e utilizzati come meri oggetti o strumenti per ottenere conferme e alimentare il proprio status. Vengono idealizzati se utili alla scalata sociale o scartati bruscamente in caso contrario.</p>
+      <span class="pill">Aspetti Funzionali</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚖️</div>
+      <h3>Esenzione dalle Regole</h3>
+      <p>Presunzione condizionale di essere al di sopra delle leggi comuni, sociali e persino della natura. Il rischio viene minimizzato perché il narcisista si considera "l'eccezione che può farla franca" in ogni contesto.</p>
+      <span class="pill">Assunti Disfunzionali</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🗣️</div>
+      <h3>Obiettivi della Psicoterapia</h3>
+      <p>L'approccio cognitivo-comportamentale mira a destrutturare l'architettura dei bias di conferma, degli assunti sul potere, della preservazione dell'immagine e delle credenze di base di inferiorità.</p>
+      <span class="pill">Psicoterapia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti clinici</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📖 I 9 criteri diagnostici secondo il DSM-5</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il DSM-5 definisce il disturbo come un pattern pervasivo che richiede la presenza di almeno <strong>cinque o più</strong> dei seguenti elementi clinici:</p>
+        <ul>
+          <li><strong>1. Senso grandioso di importanza:</strong> Esagerazione sistematica di risultati e talenti, con la ferma aspettativa di essere considerato superiore senza un'adeguata motivazione sottostante.</li>
+          <li><strong>2. Fantasie illimitate:</strong> Assorbimento cognitivo in scenari di successo, potere, fascino, bellezza illimitati o amore ideale.</li>
+          <li><strong>3. Credenza di unicità:</strong> Idea di essere "speciale" e di poter essere capito solo da (o dover frequentare) persone o istituzioni altrettanto speciali o di classe sociale elevata.</li>
+          <li><strong>4. Richiesta di ammirazione:</strong> Necessità costante ed eccessiva di ricevere sguardi di approvazione e lodi dall'esterno.</li>
+          <li><strong>5. Senso di diritto:</strong> L'irragionevole aspettativa di ricevere speciali trattamenti di favore o la soddisfazione immediata e automatica delle proprie pretese.</li>
+          <li><strong>6. Sfruttamento interpersonale:</strong> Tendenza ad approfittare cinicamente delle altre persone per raggiungere i propri scopi personali.</li>
+          <li><strong>7. Mancanza di empatia:</strong> Totale incapacità di riconoscere, identificarsi o sintonizzarsi con i sentimenti, i bisogni e le necessità emotive degli altri.</li>
+          <li><strong>8. Invidia pervasiva:</strong> Forte invidia verso i successi altrui combinata con la credenza fissa che gli altri lo invidino a loro volta.</li>
+          <li><strong>9. Comportamenti arroganti:</strong> Esibizione continua di atteggiamenti presuntuosi, superbi e manifestazioni di palese superiorità.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎭 L'architettura delle Credenze e il Ruolo dei Genitori</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>A livello psicodinamico e cognitivo, il disturbo si sviluppa su due binari paralleli:</p>
+        <ul>
+          <li><strong>Credenza di base reale:</strong> Un nucleo profondo inconscio/latente in cui il soggetto si percepisce come <em>inferiore, impotente o di scarso valore</em>. Questa credenza si attiva violentemente solo quando l'autostima subisce colpi duri o critiche esterne.</li>
+          <li><strong>Credenze compensatorie manifeste:</strong> Strategie protettive consce come <em>"Sono una persona rara e speciale"</em> o <em>"Le altre persone devono riconoscere quanto io sia superiore"</em>.</li>
+          <li><strong>Il ruolo genitoriale:</strong> I sentimenti normali e transitori di inferiorità che occorrono durante lo sviluppo biologico sono stati spesso <strong>ipercompensati da genitori a loro volta narcisisti</strong>. Questi ultimi hanno plasmato e veicolato i propri bisogni di status nei figli, insegnando loro che la vulnerabilità è una minaccia da sconfiggere anziché un'esperienza da accettare.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📊 Analisi dettagliata degli Assunti Condizionali Disfunzionali</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I pazienti narcisisti operano sulla base di rigide regole e assunti cognitivi che ordinano la loro intera esistenza:</p>
+        <ul>
+          <li><strong>Evidenza di superiorità:</strong> Convinzione che determinati beni tangibili od obiettivi di status (livello di reddito, auto di lusso, ville in quartieri esclusivi, premi, partner attraenti) siano prove inconfutabili del proprio valore. Specularmente, pensano: <em>"Se non ho successo, allora significa che non valgo nulla"</em>.</li>
+          <li><strong>Le relazioni come meri strumenti:</strong> Gli individui circostanti vengono categorizzati. Se hanno il potenziale per favorire l'avanzamento dello status del narcisista vengono idealizzati; se considerati ordinari vengono snobbati o sfruttati e poi bruscamente scartati.</li>
+          <li><strong>Il potere come scudo:</strong> L'assunto cardine è <em>"Se sono abbastanza potente, posso essere totalmente sicuro di me stesso"</em>. Questo li spinge a prendere decisioni unilaterali e a violare deliberatamente le regole e le leggi ordinarie, ritenendosi l'eccezione immune al rischio (es. guidare in stato di ebbrezza, tradire il partner, commettere abusi).</li>
+          <li><strong>Preservazione dell'immagine:</strong> L'immagine esterna è vista come l'armatura invalicabile dell'autostima. Questa regola si estende ai familiari (coniuge, figli): <em>"Mio figlio deve farmi fare bella figura"</em>. Se il familiare fallisce, viene severamente punito o ridicolizzato; se supera il narcisista, viene percepito come un rivale pericoloso.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌋 Dinamiche di Scompenso: L'Insulto Narcisistico</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Cosa accade quando l'ambiente esterno si rifiuta di convalidare la superiorità del narcisista?</p>
+        <ul>
+          <li>Si genera il cosiddetto <strong>"Insulto Narcisistico"</strong>: la percezione di una minaccia intollerabile all'immagine di sé indotta da critiche, fallimenti o rifiuti.</li>
+          <li>L'attivazione improvvisa delle credenze latenti di inferiorità genera una <strong>spirale discendente</strong>: il soggetto manifesta rabbia cieca, atteggiamenti difensivi aggressivi e disprezzo verso gli altri.</li>
+          <li>In alternativa o in concomitanza, il paziente può sprofondare in stati di <strong>depressione o ansia acuta</strong> con pensieri punitivi verso se stesso, dovuti alla sua scarsissima tolleranza al disagio emotivo e alla frustrazione.</li>
+          <li>Le lamentele, le pretese rigide e gli scoppi d'ira teatrali sono usati come tentativi estremi di manipolazione per ripristinare il senso perduto di potere e superiorità.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 Distorsioni Cognitive e Processi di Pensiero</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I processi di elaborazione delle informazioni nel disturbo narcisistico sono profondamente alterati da bias sistematici:</p>
+        <ul>
+          <li><strong>Ragionamento categorico in bianco o nero:</strong> Le persone e le situazioni sono o totalmente eccelse o completamente prive di valore, senza sfumature intermedie.</li>
+          <li><strong>Bias di conferma ed inferenze arbitrarie:</strong> Selezione accurata degli stimoli ambientali che confermano la propria superiorità e rifiuto aprioristico di evidenze contrarie, anche se schiaccianti.</li>
+          <li><strong>Razionalizzazione del "Contributo Meritorio":</strong> Autoconvincimento di agire come nobili benefattori o mentori (<em>"Hanno bisogno di me", "Sto facendo loro un servizio"</em>) per mascherare e giustificare azioni egoistiche o palesemente manipolatorie.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎯 Intervento Psicoterapeutico Cognitivo-Comportamentale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La terapia è complessa in quanto il paziente fatica ad accettare l'influenza del terapeuta, vissuto inizialmente come potenziale minaccia o concorrente. Il lavoro si focalizza su:</p>
+        <ul>
+          <li><strong>Identificazione del nucleo di inferiorità:</strong> Aiutare gradualmente il paziente ad accettare i normali e transitori sentimenti di vulnerabilità e incertezza, interpretati erroneamente come debolezze intollerabili.</li>
+          <li><strong>Ristrutturazione delle credenze compensatorie:</strong> Smussare le asserzioni di grandiosità e i pensieri automatici esagerati legati alla costante sfilata pubblica dell'immagine.</li>
+          <li><strong>Sviluppo dell'empatia e della reciprocità sociale:</strong> Scardinare l'assunto condizionale secondo cui <em>"I bisogni degli altri non devono interferire con i miei"</em>, promuovendo abilità adattive di condivisione e identificazione di gruppo.</li>
+          <li><strong>Modifica del pensiero dicotomico:</strong> Insegnare al paziente a scindere il concetto di valore personale dal successo incessante o dal possesso di simboli esteriori di status.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard di Studio — Clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda Clinica</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta e Spiegazione</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca sulla carta per svelare l'approfondimento retrostante</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di Autovalutazione Clinica</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia il Quiz</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina l'Assunto/Costrutto al suo Significato Clinico</div>
+  <p class="match-intro">Seleziona un elemento teorico dalla colonna sinistra e trova il corrispettivo risvolto pratico a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Assunto / Concetto Sottostante</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Manifestazione / Dettaglio Clinico</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Riavvia l'Esercizio</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA / PUNTI CHIAVE ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Modello Pervasivo (DSM-5)</h4>
+      <p>Il disturbo si esprime come un pattern globale caratterizzato da grandiosità latente o manifesta, assoluto bisogno di ammirazione esterna e una rigida mancanza di empatia relazionale, visibile fin dalla prima età adulta.</p>
+      <div class="tl-source">Criteri DSM-5 (American Psychiatric Association)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il Paradosso del Nucleo Centrale</h4>
+      <p>Sotto la maschera dell'assoluta fiducia in sé e della superiorità si nasconde una radicata credenza di base di inferiorità, impotenza e scarso valore, che il soggetto tenta disperatamente di non attivare.</p>
+      <div class="tl-source">Modello Cognitivo-Comportamentale (Beck, Freeman, 1993)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Eziologia e Plasmia Genitoriale</h4>
+      <p>I sentimenti normali di inferiorità infantile vengono spesso ipercompensati da genitori a loro volta narcisisti. Viene così trasmesso il messaggio che il valore dipende esclusivamente dal successo estraneo e dallo status.</p>
+      <div class="tl-source">Aspetti Funzionali dello Sviluppo</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Funzione Strumentale degli Altri</h4>
+      <p>Le relazioni interpersonali non conoscono affetto disinteressato: le persone sono trattate come oggetti. Vengono idealizzate se utili a riflettere un'immagine positiva del soggetto o scartate istantaneamente se ritenute comuni.</p>
+      <div class="tl-source">Dinamiche Relazionali Disfunzionali</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Illusione dell'Esenzione dalle Regole</h4>
+      <p>L'individuo opera sotto la convinzione condizionale di essere un'eccezione speciale, esente dal rispetto dei limiti sociali, etici o legali ordinari. Questo distorce radicalmente la percezione oggettiva del rischio.</p>
+      <div class="tl-source">Assunti sul Potere e sul Diritto</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Trappola dell'Estensione dell'Immagine</h4>
+      <p>La necessità di preservare l'immagine si estende ai familiari (coniugi, figli), i quali vengono tormentati affinché garantiscano l'ammirazione pubblica del narcisista, ma puniti se rischiano di superarlo in bravura.</p>
+      <div class="tl-source">Regola della Preservazione dell'Immagine</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Reazione all'Insulto Narcisistico</h4>
+      <p>Se lo status speciale o l'immagine idealizzata vengono intaccati da critiche o fallimenti, il soggetto manifesta scompensi immediati: esplosioni di rabbia violenta, disprezzo difensivo o gravi crolli depressivi.</p>
+      <div class="tl-source">Dinamiche Funzionali di Risposta allo Stress</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Distorsione del "Contributo Meritorio"</h4>
+      <p>Tendenza a razionalizzare comportamenti manipolatori o punitivi presentandosi sotto la veste cognitiva di magnanimi mentori o benefattori (<em>"Lo faccio per il loro bene, è una lezione di cui hanno bisogno"</em>).</p>
+      <div class="tl-source">Bias di Conferma e Razionalizzazione</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Intolleranza della Vulnerabilità</h4>
+      <p>Emozioni come tristezza, colpa e incertezza sono bandite e catalogate come debolezze inaccettabili. Il paziente esige uno stato stazionario di rinforzo positivo e gratificazione immediata di ogni desiderio.</p>
+      <div class="tl-source">Gestione degli Affetti e dei Sentimentil</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Integrazione Terapeutica Cooperativa</h4>
+      <p>La sfida principale della psicoterapia consiste nello scardinare il ragionamento categorico "bianco o nero" del paziente, stimolando la tolleranza alla frustrazione e l'acquisizione di reali abilità di condivisione empatica.</p>
+      <div class="tl-source">Considerazioni Psicoterapeutiche Conclusive (Sperry, 2004)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è la credenza di base profonda latente nel disturbo narcisistico?", a: "La credenza reale sottostante è di essere inferiori, impotenti o di scarso valore, mascherata da un atteggiamento compensatorio manifesto di superiorità." },
+  { q: "Quanti criteri del DSM-5 devono essere presenti per diagnosticare il disturbo?", a: "Devono essere soddisfatti almeno 5 (o più) dei 9 criteri diagnostici delineati dal manuale." },
+  { q: "Come agiscono solitamente i genitori nello sviluppo del futuro narcisista?", a: "Spesso sono narcisisti a loro volta e ipercompensano i normali sentimenti di inferiorità del figlio, modellando e veicolando in lui le proprie tendenze ed esigenze di status." },
+  { q: "Cosa si intende per 'Relazioni Strumentali' nel narcisismo?", a: "Le altre persone sono viste come oggetti o strumenti per ottenere riconoscimento. Vengono idealizzate se utili allo status e scartate o snobbate se considerate ordinarie." },
+  { q: "Quale assunto condizionale riguarda il potere per il narcisista?", a: "\"Se sono abbastanza potente, posso essere totalmente sicuro di me stesso\". Il potere viene usato per controllare gli altri e considerarsi al di sopra delle regole comuni." },
+  { q: "In cosa consiste l'assunto dell'esenzione dalle normali regole?", a: "La ferma convinzione di rappresentare l'eccezione: il narcisista crede di poter fare avance improprie, abusare di sostanze o tradire il partner potendola sempre \"cavare o farla franca\"." },
+  { q: "Come si riperpercuote l'assunto dell'immagine sui membri della famiglia?", a: "I familiari sono visti come estensioni di sé (\"Mio figlio mi deve far fare bella figura\"). Vengono ridicolizzati se falliscono, ma anche se superano le prestazioni del narcisista." },
+  { q: "Cosa accade durante un 'Insulto Narcisistico'?", a: "Di fronte a critiche, limiti o fallimenti della convalida, le credenze latenti di inferiorità si attivano generando reazioni difensive di estrema rabbia, disprezzo per gli altri o depressione." },
+  { q: "Cos'è la razionalizzazione del 'Contributo Meritorio'?", a: "L'autoconvincimento disadattivo di agire come nobili benefattori o mentori (\"Hanno bisogno di me\") per giustificare azioni che in realtà sono egoistiche o sfruttatrici." },
+  { q: "Qual è l'atteggiamento del narcisista verso le emozioni come tristezza o senso di colpa?", a: "Le sovrastima in senso negativo, interpretandole come debolezze intollerabili che minacciano l'armatura della propria immagine idealizzata." },
+  { q: "Quali sono i bias tipici del processo cognitivo del disturbo narcisistico?", a: "Un ragionamento categorico rigido (in bianco e nero), evidenti bias di conferma, inferenze arbitrarie e generalizzazioni non supportate da dati reali." },
+  { q: "Qual è il focus primario della terapia cognitivo-comportamentale in questo disturbo?", a: "Identificare e modificare gli assunti disfunzionali sul potere e sull'immagine, elaborare i nuclei di inferiorità latenti e sviluppare abilità empatiche e di condivisione di gruppo." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Quale delle seguenti affermazioni descrive accuratamente il nucleo profondo del disturbo narcisistico?", opts:["Una genuina e incrollabile fiducia in se stessi","Una credenza di base latente di inferiorità, impotenza o scarso valore","L'assenza totale di schemi cognitivi compensatori","Un'ipertrofia dell'empatia verso i membri familiari"], ans:1, expl:"Il nucleo reale e profondo del narcisista è basato su sentimenti latenti di inferiorità e scarso valore, nascosti da un massiccio atteggiamento manifesto di superiorità." },
+  { q: "Quanti criteri diagnostici del DSM-5 sono minimamente necessari per decretare la diagnosi di disturbo narcisistico?", opts:["Almeno 3","Almeno 7","Almeno 5","Tutti e 9 i criteri contemporaneamente"], ans:2, expl:"Il DSM-5 indica che il pattern pervasivo deve essere manifestato da cinque (o più) degli elementi caratteristici elencati." },
+  { q: "Cosa sperimenta il paziente narcisista di fronte a un 'insulto narcisistico'?", opts:["Un incremento della cooperazione interpersonale","L'attivazione delle credenze centrali di inferiorità con risposte di rabbia, difesa o depressione","Un'improvvisa sintonizzazione empatica con le esigenze altrui","Nessuna alterazione del tono dell'umore o del comportamento"], ans:1, expl:"L'insulto narcisistico (critica o fallimento) minaccia l'immagine idealizzata attivando le credenze di inferiorità e scatenando rabbia, disprezzo difensivo o depressione." },
+  { q: "In che modo l'assunto della 'Preservazione dell'immagine' coinvolge i figli del paziente?", opts:["I figli sono lasciati liberi di esprimersi senza alcun giudizio","I figli sono visti come estensioni di sé e devono costantemente fare bella figura per alimentare lo status del genitore","I figli vengono idealizzati unicamente se superano le doti del genitore narcisista","Il genitore narcisista accetta di buon grado di essere superato dai figli"], ans:1, expl:"La credenza sulle apparenze si estende ai familiari; il figlio deve far fare bella figura al genitore, e può essere punito o tormentato sia se fallisce, sia se supera il narcisista stesso." },
+  { q: "Secondo l'assunto condizionale del potere, la violazione delle normali leggi e regole è considerata dal narcisista come:", opts:["Un comportamento pericoloso da evitare assolutamente","Un rischio remoto o facilmente gestibile in virtù della ferma credenza di rappresentare un'eccezione speciale","Un errore cognitivo intollerabile che causa senso di colpa","Un modo per chiedere scusa alla comunità"], ans:1, expl:"Il narcisista presume di essere immune alle regole ordinarie e alle leggi poiché si vede come un'eccezione speciale in grado di \"farla franca\" in ogni situazione." },
+  { q: "La razionalizzazione del 'Contributo Meritorio' permette al paziente narcisista di:", opts:["Riconoscere i propri limiti relazionali","Minimizzare o negare i danni inflitti agli altri presentandosi come nobile mentore o benefattore","Sviluppare un'autentica identificazione di gruppo","Eliminare definitivamente l'invidia verso i concorrenti"], ans:1, expl:"L'assunto del contributo meritorio (\"Hanno bisogno di me\", \"Sto facendo loro un servizio\") serve a mascherare e giustificare azioni egoistiche o palesemente manipolatorie." },
+  { q: "Quali sono le caratteristiche principali dei processi cognitivi nel disturbo narcisistico?", opts:["Pensiero flessibile, aperto alle critiche ed empirico","Ragionamento categorico in bianco e nero, evidenti bias di conferma ed inferenze arbitrarie","Assenza totale di pensieri automatici legati allo status","Elaborazione logica basata sulla reciprocità sociale"], ans:1, expl:"I processi cognitivi narcisistici sono rigidi, caratterizzati da un pensiero dicotomico (bianco o nero), bias di conferma sistematici e inferenze arbitrarie." },
+  { q: "Cosa accade se un individuo ordinario o inferiore non convalida lo status del narcisista?", opts:["Il narcisista modifica immediatamente le sue credenze per adattarsi","Il narcisista considera ciò come un maltrattamento intollerabile, reagendo con rabbia o difendendosi","Il narcisista prova un profondo senso di colpa empatico","Viene attivata una strategia adattiva di condivisione"], ans:1, expl:"Il mancato riconoscimento del proprio status speciale viene percepito dal narcisista come un affronto e un maltrattamento intollerabile, innescando rabbia e ostilità." },
+  { q: "Come considera il paziente narcisista affetti ed emozioni quali la tristezza o l'incertezza?", opts:["Come punti di forza per connettersi con il prossimo","Come debolezze personali intollerabili che minacciano l'immagine positiva di sé","Come stati d'animo normali e transitori da accettare con serenità","Come strumenti utili per comprendere i bisogni del partner"], ans:1, expl:"Il narcisista sovrastima le implicazioni negative di tristezza e incertezza, considerandole fragilità o debolezze che minano l'armatura protettiva della propria immagine." },
+  { q: "Qual è un obiettivo cardine della psicoterapia cognitivo-comportamentale per questo disturbo?", opts:["Incoraggiare l'auto-esagerazione per proteggere il paziente","Identificare e modificare schemi, assunti disfunzionali (potere/immagine) e sviluppare reciprocità ed empatia","Insegnare al paziente a scartare più rapidamente le persone ordinarie","Consolidare il ragionamento categorico in bianco e nero"], ans:1, expl:"La psicoterapia si focalizza sulla ristrutturazione degli assunti disfunzionali legati all'immagine, sul depotenziamento della grandiosità e sull'acquisizione di abilità di condivisione e sintonia empatica." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Risposta Corretta! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Errore Clinico. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Visualizza Verdetto Finale →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Profilo Eccellente! Hai compreso appieno ogni dinamica del disturbo.' :
+      pct >= 0.7 ? '👍 Ottima preparazione teorica! Rivedi solo qualche assunto disfunzionale.' :
+      '📚 Studio insufficiente — Rileggi accuratamente il materiale clinico e riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Credenza di base profonda", right: "Sentimento latente di inferiorità e impotenza" },
+  { left: "Credenza manifesta", right: "Atteggiamento compensatorio di auto-superiorità" },
+  { left: "Relazioni strumentali", right: "Idealizzazione o sfruttamento degli altri per lo status" },
+  { left: "Esenzione dalle regole", right: "Convinzione di essere l'eccezione che la fa franca" },
+  { left: "Estensione dell'immagine", right: "Pretesa che i familiari facciano fare bella figura" },
+  { left: "Contributo meritorio", right: "Razionalizzazione: \"Sto facendo loro un nobile servizio\"" },
+  { left: "Insulto narcisistico", right: "Rifiuto o critica che innesca rabbia e depressione" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>
