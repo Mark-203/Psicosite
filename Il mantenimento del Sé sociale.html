@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il Mantenimento del Sé Sociale — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  /* ─── ACCORDION ─── */
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  /* ─── QUIZ ─── */
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── MEMORY MATCH ─── */
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>Il mantenimento del Sé sociale</h1>
+  <p>Strategie cognitive, processi di autoconferma e dinamiche del confronto — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del Sé Sociale</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">👥</div>
+      <h3>Confronto Sociale</h3>
+      <p>Definiamo il Sé sociale specchiandoci negli altri (Festinger). Rispetto alle idee ideali interne, il confronto interpersonale offre una validazione esterna oggettiva, specialmente nelle performance (confronti verso l'alto/basso).</p>
+      <span class="pill">Capitolo 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>La Triade del Sé</h3>
+      <p>La mente organizza il Sé in 3 macro-schemi (Brewer & Gardner): Sé individuale (tratti di personalità unici), Sé relazionale (legami interpersonali significativi) e Sé collettivo (appartenenze a gruppi sociali).</p>
+      <span class="pill">Capitolo 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🛡️</div>
+      <h3>Autoconferma</h3>
+      <p>Strategie per difendere l'immagine di sé: attenzione e selezione orientata, interpretazione mirata delle azioni altrui, affiliazione mirata (stare con chi ci dà sicurezza) ed elaborazione differenziata.</p>
+      <span class="pill">Capitolo 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">✨</div>
+      <h3>Bisogno di Unicità</h3>
+      <p>Attraverso la differenziazione dagli altri soddisfiamo il bisogno di essere unici. La consapevolezza di "chi sono io" si costruisce paradossalmente definendo in modo speculare cosa "non sono".</p>
+      <span class="pill">Capitolo 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⏳</div>
+      <h3>Confronto Temporale</h3>
+      <p>Modifichiamo attivamente il ricordo del nostro passato per metterlo a confronto con il presente. Usiamo il principio del cambiamento (per vedere progressi) o della stabilità (per mostrare coerenza).</p>
+      <span class="pill">Capitolo 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎭</div>
+      <h3>Autopresentazione</h3>
+      <p>Messa in atto di copioni sociali per controllare le reazioni altrui. Include anche l'ottimismo irrealistico (illusione di controllo per ridurre l'ansia) e il self-handicapping (creare scuse preventive).</p>
+      <span class="pill">Capitolo 2</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti teorici</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⚖️ 1. Teoria del Confronto Sociale (Festinger, 1954)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Festinger postula che convinzioni, sentimenti e comportamenti, se presi isolatamente, rimangono puri prodotti soggettivi e riflessivi, privi di agganci reali.</p>
+        <ul>
+          <li><strong>Mancanza di oggettività interna:</strong> Il confronto interiore con le nostre versioni ideali del Sé può spingerci al cambiamento, ma non offre una validazione esterna della realtà.</li>
+          <li><strong>Il riferimento esterno:</strong> Il confronto interpersonale fornisce quel punto di riferimento oggettivo che dona validità ed estrinsecazione a ciò che siamo.</li>
+          <li><strong>Direzione del confronto:</strong> Nelle prestazioni scolastiche o lavorative compiamo confronti <em>verso l'alto</em> (con chi riteniamo superiore) o <em>verso il basso</em> (con chi riteniamo inferiore) per calibrare il nostro valore.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🗺️ 2. L'evoluzione e l'architettura degli Schemi di Sé</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Gli schemi sono strutture mentali in continua trasformazione atte a organizzare le informazioni del mondo sociale, influenzando ciò che notiamo, registriamo e ricordiamo.</p>
+        <p><strong>Fasi di sviluppo dello schema:</strong></p>
+        <ul>
+          <li><strong>Astrazione iniziale:</strong> All'inizio lo schema è astratto e slegato da casi empirici concreti.</li>
+          <li><strong>Arricchimento d'esperienza:</strong> Con l'accumulo di informazioni (confronto ripetuto con le stesse persone) diventa ricco e complesso.</li>
+          <li><strong>Organizzazione e compattezza:</strong> Aumentano i legami interni fino a rendere lo schema un costrutto monolitico attivato in modalità <em>tutto-o-niente</em>.</li>
+          <li><strong>Flessibilità protettiva:</strong> Uno schema maturo diventa flessibile, capace di inglobare le eccezioni anziché farsi minare da esse.</li>
+        </ul>
+        <p style="margin-top:0.5rem"><strong>Le tre ramificazioni del Sé (Brewer & Gardner, 1996):</strong><br>
+        1. <em>Sé individuale:</em> Tratti di personalità differenzianti.<br>
+        2. <em>Sé relazionale:</em> Ruoli definiti dalle relazioni interpersonali intime.<br>
+        3. <em>Sé collettivo:</em> Derivante dalle appartenenze a gruppi sociali strutturati.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🛡️ 3. Meccanismi di Autoconferma e il Bisogno di Unicità</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Le persone attivano precisi canali di elaborazione delle informazioni per non destabilizzare il proprio nucleo identitario:</p>
+        <ul>
+          <li><strong>Attenzione e Selezione orientata:</strong> Dedichiamo molto più tempo a esaminare i giudizi che confermano la nostra immagine rispetto a quelli disconfermanti.</li>
+          <li><strong>Interpretazione orientata:</strong> Sfruttiamo l'ambiguità delle azioni altrui per leggerle in una chiave di autocompiacimento, distorcendo la realtà a nostro favore.</li>
+          <li><strong>Affiliazione mirata ed Elaborazione differenziata:</strong> Frequentiamo selettivamente persone che fungono da scudo identitario ed evitiamo attivamente stimoli o feedback negativi (tramite il noto <em>self-serving bias</em>: meriti ai fattori interni, colpe ai fattori esterni).</li>
+          <li><strong>Processo di Differenziazione:</strong> Il bisogno di unicità si soddisfa solo per contrasto. Per poter dire "questo sono io" è indispensabile avere piena coscienza di cosa "non sono" rispetto agli altri.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎭 4. Autopresentazione, Ottimismo Irrealistico e Self-Handicapping</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Gestire come appariamo in pubblico serve a manipolare i feedback ambientali e salvaguardare l'autostima:</p>
+        <ul>
+          <li><strong>Autopresentazione espressiva:</strong> Utilizzo di copioni sociali volti a trasmettere solo informazioni in grado di spingere il pubblico a trattarci nel modo desiderato.</li>
+          <li><strong>Ottimismo irrealistico (Weinstein & Klein, 1996):</strong> Meccanismo di distorsione del giudizio basato sull'illusione di poter controllare gli eventi futuri, riducendo l'ansia da rischio.</li>
+          <li><strong>Self-handicapping (Autoimpedimento):</strong> Creazione preventiva di ostacoli o scuse credibili prima di una prestazione, così da proteggere la propria autovalutazione in caso di fallimento senza intaccare l'ego.</li>
+          <li><strong>Autoconservazione inconscia:</strong> Tendenze cognitive rapide e automatiche che sfuggono al controllo cosciente e accelerano l'elaborazione dei soli dati compatibili con lo schema di Sé.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⏳ 5. Comparazione Temporale e Completamento Simbolico</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li><strong>Ricostruzione del passato (Arcuri & Maass, 1995):</strong> Dal momento che non possiamo distorcere la percezione del presente, l'Io riscrive e rimodella selettivamente il ricordo del passato seguendo due binari stabili: il <em>principio del cambiamento</em> (per esaltare un progresso) o il <em>principio della stabilità</em> (per validare la propria coerenza nel tempo).</li>
+          <li><strong>Modello del completamento simbolico (Wicklund & Gollwitzer, 1982):</strong> Se un individuo si impegna a raggiungere una determinata identità/status sociale ma non possiede ancora i simboli ufficiali del suo effettivo ottenimento, compenserà ostentando in modo vistoso dei simboli sostitutivi (Es. il laureando che non è ancora ingegnere ma mette in atto comportamenti esasperati per legittimare lo status agognato).</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🏛️ 6. Conclusioni: Circoli Viziosi nel Sé Depresso e Socializzazione</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Le distorsioni e le architetture del Sé si ripercuotono anche sulla salute clinica e sui processi psicologici complessi:</p>
+        <ul>
+          <li><strong>Lo schema di Sé depresso (Derry & Kuiper, 1981):</strong> I soggetti affetti da depressione clinica hanno schemi ancorati a concetti negativi. Nel test di autodescrizione sono rapidissimi nel definire ciò che <em>non sono</em> ma lenti nel dire ciò che <em>sono</em>. Questo genera un circolo vizioso: ricordano più facilmente le sventure, leggono il presente con pessimismo e creano aspettative negative sul futuro.</li>
+          <li><strong>L'articolazione dell'Identità:</strong> Si costruisce socialmente attraverso tre cardini: <em>intenzionalità</em>, <em>controllo</em> e <em>autocontrollo</em> delle azioni.</li>
+          <li><strong>Prospettiva costruttivista e interattiva:</strong> L'individuo non subisce i condizionamenti ma li rielabora costantemente su due canali paralleli: <em>socialmente</em> (tramite norme culturali) e <em>cognitivamente</em> (tramite mediazioni interne).</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard di Studio</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca sulla carta per ruotarla e scoprire la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 10</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di Autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia il Quiz</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Gioco di Abbinamento</div>
+  <p class="match-intro">Associa gli autori o i concetti chiave con la rispettiva definizione empirica.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Autore / Concetto</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Teoria / Definizione</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Rimescola e Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA / PUNTI CHIAVE ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti Chiave da Memorizzare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1954 — Teoria del Confronto Sociale</h4>
+      <p>Leon Festinger introduce l'assunto che i pensieri e le credenze isolati rimangono soggettivi; solo il confronto con il prossimo fornisce una validazione oggettiva esterna.</p>
+      <div class="tl-source">Festinger (1954)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1981 — Lo Schema di Sé Clinico Depresso</h4>
+      <p>I soggetti depressi hanno un'organizzazione cognitiva basata su tratti negativi. Sviluppano spiccata rapidità nel riconoscere gli attributi che non gli appartengono rispetto a quelli che possiedono.</p>
+      <div class="tl-source">Derry & Kuiper (1981)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1982 — Teoria del Completamento Simbolico</h4>
+      <p>Se un individuo sperimenta una lacuna nel raggiungimento di un'identità desiderata, compensa il deficit ostentando con forza simboli sostitutivi.</p>
+      <div class="tl-source">Wicklund & Gollwitzer (1982)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1995 — La Distorsione e il Ricordo del Passato</h4>
+      <p>Dimostrazione scientifica di come l'Io, non potendo alterare i dati cognitivi del presente, scelga di alterare e ricostruire attivamente il proprio passato per motivi adattivi di stabilità o cambiamento.</p>
+      <div class="tl-source">Arcuri & Maass (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1996 — Il Sé Tripartito</h4>
+      <p>La scomposizione accademica definitiva della percezione interna del Sé: viene suddiviso in schema individuale, schema relazionale e schema collettivo.</p>
+      <div class="tl-source">Brewer & Gardner (1996)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1996 — L'Ottimismo Irrealistico</h4>
+      <p>Definizione delle distorsioni sistematiche utilizzate per l'abbassamento dei livelli d'ansia generali mediante l'illusione psicologica del controllo sugli eventi.</p>
+      <div class="tl-source">Weinstein & Klein (1996)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è la differenza fondamentale tra il confronto interno (sé ideale) e il confronto sociale secondo Festinger?", a: "Il confronto con nozioni ideali interne rimane soggettivo e privo di validazione esterna; il confronto con le altre persone offre invece un punto di riferimento esterno oggettivo." },
+  { q: "Quali sono le tre declinazioni del Sé individuate da Brewer e Gardner (1996)?", a: "Sé individuale (tratti unici), Sé relazionale (legami intimi significativi) e Sé collettivo (appartenenza a gruppi sociali)." },
+  { q: "In cosa consiste il meccanismo cognitivo del 'Self-serving bias'?", a: "Nella tendenza sistematica ad attribuire i propri successi a cause interne e gli insuccessi a cause o concause esterne." },
+  { q: "Come si sviluppano e si stabilizzano gli schemi mentali secondo il testo?", a: "Nascono astratti, si arricchiscono con l'esperienza, si organizzano aumentando i legami interni e diventano compatti (attivazione tutto-o-niente) e flessibili." },
+  { q: "Perché l'individuo mette in atto il meccanismo di differenziazione dagli altri?", a: "Per soddisfare il proprio bisogno di unicità; per affermare chi è, deve acquisire consapevolezza di cosa non è rispetto al prossimo." },
+  { q: "Cosa descrive il Modello del Completamento Simbolico di Wicklund e Gollwitzer?", a: "La tendenza di chi non ha ancora raggiunto formalmente uno status/identità a compensare e colmare tale lacuna esibendo simboli sostitutivi." },
+  { q: "Quali sono i due principi usati per la comparazione temporale e la ricostruzione del passato?", a: "Il principio del cambiamento (per dimostrare un miglioramento delle proprie capacità) e il principio della stabilità (per dimostrare la permanenza nel tempo)." },
+  { q: "Cosa sono le strategie di self-handicapping?", a: "Strategie di autoimpedimento volte a costruire scuse credibili prima di un compito, per tutelare l'autovalutazione da un eventuale fallimento." },
+  { q: "Quale caratteristica peculiare mostra lo schema di Sé dei soggetti depressi (Derry & Kuiper, 1981)?", a: "Di fronte ad un compito di autodescrizione sono molto veloci nell'identificare ciò che NON sono, e molto lenti nel decidere ciò che sono, ricordando prevalentemente parole negative." },
+  { q: "Quali sono i due livelli su cui l'individuo trasforma i condizionamenti sociali in un'ottica costruttivista?", a: "Livello sociale (secondo regole sociali e culturali) e livello cognitivo (attraverso le proprie mediazioni interne)." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Secondo la teoria del confronto sociale di Festinger (1954), isolare i propri pensieri e sentimenti:", opts:["Fornisce una validazione oggettiva","Produce unicamente un prodotto soggettivo del rimuginare","Conduce a stabilità nel tempo","Soddisfa il bisogno di unicità"], ans:1, expl:"Festinger ritiene che, presi isolatamente, convinzioni e comportamenti siano solo il prodotto del nostro rimuginare, privi di punti di riferimento oggettivi esterni." },
+  { q: "Il Sé relazionale teorizzato da Brewer e Gardner (1996) è definito da:", opts:["Gli attributi e i tratti della personalità individuali","Le nostre relazioni con persone importanti ed intime","L'appartenenza formale ad un gruppo sociale strutturato","Le strategie di self-handicapping"], ans:1, expl:"Il Sé relazionale è esplicitamente definito dalle relazioni che l'individuo instaura con persone importanti del proprio ambiente sociale." },
+  { q: "Quale strategia di autoconferma fa sì che passiamo più tempo a esaminare giudizi conformi a noi stessi?", a:"L'attenzione orientata", opts:["La selezione delle informazioni","Il self-handicapping","La differenziazione dagli altri","Il completamento simbolico"], ans:0, expl:"La selezione delle informazioni comporta il passare molto più tempo ad esaminare i giudizi che confermano l'immagine di noi stessi piuttosto che quelli che la disconfermano." },
+  { q: "L'ottimismo irrealistico (Weinstein & Klein, 1996) si attiva principalmente in funzione di:", opts:["Dimostrare la coerenza temporale del Sé","Trovare simboli sostitutivi per uno status agognato","Ridurre l'ansia del rischio e mantenere un buon livello di autostima","Garantire l'attivazione tutto-o-niente degli schemi"], ans:2, expl:"L'ottimismo irrealistico è una distorsione del giudizio mossa dal bisogno di ridurre l'ansia del rischio e proteggere l'autostima tramite l'illusione del controllo sugli eventi." },
+  { q: "Secondo Arcuri e Maass (1995), quando i soggetti confrontano il presente con il passato:", opts:["È più facile modificare il ricordo del passato","È più facile distorcere la percezione del presente","Rinunciano ad ogni forma di autocompiacimento","Attivano il Sé collettivo"], ans:0, expl:"I soggetti tendono a modificare il ricordo del passato poiché non possono ingannarsi a proposito del presente in cui si trovano a vivere." },
+  { q: "Un laureando che ostenta simboli della professione di ingegnere prima del titolo agisce secondo:", opts:["Il modello del completamento simbolico","Il principio della stabilità temporale","Le strategie di self-handicapping","Il self-serving bias"], ans:0, expl:"Il modello del completamento simbolico (Wicklund & Gollwitzer) illustra come la mancanza di un possesso formale spinga a ostentare simboli sostitutivi." },
+  { q: "Le persone diagnosticate come depresse, nel compito di autodescrizione (Derry & Kuiper, 1981):", opts:["Sono velocissime nel decidere ciò che esse sono","Mostrano uno schema di Sé privo di flessibilità","Sono molto veloci nell'identificare ciò che esse NON sono","Esibiscono un forte self-serving bias"], ans:2, expl:"I depressi, avendo schemi focalizzati su concetti negativi, identificano rapidamente ciò che non sono ma faticano molto a stabilire ciò che sono." },
+  { q: "Cosa stabilisce il principio della stabilità nella comparazione temporale?", opts:["La necessità di dimostrare un miglioramento delle proprie abilità","La permanenza e la costanza nel tempo delle proprie capacità","La destrutturazione degli schemi cognitivi compatti","L'evitamento di interazioni interpersonali"], ans:1, expl:"Il principio della stabilità viene scelto appositamente per dimostrare la permanenza nel tempo e dunque la coerenza delle proprie capacità." },
+  { q: "Quale caratteristica possiede uno schema mentali giunto alla massima organizzazione?", opts:["Diventa completamente rigido e privo di eccezioni","Assomiglia ad un unico costrutto attivabile in maniera tutto-o-niente","Regredisce ad uno stadio puramente astratto","Cessa di influenzare la memoria a lungo termine"], ans:1, expl:"L'aumento dell'organizzazione produce uno schema compatto, un costrutto mentale integrato che si attiva in blocco (tutto-o-niente)." },
+  { q: "L'articolazione dell'identità nel processo di socializzazione implica lo sviluppo di quali concetti?", opts:["Attenzione, selezione ed elaborazione differenziata","Sé individuale, relazionale e collettivo","Intenzionalità, controllo e autocontrollo delle azioni","Ottimismo, stabilità e autoimpedimento"], ans:2, expl:"Il testo evidenzia che la definizione dell'identità e del proprio ruolo sociale richiede l'articolazione di intenzionalità, controllo e autocontrollo delle proprie azioni." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Errato. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi Risultato Finale →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Eccellente! Conosco perfetto del Mantenimento del Sé!' :
+      pct >= 0.7 ? '👍 Ottimo punteggio! Hai assimilato i concetti principali.' :
+      '📚 Conviene rileggere le sezioni teoriche e riprovare!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING GAME ─── */
+const matchPairs = [
+  { left: "Festinger (1954)", right: "Validazione oggettiva tramite confronto interpersonale" },
+  { left: "Brewer & Gardner", right: "Suddivisione in Sé individuale, relazionale e collettivo" },
+  { left: "Wicklund & Gollwitzer", right: "Uso di simboli sostituivi in mancanza di status formale" },
+  { left: "Derry & Kuiper (1981)", right: "Velocità nell'identificare ciò che NON si è nel Sé depresso" },
+  { left: "Arcuri & Maass (1995)", right: "Ricostruzione del passato per esigenze di coerenza o progresso" },
+  { left: "Weinstein & Klein", right: "Ottimismo irrealistico contro l'ansia del rischio" },
+  { left: "Self-handicapping", right: "Strategie preventive di autoimpedimento per giustificare fiaschi" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

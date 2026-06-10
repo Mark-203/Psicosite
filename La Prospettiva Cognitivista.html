@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Prospettiva Cognitivista — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  /* ─── ACCORDION ─── */
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  /* ─── QUIZ ─── */
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── MEMORY MATCH ─── */
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>La Prospettiva Cognitivista</h1>
+  <p>Analisi dei processi mentali, dei carichi cognitivi e della social cognition — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">💻</div>
+      <h3>La Mente come Elaboratore</h3>
+      <p>Nato negli anni '60 con Neisser, il cognitivismo vede la mente come un computer: riceve stimoli (input), li rielabora tramite strutture interne e produce risposte (output).</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🔄</div>
+      <h3>Modello TOTE</h3>
+      <p>Formulato per spiegare il comportamento mirato a uno scopo: Test (verifica), Operate (cambiamento), Test (ulteriore verifica) ed Exit (azione finale se il test è soddisfacente).</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Carico Cognitivo</h3>
+      <p>John Sweller evidenzia come la memoria di lavoro (WM) sia limitata. Fonti complesse o caotiche sovraccaricano la memoria ostacolando la comprensione profonda degli stimoli.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚡</div>
+      <h3>Sviluppo O-S-O-R</h3>
+      <p>Markus e Zajonc superano il comportamentismo classico (S-R) introducendo il modello Organismo-Stimolo-Organismo-Risposta, dando un ruolo attivo all'interpretazione e agli stati interni.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👥</div>
+      <h3>Social Cognition</h3>
+      <p>Studio di come le persone costruiscono la realtà soggettiva. Analizza i processi cognitivi "freddi" (codifica, immagazzinamento e recupero) rispetto a quelli influenzati dalle emozioni.</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📐</div>
+      <h3>Determinismo Triadico</h3>
+      <p>Dalla teoria di Albert Bandura si analizza l'azione umana come interazione reciproca e causale tra tre fattori: ambiente-contesto, la persona (elementi fisici/cognitivi) e la condotta stessa.</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>💻 La svolta cognitivista e la metafora computazionale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Gli anni '60 segnano una profonda svolta metodologica e sperimentale nella psicologia scientifica. Con la pubblicazione del volume "Psicologia cognitivista" di <strong>Neisser</strong> viene ufficializzato questo orientamento.</p>
+        <ul>
+          <li><strong>La metafora del computer:</strong> L'individuo viene inteso come un elaboratore attivo di informazioni. Riceve dati dall'ambiente esterno o interno (input), li organizza attraverso passaggi sequenziali e produce un comportamento (output).</li>
+          <li><strong>Organizzazione centrale:</strong> Gli stimoli non colpiscono un sistema vuoto, ma raggiungono strutture che possiedono già forme di organizzazione interna che filtrano l'accoglimento delle novità.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔄 Il Modello TOTE, Modularismo e Connessionismo</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Per descrivere la natura strategica dell'azione umana viene integrato il concetto di feedback nel comportamento, riassunto dall'acronimo <strong>TOTE</strong>:</p>
+        <ul>
+          <li><strong>Test:</strong> L'individuo verifica e valuta lo stimolo iniziale rispetto all'obiettivo desiderato.</li>
+          <li><strong>Operate:</strong> Si mettono in atto modifiche e azioni concrete per cambiare lo stato delle cose.</li>
+          <li><strong>Test:</strong> Nuova verifica dei risultati. Se il cambiamento non è avvenuto o è incompleto, si ritorna alla fase <i>Operate</i>.</li>
+          <li><strong>Exit:</strong> Raggiunto un livello soddisfacente, si esce dal loop mettendo in atto l'azione.</li>
+        </ul>
+        <p style="margin-top:0.6rem">All'interno del cognitivismo si aprono due importanti sottocorrenti:</p>
+        <ul>
+          <li><strong>Modularismo (Fodor, 1983):</strong> La mente è suddivisa in moduli innati, specializzati e distinti, ognuno deputato a elaborare specifiche informazioni.</li>
+          <li><strong>Connessionismo:</strong> Approccio opposto al modularismo, cerca i modelli dell'architettura mentale simulando la struttura biologica delle reti neurali del cervello; la conoscenza è distribuita sull'intera rete.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 Teoria del Carico Cognitivo (Sweller)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Presentata da <strong>John Sweller</strong>, descrive i meccanismi biologici attraverso cui il cervello acquisisce e conserva informazioni.</p>
+        <ul>
+          <li><strong>Working Memory (WM):</strong> La memoria di lavoro elabora gli stimoli in tempo reale aiutando la comprensione immediata, ma possiede capacità limitate.</li>
+          <li><strong>Memory a lungo termine (MLT):</strong> È il magazzino permanente con cui la memoria di lavoro deve continuamente comunicare.</li>
+          <li><strong>Il Fenomeno del Sovraccarico:</strong> Quando una fonte informativa è eccessivamente complessa o frammentata, satura la WM ostacolando o bloccando il processo di apprendimento.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⚡ Dal modello S-R al modello O-S-O-R</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>A metà degli anni Sessanta, il cognitivismo diventa la prospettiva dominante scalzando il comportamentismo.</p>
+        <ul>
+          <li><strong>Markus e Zajonc (1985):</strong> Evidenziano il passaggio cruciale dal modello meccanicistico Stimolo-Risposta (S-R) al modello <strong>Organismo-Stimolo-Organismo-Risposta (O-S-O-R)</strong>.</li>
+          <li><strong>Ruolo attivo dell'organismo:</strong> Gli stati mentali interni non sono più considerati canali passivi di mediazione, ma filtri attivi. L'individuo seleziona consapevolmente a quali stimoli prestare attenzione, quali ignorare e quali risposte fornire in base alle proprie interpretazioni e pensieri.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👥 Social Cognition e l'elaborazione Top-Down / Bottom-Up</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La <strong>Social Cognition</strong> (o cognitivismo sociale) rappresenta la seconda fase evolutiva dell'approccio. Studia come le informazioni sociali vengono codificate, immagazzinate ed estratte dalla memoria per costruire la realtà soggettiva dell'individuo.</p>
+        <ul>
+          <li><strong>Processi "Freddi":</strong> Il focus iniziale è posto su strutture logico-meccaniche stabili della memoria, lasciando sullo sfondo i processi "caldi" influenzati dall'emotività.</li>
+          <li><strong>Profondità di elaborazione:</strong> Se l'individuo non ha tempo, capacità o motivazione per analizzare la situazione, si affida alle conoscenze pregresse:
+            <ul>
+              <li><strong>Elaborazione Top-Down:</strong> Minore capacità/motivazione = Massimo impatto dei pregiudizi e schemi mentali passati sulle nuove informazioni.</li>
+              <li><strong>Elaborazione Bottom-Up:</strong> Maggiore capacità/motivazione = I dati reali provenienti dall'esterno modificano le strutture cognitive esistenti.</li>
+            </ul>
+          </li>
+          <li>I giudizi sociali non dipendono mai dal solo stimolo esterno, ma dall'interazione con le conoscenze precedentemente accumulate nel tempo.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📐 Albert Bandura e il Determinismo Triadico Reciproco</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>All'interno del cognitivismo sociale spicca il contributo fondamentale di <strong>Albert Bandura</strong>, il quale unisce lo studio dell'apprendimento osservativo all'analisi delle condotte pratiche nei contesti sociali.</p>
+        <ul>
+          <li><strong>Determinismo Triadico Reciproco:</strong> È un modello causale integrato secondo cui l'azione umana è determinata dal bilanciamento dinamico di 3 fattori in interazione reciproca:
+            <ol>
+              <li>Il <strong>sistema ambiente-contesto</strong> (stimoli ambientali ed ecologici).</li>
+              <li>La <strong>persona</strong> (con le sue caratteristiche fisiche, biologiche, cognitive ed affettive).</li>
+              <li>Il <strong>comportamento-condotta</strong> messo in atto.</li>
+            </ol>
+          </li>
+          <li><strong>Cognizione Sociale Odierna:</strong> Include oggi non solo la mente computazionale rigida (critica storicamente mossa da Edwards sul permanere di una concezione meccanicistica), ma anche impulsi, sensazioni emotive e fattori prettamente culturali utili a orientarsi nei contesti sociali reali e immaginari.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina autore/modello → concetto</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Autore / Teoria</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Concetto / Definizione</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Anni '60 — La nascita del Cognitivismo</h4>
+      <p>Svolta metodologica e sperimentale. La mente viene concepita e studiata per la prima volta come un elaboratore attivo di informazioni, simile ad un computer (Input-Output).</p>
+      <div class="tl-source">Neisser - "Psicologia cognitivista"</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il modello TOTE</h4>
+      <p>Sostituisce il vecchio concetto di arco riflesso introducendo il loop cibernetico basato sul feedback: Test, Operate, Test, Exit per regolare le azioni mirate ad uno scopo.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1983 — Modularismo vs Connessionismo</h4>
+      <p>Fodor propone una mente composta da moduli innati e specializzati. Il Connessionismo si oppone ricercando l'architettura mentale nelle reti neurali e nella conoscenza distribuita.</p>
+      <div class="tl-source">Fodor (1983)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Teoria del Carico Cognitivo</h4>
+      <p>La memoria di lavoro (WM) ha risorse limitate. Quando gli stimoli informativi esterni sono complessi, la WM va in sovraccarico inficiando la memorizzazione a lungo termine.</p>
+      <div class="tl-source">John Sweller</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il superamento del Comportamentismo: Modello O-S-O-R</h4>
+      <p>Il modello classico S-R viene sostituito dall'Organismo-Stimolo-Organismo-Risposta. Gli stati interni selezionano attivamente a quali stimoli prestare attenzione.</p>
+      <div class="tl-source">Markus e Zajonc (1985)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Social Cognition e Processi "Freddi"</h4>
+      <p>Seconda fase del cognitivismo. Studia come la mente codifica e struttura la realtà soggettiva tramite schemi logici e mnemonici, tenendo sullo sfondo le emozioni.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Profondità di Elaborazione: Top-Down vs Bottom-Up</h4>
+      <p>Poca motivazione/capacità porta all'uso di preconcetti e strutture vecchie (Top-Down); alta motivazione e abilità permettono ai nuovi dati di modificare la conoscenza esistente (Bottom-Up).</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1986 — Il Determinismo Triadico Reciproco</h4>
+      <p>Modello causale in cui l'azione si esprime attraverso l'interazione costante e reciproca tra tre macro-fattori: Ambiente, Persona (cognitiva/emotiva) e Comportamento.</p>
+      <div class="tl-source">Albert Bandura (1986, 1989)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Le critiche storiche al Cognitivismo</h4>
+      <p>Accusato di scarso rigore metodologico e debolezza sperimentale. Edwards evidenzia che ha mantenuto una visione meccanicistica della mente, sostituendo l'anti-mentalismo con un mentalismo rigido.</p>
+      <div class="tl-source">Canestrari (1986); Edwards (1997)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Chi ha stabilito il nome della corrente cognitivista negli anni '60?", a: "Neisser, con la pubblicazione del suo celebre volume 'Psicologia cognitivista'." },
+  { q: "Cosa significa l'acronimo TOTE nel modello cognitivista?", a: "Test, Operate, Test, Exit. Descrive il processo di feedback e cambiamento guidato da uno scopo." },
+  { q: "Qual è la differenza fondamentale tra Modularismo e Connessionismo?", a: "Il modularismo (Fodor) vede la mente divisa in moduli specializzati distinti; il connessionismo la vede come una rete neurale in cui la conoscenza è distribuita." },
+  { q: "In cosa consiste il fenomeno dei 'Carichi Cognitivi' secondo John Sweller?", a: "Nel blocco della comprensione che avviene quando la memoria di lavoro (WM), che è limitata, viene aggredita da informazioni troppo complesse." },
+  { q: "Come si differenzia il cognitivismo dal comportamentismo secondo Markus e Zajonc?", a: "Sostituisce il modello classico S-R (Stimolo-Risposta) con il modello O-S-O-R (Organismo-Stimolo-Organismo-Risposta)." },
+  { q: "Qual è l'oggetto di studio principale della Social Cognition?", a: "Lo studio delle conoscenze sociali e dei processi cognitivi che si attivano quando gli individui costruiscono la loro realtà soggettiva." },
+  { q: "Cosa studia l'elaborazione di tipo 'Top-Down'?", a: "Un processo in cui, a causa di bassa motivazione o capacità, i giudizi e le nuove informazioni sono fortemente influenzati e guidati dalle conoscenze precedenti." },
+  { q: "Cosa si intende per elaborazione 'Bottom-Up'?", a: "Un processo guidato dai dati in cui le abilità dell'individuo permettono alle nuove informazioni ambientali di modificare le conoscenze preesistenti." },
+  { q: "Quali sono i processi considerati 'freddi' nella Social Cognition?", a: "I processi di codifica, immagazzinamento ed estrazione delle informazioni dalla memoria, lasciando sullo sfondo le emozioni (processi caldi)." },
+  { q: "Che cos'è il Determinismo Triadico Reciproco di Albert Bandura?", a: "Un modello causale che spiega l'azione umana tramite l'interazione reciproca di tre elementi: l'ambiente-contesto, la persona (elementi fisici/cognitivi) e il comportamento." },
+  { q: "Quale critica muove Edwards (1997) nei confronti dei cognitivisti?", a: "Sostiene che abbiano introdotto il mentalismo mantenendo però una concezione meccanicistica della mente intesa come mero apparato di conversione input-output." },
+  { q: "Come varia la rievocazione delle informazioni secondo Fiedler e Bless (2001)?", a: "I processi cognitivi possono variare in termini di automaticità e controllabilità: le informazioni possono emergere in modo automatico o tramite richiamo intenzionale a richiesta." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Quale volume ha sancito la nascita ufficiale della corrente cognitivista?", opts:["La prospettiva cognitivista","Psicologia cognitivista di Neisser","Il modello TOTE","L'architettura della mente di Fodor"], ans:1, expl:"Il primo a stabilire il nome di questa corrente è stato Neisser con il suo volume 'Psicologia cognitivista' negli anni '60." },
+  { q: "Nel modello TOTE, cosa fa l'individuo nella fase 'Operate'?", opts:["Verifica lo stimolo","Esce dal modello di comportamento","Mette in atto dei cambiamenti per ottenere un risultato","Ignora gli stimoli esterni"], ans:2, expl:"Nella fase 'Operate' l'individuo agisce attivamente mettendo in atto dei cambiamenti finalizzati al raggiungimento del risultato desiderato." },
+  { q: "Secondo Fodor (1983), i moduli della mente sono:", opts:["Strutture distribuite su tutto il cervello","Interdipendenti e influenzati dalle emozioni","Distinti e ognuno specializzato per informazioni diverse","Inesistenti, sostituiti dalle reti neurali"], ans:2, expl:"Secondo la teoria del Modularismo di Fodor, la mente è formata da moduli distinti, ognuno di essi specializzato nell'elaborazione di informazioni specifiche." },
+  { q: "Quale memoria è limitata e rischia il sovraccarico secondo la teoria del carico cognitivo?", opts:["Memoria a lungo termine","Memoria sensoriale","Memoria di lavoro (Working Memory)","Memoria episodica"], ans:2, expl:"John Sweller evidenzia che la memoria di lavoro (WM) ha capacità limitate, e l'ondata di stimoli complessi può generare i 'Carichi Cognitivi'." },
+  { q: "Cosa introduce il modello O-S-O-R rispetto al comportamentismo?", opts:["L'eliminazione della risposta finale","Il ruolo attivo degli stati interni dell'organismo nella selezione di stimoli e risposte","La riduzione della mente a riflessi automatici","Il focus esclusivo sugli stimoli ambientali"], ans:1, expl:"Il modello Organismo-Stimolo-Organismo-Risposta assegna un ruolo attivo agli stati interni nell'interpretare e selezionare gli stimoli e le risposte." },
+  { q: "Su quali processi si focalizzava principalmente la prima fase della Social Cognition?", opts:["Processi 'caldi' fortemente emotivi","Processi 'freddi' legati alle strutture cognitive e alla memoria","Processi prettamente legati all'attivazione biologica","Processi di rimozione inconscia"], ans:1, expl:"La social cognition riserva una particolare attenzione alle strutture e ai processi cognitivi 'freddi' (codifica, ritenzione, recupero), tenendo sullo sfondo le emozioni." },
+  { q: "Quando si attiva prevalentemente un'elaborazione di tipo 'Top-Down'?", opts:["Quando l'individuo ha alte abilità di elaborazione","Quando nuove informazioni modificano radicalmente le conoscenze esistenti","Quando vi è minore capacità e motivazione nell'elaborazione, aumentando l'impatto delle conoscenze precedenti","Esclusivamente in contesti di laboratorio"], ans:2, expl:"Minore è il grado di capacità e motivazione, maggiore risulta l'impatto della conoscenza precedente e degli schemi mentali già posseduti (top-down)." },
+  { q: "Quali sono i tre fattori del Determinismo Triadico Reciproco di Albert Bandura?", opts:["Input, Elaborazione, Output","Test, Operate, Exit","Ambiente-contesto, Persona (fisica/cognitiva/affettiva) e Comportamento-condotta","Stimolo, Organismo, Risposta"], ans:2, expl:"Il modello di Bandura include il sistema ambiente-contesto, la persona con tutti i suoi elementi, e il comportamento-condotta in interazione reciproca." },
+  { q: "Quale critica viene mossa da Edwards (1997) al movimento cognitivista?", opts:["Di non aver considerato il ruolo del computer","Di aver mantenuto una nozione meccanicistica della mente come apparato di conversione input-output","Di aver dato troppa importanza alle emozioni","Di non aver utilizzato metodi sperimentali"], ans:1, expl:"Edwards critica i cognitivisti di aver sostituito l'anti-mentalismo comportamentista con il mentalismo, mantenendo però una visione meccanicistica (input-output)." },
+  { q: "I giudizi sociali secondo la Social Cognition dipendono:", opts:["Esclusivamente dagli stimoli esterni situazionali","Dalle pulsioni biologiche innate","Prevalentemente dalle conoscenze precedenti accumulate nel tempo dall'individuo in interazione con gli stimoli","Solo dal caso"], ans:2, expl:"Secondo l'approccio, i giudizi dipendono prevalentemente dalle conoscenze precedenti che la persona ha accumulato nel corso del tempo, non solo dagli stimoli esterni." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Hai padroneggiato la prospettiva cognitivista.' :
+      pct >= 0.7 ? '👍 Ben fatto! Ripassa solo qualche autore o sigla.' :
+      '📚 Continua a studiare il PDF — riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Neisser", right: "Volume 'Psicologia cognitivista' negli anni '60" },
+  { left: "Modello TOTE", right: "Ciclo di feedback: Test, Operate, Test, Exit" },
+  { left: "Fodor (1983)", right: "Modularismo e mente divisa in strutture specializzate" },
+  { left: "John Sweller", right: "Teoria del Carico Cognitivo e limiti della Working Memory" },
+  { left: "Markus e Zajonc", right: "Sostituzione del modello S-R col modello O-S-O-R" },
+  { left: "Elaborazione Top-Down", right: "Processo guidato dai concetti e dalle conoscenze pregresse" },
+  { left: "Albert Bandura", right: "Determinismo triadico reciproco (Persona-Ambiente-Condotta)" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

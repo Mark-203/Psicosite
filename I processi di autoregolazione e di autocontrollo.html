@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Processi di Autoregolazione e Autocontrollo — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4.5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 1200px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+  .data-table th, .data-table td {
+    border: 1px solid var(--border);
+    padding: 0.6rem;
+    text-align: left;
+  }
+  .data-table th {
+    background: rgba(167,139,250,0.1);
+    color: var(--lavender);
+  }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Psicologia Sociale</div>
+  <h1>I processi di autoregolazione e di autocontrollo</h1>
+  <p>Studio interattivo basato sulle lezioni della Prof.ssa Irene Petruccelli</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Cognitive Self-Management</h3>
+      <p>L'autoregolazione e l'autocontrollo orchestrano cognitivamente il problem solving. Si riferiscono alla metacognizione in azione applicata all'apprendimento e alle motivazioni.</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎯</div>
+      <h3>Strategie di Controllo</h3>
+      <p>Per sostenere i piani a lungo termine contro le tentazioni immediate si ricorre ad autosomministrazioni di ricompense/punizioni e all'associazione con i valori profondi (volere vs dovere).</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚖️</div>
+      <h3>Teoria dell'Autoconsapevolezza</h3>
+      <p>Mettere a fuoco il Sé evidenzia il divario doloroso tra Sé reale, Sé ideale o imperativo. Può innescare ansia, tristezza, calo dell'autostima e persino depressione.</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📊</div>
+      <h3>Convinzioni di Controllo</h3>
+      <p>Prerequisito fondamentale delle azioni dirette a obiettivi. Albert Bandura le suddivide rigorosamente in base alle aspettative sui risultati e alle aspettative di efficacia personale.</p>
+      <span class="pill">L'Autocontrollo</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">↔️</div>
+      <h3>Controllo Primario e Secondario</h3>
+      <p>Il controllo primario mira a modificare l'ambiente esterno; il controllo secondario adatta gli stati interni e le personali interpretazioni a seguito di un fallimento.</p>
+      <span class="pill">L'Autocontrollo</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🛡️</div>
+      <h3>Impotenza Appresa</h3>
+      <p>Deriva da ripetute esperienze negative vissute come incontrollabili. Conduce a pensieri di autosabotaggio ("non posso farcela") e blocca i processi di pensiero efficaci.</p>
+      <span class="pill">Il Sistema Autoregolativo</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 1. Introduzione all'Autoregolazione e Metacognizione</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'autoregolazione e l'autocontrollo costituiscono il processo del <strong>cognitive self-management</strong> e si riferiscono alla metacognizione in azione (Comoglio, 1999). Secondo la pragmatica dell'autoregolazione, le persone hanno la responsabilità di regolare le determinanti motivazionali, affettive, sociali e cognitive del proprio funzionamento (Bandura, 1991).</p>
+        <p style="margin-top:0.5rem">Chi possiede abilità superiori ottiene risultati scolastici migliori e possiede la fermezza necessaria per resistere alle difficoltà.</p>
+        <ul>
+          <li><strong>Esempio pratico:</strong> Più alta è la convinzione di poter regolare la propria motivazione nello studio, più efficacemente ci si applica nelle materie scolastiche.</li>
+          <li><strong>Strategie anti-tentazione:</strong> Autosomministrazione di ricompense o punizioni (es. pagarsi un abbonamento annuale non rimborsabile per sforzarsi di fare fitness).</li>
+          <li><strong>Trasformazione emotiva:</strong> Associare gli obiettivi a lungo termine ai propri valori (es. la salute) trasforma l'azione da un "dovere" a un "volere".</li>
+          <li><strong>Autoaffermazione:</strong> Azioni o eventi che esaltano il senso individuale di integrità e aiutano a ripristinare l'autocontrollo quando le risorse scarseggiano.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⚖️ 2. Teoria dell'Autoconsapevolezza e Discrepanze del Sé</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Quando il nostro <strong>sé reale</strong> non corrisponde al nostro <strong>sé ideale</strong> o al <strong>sé imperativo</strong>, siamo motivati a muoverci, ma l'autoconsapevolezza di trovarsi al di sotto dei propri canoni interiori può rivelarsi dolorosa (Smith et al., 2015).</p>
+        <ul>
+          <li><strong>Stimoli ambientali:</strong> Essere messi davanti a uno specchio o esposti al confronto sociale aumenta l'autoconsapevolezza, direzionando l'attenzione sui canoni interni.</li>
+          <li><strong>Rischi psicologici:</strong> Nei casi estremi, l'esposizione costante ai propri fallimenti di autoregolazione può provocare cicli di tristezza, ansia, crollo dell'autostima e depressione.</li>
+          <li><strong>Resistenza al cambiamento:</strong> Una volta costruito, il concetto di sé tende a resistere alle modifiche, condizionando stabilmente pensieri, emozioni e azioni quotidiane.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📊 3. Modelli Storici e Costrutti del Controllo Cognitivo</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Bandura (1995) distingue analiticamente la gestione attiva in tre macro-componenti:</p>
+        <ol style="margin-left:1.5rem; margin-top:0.4rem;">
+          <li><strong>Il controllare:</strong> la regolazione effettiva di un processo in corso.</li>
+          <li><strong>Il controllo:</strong> la possibilità potenziale di regolare il processo se necessario.</li>
+          <li><strong>Le convinzioni di controllo:</strong> le rappresentazioni soggettive delle proprie capacità di esercitare il controllo.</li>
+        </ol>
+        <p style="margin-top:0.6rem">I principali autori della psicologia hanno inquadrato il costrutto in modi differenti:</p>
+        <table class="data-table">
+          <thead>
+            <tr><th>Autore</th><th>Modello / Componenti strutturali</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Lazarus</strong></td><td>Valutazione di fronteggiamento (Valutazione primaria + Valutazione secondaria)</td></tr>
+            <tr><td><strong>Bandura</strong></td><td>Convinzioni di controllo (Aspettative sui risultati + Aspettative di efficacia)</td></tr>
+            <tr><td><strong>Skinner</strong></td><td>Convinzioni di controllo (Convinzioni mezzi-fini + Convinzioni circa la propria attività)</td></tr>
+            <tr><td><strong>Flammer</strong></td><td>Convinzioni di controllo (Convinzioni di contingenza + Convinzioni di competenza)</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.8rem; font-style:italic;">Nota: Tradizionalmente, le convinzioni circa le proprie attività hanno un valore predittivo della prestazione nettamente maggiore rispetto a quelle mezzi-fini (Chapman, Skinner e Baltes, 1990).</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⏳ 4. Sviluppo Evolutivo e Limiti del Controllo Personale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'apprendimento delle contingenze avviene tramite tre canali cardine: <strong>abituazione</strong>, <strong>condizionamento classico</strong> e <strong>condizionamento strumentale</strong> (Bandura, 1995).</p>
+        <p style="margin-top:0.5rem">Nello sviluppo evolutivo, la persona attraversa 5 livelli ascendenti di controllo:</p>
+        <ul>
+          <li><strong>Primo livello:</strong> Schemi di eventi.</li>
+          <li><strong>Secondo livello:</strong> Schema causale.</li>
+          <li><strong>Terzo livello:</strong> Distinzione tra cause interne ed esterne.</li>
+          <li><strong>Quarto livello:</strong> Consapevolezza di sé come origine del concetto di sé categoriale.</li>
+          <li><strong>Quinto livello:</strong> Convinzione di controllo come parte del concetto di sé categoriale.</li>
+        </ul>
+        <p style="margin-top:0.6rem"><strong>L'invecchiamento e i limiti:</strong> Con l'avanzare degli anni alcuni ambiti sfuggono al controllo personale (memoria, forza fisica, velocità di calcolo, pensionamento, perdita di potere professionale/sessuale). Bandura sottolinea la necessità di un'accettazione serena delle perdite per evitare la depressione. Le limitazioni gravi possono manifestarsi precocemente anche nelle persone diversamente abili.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔄 5. Controllo Primario vs Secondario e Sottofunzioni dell'Autocontrollo</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I processi di gestione si dividono in due grandi strategie che coesistono costantemente:</p>
+        <ul>
+          <li><strong>Controllo Primario:</strong> Sforzo attivo diretto a modificare l'ambiente esterno per adattarlo alle proprie aspirazioni personali.</li>
+          <li><strong>Controllo Secondario:</strong> Sforzo mirato a modificare i propri stati soggettivi (aspirazioni, interpretazioni e pensieri) per adattarli ai vincoli dell'ambiente esterno. Interviene massicciamente dopo un insuccesso oggettivo o anticipato del controllo primario.</li>
+        </ul>
+        <p style="margin-top:0.5rem">Secondo il <strong>Determinismo Triadico Reciproco</strong> di Bandura, lo sviluppo permette di interiorizzare le sanzioni sociali in sanzioni interiorizzate, strutturando il giudizio morale. L'autocontrollo poggia su tre sottofunzioni specifiche della condotta:</p>
+        <ol style="margin-left:1.5rem;">
+          <li>Autocontrollo della condotta.</li>
+          <li>Giudizio sulla condotta in relazione a criteri personali e circostanze ambientali.</li>
+          <li>Reazione interna affettiva.</li>
+        </ol>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⛓️ 6. Il Sistema Autoregolativo, Impotenza Appresa e Locus of Control</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il sistema cognitivo autoregolativo comprende quattro elementi chiave (Nota e Soresi, 2000):</p>
+        <ul>
+          <li>Capacità di individuare obiettivi soddisfacenti per se stessi.</li>
+          <li>Aspettative di <strong>autoefficacia</strong> (attivazione delle risorse tramite un bilancio delle potenzialità).</li>
+          <li>Capacità di riaggiustamento e ridefinizione delle aspirazioni in base agli standard di prestazione.</li>
+          <li>Aspettative di risultato, utili per canalizzare le energie personali.</li>
+        </ul>
+        <p style="margin-top:0.5rem"><strong>Monitoraggio del Sé:</strong> Le persone si dividono in <em>high self-monitor</em> (alta capacità di automonitoraggio) e <em>low self-monitor</em> (bassa capacità).</p>
+        <p style="margin-top:0.5rem"><strong>Impotenza Appresa:</strong> Condizione vissuta da chi subisce ripetute esperienze di totale mancanza di controllo. I pensieri di autosabotaggio ("non posso farcela") interferiscono con i processi di pensiero logico, portando a bassa autostima, pessimismo, alterazioni del sonno e depressione (Smith et al., 2015).</p>
+        <p style="margin-top:0.5rem"><strong>Locus of Control (Rotter, 1966):</strong> Rappresenta il «luogo» del controllo degli eventi:</p>
+        <ul>
+          <li><strong>Esterno:</strong> Eventi attribuiti al caso, alla fortuna o ad azioni altrui; percepiti come imprevedibili.</li>
+          <li><strong>Interno:</strong> Eventi percepiti come conseguenza diretta delle proprie azioni, affrontati con responsabilità e piena consapevolezza.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina costrutto → definizione</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo corretto abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Modello / Autore</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Definizione / Componenti</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Cognitive Self-Management</h4>
+      <p>L'unione di autoregolazione e autocontrollo definisce la "metacognizione in azione", che orchestra i processi di risoluzione dei problemi complessi.</p>
+      <div class="tl-source">Comoglio (1999)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Teoria dell'Autoconsapevolezza Oggettiva</h4>
+      <p>Focalizzare l'attenzione su di sé evidenzia la discrepanza tra Sé reale e Sé ideale/imperativo. Questa consapevolezza risulta spesso dolorosa o spiacevole.</p>
+      <div class="tl-source">Duval & Wicklund / Smith et al. (2015)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Triade del Controllo di Bandura</h4>
+      <p>Le convinzioni di controllo si distinguono nettamente dalle azioni reali. Si dividono in: "il controllare" (regolazione attiva), "il controllo" (possibilità potenziale) e "le convinzioni" (rappresentazioni mentali).</p>
+      <div class="tl-source">Bandura (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Scomposizione delle Convinzioni per Flammer</h4>
+      <p>Le convinzioni di controllo sono strutturate dall'unione di due elementi soggettivi: Convinzioni di contingenza + Convinzioni di competenza.</p>
+      <div class="tl-source">Flammer / Bandura (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>I 5 Livelli dello Sviluppo del Controllo</h4>
+      <p>Dagli schemi di eventi elementari (1°) si passa attraverso lo schema causale (2°), la differenziazione delle cause (3°), l'origine del Sé (4°) fino alla piena convinzione del Sé categoriale (5°).</p>
+      <div class="tl-source">Evoluzione del Sé - Bandura (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Modulazione Ambientale dei Sistemi di Controllo</h4>
+      <p>Coesistenza di due spinte: Controllo Primario (modifica attiva della realtà esterna) e Controllo Secondario (rimodulazione cognitiva dei propri desideri interni).</p>
+      <div class="tl-source">Modelli di Adattamento - Bandura (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Sottofunzioni dell'Autocontrollo Comportamentale</h4>
+      <p>L'autocontrollo impatta sulla condotta tramite tre fasi sequenziali: monitoraggio della condotta, valutazione secondo i criteri personali ed emissione della reazione interna affettiva.</p>
+      <div class="tl-source">Determinismo Triadico Reciproco - Bandura (1986)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Locus of Control</h4>
+      <p>Il costrutto che definisce l'attribuzione causale degli eventi. Se interno, la persona si assume la responsabilità degli esiti; se esterno, li attribuisce alla totale imprevedibilità del caso.</p>
+      <div class="tl-source">Rotter (1966)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Cosa si intende per 'cognitive self-management'?", a: "Il processo composto da autoregolazione e autocontrollo, inteso come la metacognizione in azione che orchestra il problem solving." },
+  { q: "Qual è la differenza tra Sé reale, ideale e imperativo?", a: "Il Sé reale è ciò che siamo; l'ideale è ciò che vorremmo essere; l'imperativo è ciò che dovremmo essere. La distanza tra essi genera emozioni dolorose." },
+  { q: "Come definisce Flammer le convinzioni di controllo?", a: "Le definisce come un composto strutturato da due tipi di convinzioni: convinzioni di contingenza e convinzioni di competenza." },
+  { q: "Quali sono le tre componenti del controllo per Bandura (1995)?", a: "Il controllare (regolazione effettiva), il controllo (possibilità di regolare) e le convinzioni di controllo (rappresentazioni soggettive)." },
+  { q: "Quali sono i tre canali d'apprendimento delle contingenze per Bandura?", a: "L'abituazione, il condizionamento classico e il condizionamento strumentale." },
+  { q: "Cosa descrivono il controllo primario e il controllo secondario?", a: "Il primario cerca di modificare l'ambiente per adattarlo a sé; il secondario modifica i propri stati interni per adattarsi all'ambiente." },
+  { q: "Quali sono le tre sottofunzioni dell'autocontrollo nella condotta?", a: "L'autocontrollo della condotta, il giudizio sulla condotta rispetto a criteri personali/ambientali e la reazione interna affettiva." },
+  { q: "Quali elementi comprende il sistema cognitivo autoregolativo secondo Nota e Soresi?", a: "Individuazione degli obiettivi, aspettative di autoefficacia, riaggiustamento delle aspirazioni e aspettative di risultato." openings: 4 },
+  { q: "Che differenza c'è tra individui 'high self-monitor' e 'low self-monitor'?", a: "Gli high self-monitor possiedono elevate capacità di automonitoraggio delle proprie attività, mentre i low self-monitor mostrano capacità ridotte." },
+  { q: "Cosa causa il fenomeno psicologico dell'impotenza appresa?", a: "Esperienze ripetute di mancanza di controllo. Genera pensieri di autosabotaggio ('non posso farcela') che alimentano la depressione." },
+  { q: "Cosa postula la teoria del Determinismo Triadico Reciproco sul controllo?", a: "Che nel corso dello sviluppo le persone interiorizzano le sanzioni sociali in sanzioni interne, strutturando il proprio giudizio morale." },
+  { q: "Cosa differenzia un locus of control interno da uno esterno?", a: "Il locus interno attribuisce le cause degli eventi alle proprie azioni e responsabilità; quello esterno le attribuisce al caso e a fattori imprevedibili." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Secondo Comoglio (1999), l'autoregolazione e l'autocontrollo sono:", opts:["Processi puramente emotivi slegati dal Sé","La metacognizione in azione applicata al problem solving","Meccanismi biologici ereditari rigidamente fissati","Strategie esclusivamente esterne di condizionamento"], ans:1, expl:"Autoregolazione e autocontrollo costituiscono il 'cognitive self-management', ossia la metacognizione in azione." },
+  { q: "Secondo la teoria dell'autoconsapevolezza, focalizzare l'attenzione sul Sé è spesso doloroso perché:", opts:["Annulla la memoria a lungo termine","Mette in risalto la distanza tra Sé attuale/reale e Sé ideale","Impedisce lo sviluppo del linguaggio","Attiva un locus of control esclusivamente esterno"], ans:1, expl:"Mettere a fuoco il Sé evidenzia le discrepanze tra chi siamo e chi vorremmo o dovremmo essere, generando disagio psicologico." },
+  { q: "Nel modello di Albert Bandura (1995), le convinzioni di controllo equivalgono a:", opts:["Valutazione primaria + Valutazione secondaria","Convinzioni mezzi-fini + Convinzioni circa le attività","Aspettative sui risultati + Aspettative di efficacia","Abituazione + Condizionamento strumentale"], ans:2, expl:"Bandura scompone le convinzioni di controllo in aspettative sui risultati e aspettative di efficacia." },
+  { q: "Quale tipo di convinzioni ha storicamente dimostrato un valore predittivo della prestazione maggiore?", opts:["Le convinzioni mezzi-fini","Le convinzioni circa la propria attività","Le convinzioni esterne casuali","Le convinzioni legate all'abituazione"], ans:1, expl:"Gli studi (es. Chapman, Skinner e Baltes) indicano che le convinzioni sulla propria attività predicono la prestazione meglio delle altre." },
+  { q: "Le convinzioni di contingenza indicano:", opts:["La capacità soggettiva di compiere un'azione complessa","La probabilità con cui una certa azione porterà a un determinato risultato","Il quinto livello dello sviluppo del Sé categoriale","La reazione interna affettiva del giudizio morale"], ans:1, expl:"Le convinzioni di contingenza riguardano il nesso di probabilità tra l'azione intrapresa e il risultato ottenuto." },
+  { q: "Qual è il corretto ordine evolutivo dei livelli di controllo (dal 1° al 5°)?", opts:["Schema causale → Eventi → Cause → Origine Sé → Sé categoriale","Schemi di eventi → Schema causale → Cause interne/esterne → Origine Sé → Sé categoriale","Sé categoriale → Origine Sé → Cause → Schema causale → Eventi","Abituazione → Condizionamento classico → Strumentale → Locus → Triade"], ans:1, expl:"Lo sviluppo procede linearmente dagli schemi di eventi elementari fino alla piena convinzione di controllo del Sé categoriale." },
+  { q: "Il controllo secondario interviene principalmente quando:", opts:["L'ambiente esterno è facilmente modificabile","I processi di controllo primario falliscono (o si anticipa il loro insuccesso)","L'individuo si trova nel primo livello evolutivo dello sviluppo","Il locus of control è unicamente interno e stabile"], ans:1, expl:"Il controllo secondario mira a modificare gli stati interni e le aspettative per accettare una realtà esterna non modificabile." },
+  { q: "Le tre sottofunzioni dell'autocontrollo nel Determinismo Triadico Reciproco sono:", opts:["Abituazione, Condizionamento e Risposta","Obiettivi, Autoefficacia e Risultato","Autocontrollo della condotta, Giudizio sulla condotta e Reazione interna affettiva","Locus interno, Locus esterno e Autoconsapevolezza"], ans:2, expl:"Il sistema di autocontrollo agisce monitorando la condotta, giudicandola secondo standard interni e generando reazioni affettive." },
+  { q: "L'impotenza appresa insorge quando un individuo vive esperienze ripetute di:", opts:["Successo sociale inaspettato","Mancanza totale di controllo su eventi negativi","Autogestione e alta autoefficacia percepita","Controllo primario efficace sull'ambiente"], ans:1, expl:"La ripetuta mancanza di controllo convince il soggetto di non poter influire sul proprio destino, inducendo auto-sabotaggio." },
+  { q: "Chi ha teorizzato il costrutto del 'Locus of Control' nel 1966?", opts:["Albert Bandura","Julian Rotter","Skinner","Flammer"], ans:1, expl:"Il Locus of Control («luogo» del controllo) è stato formalmente proposto da Rotter nel 1966." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Straordinario! Padronanza assoluta dei processi autoregolativi.' :
+      pct >= 0.7 ? '👍 Ottimo lavoro! Hai una solida comprensione della lezione.' :
+      '📚 Conviene rileggere i dettagli dell\'accordion e riprovare!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Lazarus", right: "Valutazione primaria + Valutazione secondaria" },
+  { left: "Bandura (Convinzioni)", right: "Aspettative sui risultati + Aspettative di efficacia" },
+  { left: "Skinner", right: "Convinzioni mezzi-fini + Convinzioni sulla propria attività" },
+  { left: "Flammer", right: "Convinzioni di contingenza + Convinzioni di competenza" },
+  { left: "Rotter (1966)", right: "Locus of Control (Luogo interno o esterno)" },
+  { left: "Comoglio (1999)", right: "Metacognizione in azione e Cognitive Self-Management" },
+  { left: "Nota e Soresi (2000)", right: "4 pilastri del sistema cognitivo autoregolativo" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

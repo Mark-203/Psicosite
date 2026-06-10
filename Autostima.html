@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Autostima — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>L'Autostima</h1>
+  <p>Costrutti, dinamiche identitarie e differenze con l'autoefficacia — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del costrutto</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Definizione</h3>
+      <p>L'autostima è il processo soggettivo e duraturo di valutazione e apprezzamento di sé tramite l'auto-approvazione del proprio valore. Deriva dal latino "aestimare" (valutare).</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚖️</div>
+      <h3>Concetto di Sé</h3>
+      <p>È la costellazione di elementi descrittivi e conoscitivi (nome, razza, gusti, ruoli sociali). L'autostima ne rappresenta la specifica reazione emotiva e valutazione di valore.</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚔️</div>
+      <h3>Autostima vs Autoefficacia</h3>
+      <p>L'autostima riguarda i giudizi di valore personale (piacersi), mentre l'autoefficacia riguarda i giudizi di capacità in compiti e contesti specifici. Non sono interscambiabili.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎭</div>
+      <h3>Autoconsapevolezza</h3>
+      <p>Inizia a svilupparsi a 18 mesi. Si divide in privata e pubblica; quest'ultima è profondamente legata alla preoccupazione per l'aderenza agli standard comportamentali sociali.</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🏛️</div>
+      <h3>I 6 Pilastri di Branden</h3>
+      <p>Comportamenti quotidiani per affinare l'autostima: vivere consapevolmente, accettarsi, assumersi le responsabilità, farsi valere, avere uno scopo e mantenere l'integrità.</p>
+      <span class="pill">Conclusioni</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🔄</div>
+      <h3>Dinamiche dell'Identità</h3>
+      <p>La discrepanza tra Sé percepito e Sé ideale muove il cambiamento. La riconsiderazione dell'impegno genera crisi ma unifica l'identità e il concetto di sé nel tempo.</p>
+      <span class="pill">Conclusioni</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 1. Definizione dell'Autostima e Concetto di Sé</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'etimologia della parola <strong>autostima</strong> deriva dal latino <em>aestimare</em>, che significa valutare o esprimere un'opinione sul valore di qualcosa. Si tratta di un processo soggettivo, duraturo e dinamico che si sviluppa a partire dalla prima infanzia nel confronto continuo con il mondo esterno.</p>
+        <p style="margin-top:0.5rem">È fondamentale distinguere l'autostima dal <strong>concetto di sé</strong>:</p>
+        <ul>
+          <li><strong>Il concetto di sé:</strong> È l'insieme descrittivo di conoscenze oggettive e sociali su di sé (es. il nome, i gusti, la professione, il ruolo di amico).</li>
+          <li><strong>L'autostima:</strong> È l'aspetto valutativo e la reazione emotiva alle informazioni del concetto di sé. Permette alle persone di amarsi indipendentemente da indicatori di successo oggettivi.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👤 2. L'Autoconsapevolezza e la formula di William James</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il senso di <strong>autoconsapevolezza (self-awareness)</strong> inizia a svilupparsi intorno ai 18 mesi di vita ed è cruciale per lo sviluppo psicosociale. Si differenzia in:</p>
+        <ul>
+          <li><strong>Autoconsapevolezza privata:</strong> L'analisi interna dei propri sentimenti e stati mentali.</li>
+          <li><strong>Autoconsapevolezza pubblica:</strong> La preoccupazione per l'aderenza e il rispetto degli standard sociali di comportamento.</li>
+        </ul>
+        <p style="margin-top:0.6rem"><strong>William James (1890)</strong> definisce l'Autostima come il rapporto matematico/valutativo tra il <strong>Sé percepito</strong> (come ci vediamo) e il <strong>Sé ideale</strong> (come vorremmo essere). Se la realtà vissuta non raggiunge il livello del Sé ideale, l'individuo sperimenta una bassa autostima, indipendentemente dai successi oggettivi raggiunti (es. diventare un ricco imprenditore quando si desiderava ardentemente una laurea).</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⚔️ 3. Differenze radicali tra Autostima e Autoefficacia</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Sebbene utilizzati spesso erroneamente come sinonimi, secondo <strong>Albert Bandura (2000)</strong> i due concetti si riferiscono a fenomeni completamente differenti:</p>
+        <ul>
+          <li><strong>Autoefficacia:</strong> Riguarda i giudizi di <em>capacità personale</em>. È un costrutto strettamente legato a un compito specifico e a un contesto. Richiede impegno e autodisciplina.</li>
+          <li><strong>Autostima:</strong> Riguarda i giudizi di <em>valore personale</em> (l'aspetto valutativo della coscienza riflessiva secondo Baumeister).</li>
+        </ul>
+        <p style="margin-top:0.6rem"><strong>Mancanza di relazione lineare:</strong> Una persona può ritenersi del tutto inefficace in un'attività (es. ballare o cucinare) senza subire alcuna perdita di autostima, purché non investa quell'attività del proprio senso di valore personale. L'autoefficacia consente di prevedere la scelta degli obiettivi e la qualità delle prestazioni, l'autostima no.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌍 4. Le Fonti dell'Autostima secondo Bandura</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Bandura smentisce l'idea che l'autostima sia una variabile globale e indifferenziata. Essa è intrinsecamente multidimensionale e deriva principalmente da due macro-fonti:</p>
+        <ul>
+          <li><strong>Competenza personale:</strong> Quando le persone rispettano i propri standard interiori e sviluppano potenzialità reali in attività investite di valore, costruendo una solida base autovalutativa sotto il proprio controllo.</li>
+          <li><strong>Attributi e valutazioni sociali:</strong> Spesso i giudizi altrui riflettono l'apprezzamento o il disprezzo dello status o di caratteristiche personali anziché dell'effettivo operato. L'autostima è perciò minacciata dagli <strong>stereotipi culturali</strong> (etnia, razza, genere) che classificano le persone in gruppi svalutati.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🏛️ 5. Il Sistema Immunitario dello Spirito: I 6 Pilastri di Branden</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Nathaniel Branden definisce la stima di sé come un vero e proprio "sistema immunitario dello spirito". Se manca una valutazione positiva di sé, perfino le relazioni affettive d'amore ne risultano distorte. Branden suggerisce 6 pratiche comportamentali quotidiane:</p>
+        <ol style="margin-left:1.2rem; margin-top:0.5rem;">
+          <li><strong>Vivere in modo consapevole:</strong> Accettare la realtà dei fatti senza cedere a illusioni o negazioni.</li>
+          <li><strong>Accettare sé stessi:</strong> Rifiutare l'auto-sabotaggio e i comportamenti autolesionisti.</li>
+          <li><strong>Assumersi le proprie responsabilità:</strong> Rispondere delle proprie scelte, azioni, e valorizzare i propri limiti.</li>
+          <li><strong>Farsi valere:</strong> Difendere con coraggio le proprie idee e i propri valori personali.</li>
+          <li><strong>Avere uno scopo nella vita:</strong> Pianificare e mettere in atto azioni concrete per raggiungere i traguardi.</li>
+          <li><strong>Rimanere fedeli ai principi:</strong> Preservare l'integrità personale e la coerenza comportamentale.</li>
+        </ol>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔄 6. Integrazione tra Identità e Concetto di Sé</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Secondo gli studi di <strong>Palmonari e collaboratori (2002)</strong>, la ricerca psicologica ha seguito due filoni:</p>
+        <ul>
+          <li>La ricerca sull'<strong>identità</strong> (focalizzata sui processi dinamici ed evolutivi dell'assunzione di impegni).</li>
+          <li>La ricerca sul <strong>concetto di sé</strong> (focalizzata sui contenuti degli schemi di sé e sulla stima globale/specifica).</li>
+        </ul>
+        <p style="margin-top:0.6rem">Il punto d'unione è la <strong>riconsiderazione dell'impegno</strong>. Quando una persona non è più soddisfatta delle proprie scelte, sperimenta una crisi identitaria che correla negativamente con la chiarezza del concetto di sé. La discrepanza tra il <strong>Sé attuale</strong> e i <strong>Sé possibili (Sé ideale)</strong> funge da vero e proprio motore del cambiamento identitario, confluendo nel <em>sentimento di identità</em>, inteso come qualità relazionale temporale dell'esperienza globale del Sé.</p>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 10</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina autore/costrutto → significato</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento corretto a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Autore / Concetto</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Significato / Definizione</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave ed Evoluzione del Sé</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Origine Etimologica</h4>
+      <p>Deriva dal latino "aestimare". Indica l'atto di determinare il valore di qualcosa, formulando un'opinione profonda su se stessi.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Dai 18 Mesi — Autoconsapevolezza</h4>
+      <p>Inizia lo sviluppo psicosociale del bambino che si sdoppierà col tempo in autoconsapevolezza privata e pubblica (preoccupazione degli standard sociali).</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1890 — La Formula di William James</h4>
+      <p>L'Autostima viene definita matematicamente come il rapporto tra il Sé percepito di una persona e il suo Sé ideale. La discrepanza genera svalutazione.</p>
+      <div class="tl-source">William James (1890)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1994 — Il Modello dei Pilastri comportamentali</h4>
+      <p>L'autostima agisce come un sistema immunitario psichico. Vengono identificati i 6 comportamenti chiave da attuare quotidianamente.</p>
+      <div class="tl-source">Nathaniel Branden (1994)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1998 — L'Aspetto Valutativo della Coscienza</h4>
+      <p>Chi possiede un'autostima solida ricerca attivamente feedback positivi nelle interazioni e tende a interpretarli in modo coerente con la propria visione di sé.</p>
+      <div class="tl-source">Baumeister (1998)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>2000 — Scissione radicale tra Valore e Capacità</h4>
+      <p>Viene formalizzato che l'autostima riguarda i giudizi di valore personale, mentre l'autoefficacia riguarda i giudizi di capacità. Non esiste un'autostima globale indifferenziata.</p>
+      <div class="tl-source">Albert Bandura (2000)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>2002 — L'Approccio Integrativo e la Crisi</h4>
+      <p>Vengono uniti i modelli dei processi d'identità e i contenuti del concetto di sé. La riconsiderazione dell'impegno viene vista come il motore del cambiamento.</p>
+      <div class="tl-source">Palmonari et al. (2002)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>2008 — Il Potere Sociale e il Narcisismo</h4>
+      <p>L'autostima si lega alla convinzione di poter influenzare la realtà esterna (timonieri della propria barca) contro le maschere della società dell'apparenza.</p>
+      <div class="tl-source">Pasini (2008)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è la differenza sostanziale tra concetto di sé e autostima?", a: "Il concetto di sé riguarda le conoscenze descrittive del sé (nome, ruoli, gusti); l'autostima è la valutazione emotiva e il valore attribuito a tali informazioni." },
+  { q: "Come definisce William James l'autostima?", a: "Come il rapporto tra il Sé percepito (come ci si vede) e il Sé ideale (come si vorrebbe essere). Una forte discrepanza abbassa l'autostima." },
+  { q: "A quale età comincia a svilupparsi l'autoconsapevolezza?", a: "A partire dai 18 mesi di età, differenziandosi poi in privata e pubblica." },
+  { q: "Qual è la distinzione fondamentale tra autostima e autoefficacia secondo Bandura?", a: "L'autoefficacia riguarda i giudizi di capacità personale in compiti specifici, mentre l'autostima riguarda i giudizi di valore personale." },
+  { q: "È possibile avere bassa autoefficacia in un compito senza perdere autostima?", a: "Sì, se la persona non investe quell'attività specifica del senso del proprio valore personale." },
+  { q: "Quali sono le due macro-fonti dell'autostima secondo Bandura?", a: "Le autovalutazioni basate sulla competenza personale e il possesso di attributi culturalmente/socialmente investiti di valore." },
+  { q: "Cosa intende Nathaniel Branden quando paragona l'autostima a un sistema immunitario?", a: "La considera una forza dello spirito in grado di rimetterci in forze e proteggerci in qualsiasi situazione disfunzionale." */},
+  { q: "Quali sono le due componenti dell'autostima descritte da Pasini (2008)?", a: "L'autostima interna (raggiungimento degli obiettivi prefissati) e l'autostima esterna (messaggi positivi provenienti dagli altri)." },
+  { q: "Cosa causa il cambiamento identitario secondo gli studi sui Sé possibili?", a: "La discrepanza tra il proprio Sé attuale e il Sé ideale, che stimola l'esplorazione e la riconsiderazione dell'impegno." },
+  { q: "Su cosa si focalizza la ricerca sul concetto di sé rispetto a quella sull'identità?", a: "L'identità si focalizza sulle dinamiche dei processi di impegno; il concetto di sé si focalizza sui contenuti degli schemi e sul valore globale/specifico." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Da quale parola latina deriva il termine 'autostima'?", opts:["Aestimare","Autos","Stare","Agere"], ans:0, expl:"Deriva dal latino 'aestimare' che significa valutare, determinare il valore di o avere un'opinione su." },
+  { q: "A quanti mesi comincia a svilupparsi l'autoconsapevolezza (self-awareness)?", opts:["6 mesi","12 mesi","18 mesi","24 mesi"], ans:2, expl:"Il senso di autoconsapevolezza comincia a svilupparsi a partire dai 18 mesi di vita." },
+  { q: "Per William James, l'autostima è l'esito del confronto tra:", opts:["Successi concreti e aspettative (Sé percepito vs Sé ideale)","Opinione pubblica e privata","Autoefficacia e competenze reali","Introspezione e interazione sociale"], ans:0, expl:"James definisce l'autostima come il valore risultante dal rapporto tra il Sé percepito e il Sé ideale." },
+  { q: "Chi definisce l'autostima come l'aspetto valutativo della coscienza riflessiva?", opts:["Bandura","Baumeister","William James","Branden"], ans:1, expl:"Secondo Baumeister (1998) l'autostima rappresenta proprio l'aspetto valutativo della coscienza riflessiva." },
+  { q: "Secondo Bandura (2000), l'autoefficacia differisce dall'autostima perché:", opts:["L'autoefficacia è globale","L'autoefficacia riguarda i giudizi di capacità personale, l'autostima il valore personale","Sono la stessa cosa","L'autostima non include la sfera emotiva"], ans:1, expl:"Bandura chiarisce che l'autoefficacia riguarda i giudizi di capacità in compiti specifici, mentre l'autostima riguarda il valore personale." },
+  { q: "Cosa succede se una persona si sente inefficace in un compito che non considera importante per il proprio valore?", opts:["Perde drasticamente autostima","La sua autostima rimane intatta","Sviluppa ansia sociale","Migliora l'autoefficacia"], ans:1, expl:"Una persona può considerarsi inefficace in un'attività senza patire perdite di autostima se non investe l'attività del suo valore personale." },
+  { q: "Quanti comportamenti quotidiani suggerisce Nathaniel Branden per affinare l'autostima?", opts:["3 comportamenti","5 comportamenti","6 comportamenti","10 comportamenti"], ans:2, expl:"Branden descrive i '6 pilastri dell'autostima', ossia sei comportamenti da mettere in pratica quotidianamente." },
+  { q: "Quale processo correla negativamente con la 'chiarezza del concetto di sé'?", opts:["L'osservazione dei comportamenti","La riconsiderazione dell'impegno","L'introspezione spontanea","L'auto-approvazione del valore"], ans:1, expl:"Il processo di riconsiderazione dell'impegno implica una crisi identitaria e correla negativamente con la chiarezza del concetto di sé." },
+  { q: "Quali sono i tre processi fondamentali usati per ricavare elementi di conoscenza sul Sé secondo Mannetti?", opts:["Studio, lavoro, svago","Introspezione, osservazione dei comportamenti, interazione sociale","Successo, aspettative, frustrazioni","Genetica, ambiente, cultura"], ans:1, expl:"All'interno delle linee guida culturali si utilizzano tre processi: introspezione, osservazione dei comportamenti e interazione sociale." },
+  { q: "L'autostima derivante dalla competenza personale permette di:", opts:["Controllare la propria autostima sviluppando potenzialità","Annullare gli stereotipi culturali sociali","Dipendere totalmente dai feedback esterni","Evitare del tutto le crisi di identità"], ans:0, expl:"Fornisce una base solida perché permette al soggetto di controllare l'autostima attraverso il successo reale ottenuto rispettando i propri standard." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Eccellente! Conosco approfonditamente le dinamiche del Sé.' :
+      pct >= 0.7 ? '👍 Ottimo lavoro! Hai una solida comprensione del testo.' :
+      '📚 Ti consigliamo un rapido ripasso della dispensa. Riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "William James", right: "Rapporto tra Sé percepito e Sé ideale" },
+  { left: "Albert Bandura", right: "Scissione tra giudizio di capacità e valore" },
+  { left: "Nathaniel Branden", right: "I 6 pilastri comportamentali quotidiani" },
+  { left: "Autoconsapevolezza pubblica", right: "Preoccupazione per gli standard sociali" },
+  { left: "Concetto di Sé", right: "Costellazione di elementi descrittivi/conoscitivi" },
+  { left: "Palmonari et al.", right: "Modello integrato: riconsiderazione dell'impegno" },
+  { left: "Pasini", right: "Autostima legata al potere sociale della persona" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

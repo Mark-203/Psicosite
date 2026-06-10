@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Nascita del Sé Sociale — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>La nascita del Sé sociale</h1>
+  <p>Lo sviluppo dell'identità e del Sé nelle dinamiche e interazioni sociali — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">👶</div>
+      <h3>Neonato Attivo</h3>
+      <p>Smentita l'idea della mente come tabula rasa dei primi comportamentisti. Il neonato possiede riflessi e predisposizioni innate volte a ricercare attivamente l'interazione sociale fin dai primi giorni.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👪</div>
+      <h3>Socializzazione</h3>
+      <p>La socializzazione primaria si realizza all'interno del nucleo familiare. La socializzazione secondaria si sposta nelle istituzioni educative, ampliandosi a coetanei ed insegnanti.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌐</div>
+      <h3>Modello Ecologico</h3>
+      <p>Il modello di Bronfenbrenner organizza l'ambiente di sviluppo in strutture concentriche: microsistema (famiglia), mesosistema, esosistema e la cornice macro-culturale del macrosistema.</p>
+      <span class="pill">Sezione 2 & 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👁️</div>
+      <h3>Consapevolezza del Sé</h3>
+      <p>William James scinde la consapevolezza in un Sé come conoscitore (Io) e Sé come oggetto di conoscenza (Me), quest'ultimo articolato in componenti materiali, sociali e spirituali.</p>
+      <span class="pill">Sezione 4</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Ego Totalitario</h3>
+      <p>Greenwald descrive il Sé come un costrutto centrale che influenza i giudizi e la memoria attraverso tre distorsioni fondamentali: egocentralità, benefficienza e conservatorismo cognitivo.</p>
+      <span class="pill">Sezione 4</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">💬</div>
+      <h3>Sé Narrativo</h3>
+      <p>Secondo Bruner, il Sé sociale non deriva da esperienze interne isolate, ma si co-costruisce inevitabilmente con il contesto culturale mediante il linguaggio e il pensiero narrativo.</p>
+      <span class="pill">Sezione 4</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👶 Critica alla Tabula Rasa e Interazioni Precoce</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'approccio empirista classico e il primo comportamentismo consideravano il bambino alla nascita come una tabula rasa su cui l'ambiente incideva ogni comportamento.</p>
+        <ul>
+          <li><strong>Trevarthen (1998):</strong> Ha dimostrato che i neonati mostrano chiare preferenze per i volti umani rispetto ad altri stimoli visivi e regolano l'interazione distogliendo lo sguardo per evitare sovraccarichi.</li>
+          <li><strong>Durkin (2001):</strong> Evidenzia una forte "mutualità" e coordinazione congiunta tra adulto e neonato nelle prime interazioni: il bambino co-determina attivamente lo sviluppo.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📈 Fasi della Socializzazione e Ciclo della Vita</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il percorso evolutivo si sposta progressivamente da dinamiche ristrette e rassicuranti ad ambienti sociali complessi ed eterogenei:</p>
+        <ul>
+          <li><strong>Socializzazione Primaria vs Secondaria:</strong> La prima avviene in famiglia. La seconda inizia con la scuola (asili nido inclusi) e permette l'apprendimento di regole collettive, convenzioni sociali e l'abilità di <em>role-taking</em>.</li>
+          <li><strong>Preadolescenza:</strong> Definita "l'età delle grandi migrazioni", in cui l'individuo sperimenta una profonda ristrutturazione dell'identità corporea dovuta alla pubertà, prendendo le distanze dalla famiglia per volgersi ai pari.</li>
+          <li><strong>Adolescenza e il Gruppo:</strong> Il gruppo dei pari svolge una cruciale "funzione specchio". Diventa un contesto di frontiera e una palestra emotiva in cui rispecchiarsi e contenere ansie e incertezze (Saottini, 2002).</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧩 Le Grandi Teorie dello Sviluppo (Piaget, Mead, Erikson)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li><strong>Jean Piaget (Epistemologia Genetica):</strong> Lo sviluppo cognitivo è un adattamento biologico scandito da 4 stadi ($0/24$ mesi: senso-motorio; $2/7$ anni: pre-operatorio; $6/12$ anni: operazioni concrete; $12/16$ anni: pensiero formale). Si basa sul ciclo continuo di <em>assimilazione</em> e <em>accomodamento</em> degli schemi mentali.</li>
+          <li><strong>G.H. Mead (Interazionismo Simbolico):</strong> Il Sé non esiste alla nascita. Richiede la capacità di produrre simboli, rispondere agli stimoli e assumere il punto di vista altrui. Il linguaggio è il mediatore sociale per eccellenza.</li>
+          <li><strong>Erik Erikson (Sviluppo Psicosociale):</strong> Modella l'intero arco di vita in 8 stadi psicosociali, ciascuno caratterizzato da una crisi bipolare (es. Fiducia vs Sfiducia nel 1° anno; Identità vs Dispersione nell'adolescenza). Nella 4a fase (6 anni-pubertà) si radicano i fondamentali sentimenti di competenza ed efficacia sociale.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌐 Il Modello Ecologico di Bronfenbrenner</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Urie Bronfenbrenner (1979) studia lo sviluppo umano analizzando il progressivo adattamento tra l'individuo e i cerchi concentrici dell'ambiente sociale:</p>
+        <ul>
+          <li><strong>Microsistema:</strong> Il contesto più immediato e a diretto contatto con il bambino (famiglia, classe scolastica).</li>
+          <li><strong>Mesosistema:</strong> L'insieme di relazioni e interconnessioni tra diversi microsistemi (es. i rapporti tra genitori e insegnanti).</li>
+          <li><strong>Esosistema:</strong> Situazioni ambientali che influenzano lo sviluppo del bambino pur senza includerlo direttamente (es. l'attività lavorativa dei genitori).</li>
+          <li><strong>Macrosistema:</strong> La struttura sovrastante che racchiude le matrici culturali, storiche, politiche e le ideologie della società.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👁️ Struttura del Sé e l'Ego Totalitario (James e Greenwald)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La scomposizione del Sé nella psicologia scientifica unisce l'analisi introspettiva ai filtri cognitivi inconsci:</p>
+        <ul>
+          <li><strong>William James (1890):</strong> Distingue la consapevolezza del Sé tra <strong>Sé come conoscitore</strong> (l'istanza che pensa) e <strong>Sé come oggetto di conoscenza</strong>. Quest'ultimo si ramifica in <em>Sé materiale</em> (corpo, beni fisici), <em>Sé sociale</em> (le immagini che gli altri hanno di noi) e <em>Sé spirituale</em> (le nostre motivazioni, capacità psicologiche profonde).</li>
+          <li><strong>Anthony Greenwald (1980) - L'Ego Totalitario:</strong> Paragona il Sé a un regime centralizzato che manipola l'informazione per proteggere la propria stabilità. Si serve di 3 bias:
+            <br>1. <strong>Egocentralità:</strong> Tendenza a posizionare se stessi come fulcro nei giudizi e nei ricordi.
+            <br>2. <strong>Benefficienza:</strong> Tendenza a prendersi il merito delle azioni riuscite bene, rimuovendo o dimenticando i fallimenti passati.
+            <br>3. <strong>Conservatorismo cognitivo:</strong> Resistenza attiva al cambiamento per confermare le proprie convinzioni iniziali.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>💬 Cultura, Apprendimento e Categorizzazione (Bandura, Bruner)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li><strong>Albert Bandura (1989):</strong> Formula il determinismo triadico reciproco. Lo sviluppo psicosociale avviene per <em>apprendimento sociale</em>, attivato principalmente mediante meccanismi di apprendimento osservativo e rinforzo vicariante.</li>
+          <li><strong>Jerome Bruner (Psicologia Culturale):</strong> Sostiene che il Sé emerga esclusivamente dall'immersione in un mondo di significati e relazioni culturali condivise. Attraverso il linguaggio e le narrazioni, l'individuo esprime il proprio Sé.</li>
+          <li><strong>Il Processo di Categorizzazione:</strong> Bruner introduce la nozione di categoria mentale (raggruppamento di oggetti distinti trattati allo stesso modo) per garantire economia cognitiva. Interagisce con il concetto di <strong>format</strong>: contesti d'azione strutturati, convenzionali e prevedibili tra partecipanti.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina autore/concetto → dettaglio</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Teoria / Autore</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Definizione / Costrutto</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>W. James (1890) — La Consapevolezza del Sé</h4>
+      <p>Il Sé viene diviso scientificamente in un soggetto consapevole (Io) e in un oggetto di conoscenza (Me) stratificato in dimensioni materiali, sociali e spirituali.</p>
+      <div class="tl-source">Sezione 4 — Principi di Psicologia</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>J. Piaget (1932) — Epistemologia Genetica</h4>
+      <p>Viene teorizzato l'adattamento cognitivo tramite i processi dinamici e paralleli di assimilazione e accomodamento delle strutture mentali del bambino.</p>
+      <div class="tl-source">Sezione 2 — Lo sviluppo dell'intelligenza</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>G.H. Mead (1934) — Interazionismo Simbolico</h4>
+      <p>Il Sé si definisce esclusivamente come un prodotto delle interazioni sociali mediate dall'acquisizione del linguaggio e dalla capacità di interiorizzare i ruoli altrui.</p>
+      <div class="tl-source">Sezione 2 — Mente, Sé e Società</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>E. Erikson (1950) — Ciclo Psicosociale in 8 Stadi</h4>
+      <p>L'identità si sviluppa integrando le spinte biologiche e le crescenti richieste socioculturali lungo otto crisi evolutive che coprono l'intero arco vitale.</p>
+      <div class="tl-source">Sezione 2 — Infanzia e Società</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>U. Bronfenbrenner (1979) — Struttura Ecologica</h4>
+      <p>L'ambiente viene concepito come un sistema di cerchi concentrici (Microsistema, Mesosistema, Esosistema, Macrosistema) che mediano lo sviluppo individuale.</p>
+      <div class="tl-source">Sezione 3 — Ecologia dello sviluppo umano</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>A. Greenwald (1980) — L'Ego Totalitario</h4>
+      <p>Il Sé agisce attivamente sui processi mnestici e di attribuzione distorcendo la realtà con tre meccanismi rigidi: egocentralità, benefficienza e conservatorismo.</p>
+      <div class="tl-source">Sezione 4 — Totalitarian Ego</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>A. Bandura (1989) — Determinismo Triadico</h4>
+      <p>Viene enfatizzato l'apprendimento sociale osservativo e il rinforzo vicariante come i veri pilastri fondanti per l'attivazione psicosociale del bambino.</p>
+      <div class="tl-source">Sezione 4 — Social Cognitive Theory</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>J. Bruner (1990) — Psicologia Culturale e Narrativa</h4>
+      <p>La mente organizza il caos e l'esperienza tramite categorie mentali e format relazionali prevedibili. Il Sé si estrinseca per mezzo del linguaggio e delle narrazioni.</p>
+      <div class="tl-source">Sezione 4 — La ricerca del significato</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Cosa dimostrano le ricerche di Trevarthen (1998) sulle capacità del neonato?", a: "Smentiscono l'idea di tabula rasa: i neonati preferiscono i volti ad altri stimoli e controllano il ritmo relazionale distogliendo lo sguardo." },
+  { q: "Come si dividono i contesti di socializzazione primaria e secondaria?", a: "La primaria si svolge principalmente nella famiglia; la secondaria avviene all'interno delle istituzioni educative con coetanei e insegnanti." },
+  { q: "Che cos'è l'abilità di 'role-taking' che si sviluppa in età scolare?", a: "È la capacità cognitiva e sociale di assumere punti di vista diversi dal proprio all'interno delle interazioni." },
+  { q: "Quali sono le tre grandi transizioni che affronta il preadolescente?", a: "Il distacco dal proprio corpo infantile (ristrutturazione corporea per la pubertà), il distanziamento dalla famiglia e l'orientamento ai pari." },
+  { q: "Come definisce Jean Piaget l'epistemologia genetica?", a: "Il processo per cui il soggetto costruisce attivamente la propria conoscenza tramite l'interazione dinamica tra le proprie strutture mentali e gli oggetti reali." },
+  { q: "Quali sono le due condizioni necessarie per la nascita del Sé secondo G.H. Mead?", a: "La capacità dell'individuo di produrre e rispondere agli stimoli simbolici e la capacità di assumere gli atteggiamenti e ruoli degli altri." },
+  { q: "Qual è la caratteristica saliente della quarta fase dello sviluppo di Erikson (latenza)?", a: "L'emergere del senso di competenza e di efficacia in compiti formali (scuola, sport), opposto al senso di fallimento." },
+  { q: "Come si articolano i quattro livelli ambientali del modello ecologico di Bronfenbrenner?", a: "Microsistema (es. famiglia), Mesosistema (relazioni tra microsistemi), Esosistema (influenze indirette) e Macrosistema (cultura e storia)." },
+  { q: "Come scompone William James (1890) la consapevolezza del Sé?", a: "In un Sé come conoscitore (Io puro) e un Sé come oggetto di conoscenza (Me), suddiviso in materiale, sociale e spirituale." },
+  { q: "Quali sono i tre bias che definiscono il Sé come 'Ego Totalitario' secondo Greenwald?", a: "L'egocentralità (focus su di sé), la benefficienza (ricordo selettivo dei soli successi) e il conservatorismo cognitivo (resistenza al cambiamento)." },
+  { q: "In cosa consiste il determinismo triadico reciproco di Albert Bandura?", a: "Nella teorizzazione di una influenza reciproca e codeterminazione continua tra i fattori personali, il comportamento e l'ambiente esterno." },
+  { q: "Che cos'è il 'format' nell'approccio alla categorizzazione sociale di Jerome Bruner?", a: "Un contesto strutturato di azione condivisa tra individui, regolato da una conoscenza sociale comune che è formalizzata, ripetibile e prevedibile." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "I primi comportamentisti consideravano la mente del bambino alla nascita come:", opts:["Un nucleo di riflessi complessi","Una tabula rasa programmata","Un organismo interattivo","Un database di schemi innati"], ans:1, expl: "Il comportamentismo riprende l'impostazione empirista di Locke considerando il bambino come una tabula rasa su cui l'ambiente incide." },
+  { q: "Quale autore descrive la preadolescenza come 'l'età delle grandi migrazioni'?", opts:["Erikson","De Pieri e Tonolo","Bronfenbrenner","Bruner"], ans:1, expl: "De Pieri e Tonolo (1990) definiscono così la preadolescenza per i grandi distacchi dal corpo infantile e dalla famiglia." },
+  { q: "Secondo Piaget, il meccanismo fondamentale dell'adattamento dell'intelligenza prevede:", opts:["Solo ed esclusivamente l'isolamento percettivo","La rimozione dei fallimenti pregressi","L'assimilazione e l'accomodamento","L'attivazione del rinforzo vicariante"], ans:2, expl: "L'intelligenza si adatta dinamicamente tramite i due processi simultanei di assimilazione e accomodamento delle strutture mentali." },
+  { q: "Nello schema di Bronfenbrenner, le relazioni stabili tra famiglia e istituzione scolastica formano il:", opts:["Microsistema","Mesosistema","Esosistema","Macrosistema"], ans:1, expl: "Il mesosistema è composto esplicitamente dalle interconnessioni e relazioni esistenti tra i diversi microsistemi vissuti dal soggetto." },
+  { q: "Per William James, i vestiti, la casa e il corpo costituiscono elementi del:", opts:["Sé sociale","Sé conoscitore","Sé spirituale","Sé materiale"], ans:3, expl: "Il Sé materiale è l'istanza oggettiva composta dal corpo biologico e da tutti i possessi fisici tangibili dell'individuo." },
+  { q: "Cosa si intende per 'benefficienza' nel modello dell'Ego Totalitario di Greenwald?", opts:["La propensione ad agire in modo puramente altruistico","La tendenza a ricordare solo i successi e rimuovere i fallimenti","La propensione a cedere il passo alle tesi altrui","La categorizzazione rigida degli oggetti sociali"], ans:1, expl: "La benefficienza porta il Sé a selezionare nei processi mnestici i ricordi positivi, preservando un'immagine di competenza." },
+  { q: "Quale stadio dello sviluppo psicosociale di Erikson è dominato dalla crisi 'Identità vs Dispersione'?", opts:["Latenza","Prima età adulta","Adolescenza","Tarda età adulta"], ans:2, expl: "L'adolescenza corrisponde al quinto stadio eriksoniano, in cui occorre integrare le vecchie identificazioni in un'identità coerente." },
+  { q: "Secondo Albert Bandura, il meccanismo cardine per lo sviluppo del bambino è:", opts:["La maturazione biologica isolata","L'apprendimento sociale osservativo","Il superamento della moralità autonoma","La percezione di stimoli non convenzionali"], ans:1, expl: "Bandura individua nell'apprendimento sociale e nell'osservazione di modelli il motore principale dello sviluppo psicosociale." },
+  { q: "Per Jerome Bruner, la nozione di Sé sociale si costruisce primariamente per mezzo di:", opts:["Un'esperienza interna e indipendente","Riflessi automatici non modificabili","Linguaggio e capacità narrative all'interno della cultura","Un QI superiore di almeno 26 punti"], ans:2, expl: "Bruner afferma che il Sé sociale si esprime e prende forma nel mondo dei significati comuni attraverso le narrazioni." },
+  { q: "Cos'è una categoria mentale secondo la psicologia cognitiva ripresa da Bruner?", opts:["Un format rigido non convenzionale","Il raggruppamento di due o più oggetti distinti trattati allo stesso modo","Un disturbo dei processi mnestici d'attribuzione","La crisi psicosociale dell'età adulta media"], ans:1, expl: "La categorizzazione unisce oggetti diversi sotto lo stesso trattamento concettuale per favorire l'economia cognitiva del sistema." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Hai assimilato ottimamente la nascita del Sé sociale.' :
+      pct >= 0.7 ? '👍 Ben fatto! Ottima padronanza dei paradigmi teorici.' :
+      '📚 Continua a studiare e ripassa le macro-teorie — riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "W. James", right: "Sé come conoscitore e Sé come oggetto" },
+  { left: "A. Greenwald", right: "Ego totalitario e conservatorismo cognitivo" },
+  { left: "U. Bronfenbrenner", right: "Sistemi concentrici (Micro, Meso, Eso, Macro)" },
+  { left: "J. Piaget", right: "Epistemologia genetica, assimilazione e accomodamento" },
+  { left: "G.H. Mead", right: "Interazionismo simbolico e linguaggio come strumento" },
+  { left: "E. Erikson", right: "Otto stadi evolutivi lungo tutto l'arco di vita" },
+  { left: "J. Bruner", right: "Pensiero narrativo, categorie ed economia cognitiva" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

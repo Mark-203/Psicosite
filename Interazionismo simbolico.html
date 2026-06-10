@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Interazionismo Simbolico — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  /* ─── ACCORDION ─── */
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  /* ─── QUIZ ─── */
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── MEMORY MATCH ─── */
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>L'Interazionismo Simbolico</h1>
+  <p>Mente, Sé, Simboli e Società nella psicologia sociale di Mead — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del paradigma</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🗣️</div>
+      <h3>Interazione Mediata</h3>
+      <p>Il comportamento umano non è una risposta a stimoli ciechi, ma è interamente mediato dai significati costanti che gli attori attribuiscono alla situazione e a se stessi durante lo scambio in tempo reale.</p>
+      <span class="pill">Introduzione</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🔤</div>
+      <h3>Simboli Significativi</h3>
+      <p>Gesti e parole convenzionali che attivano in chi li usa la medesima risposta psicologica interna ed esterna prodotta nel ricevente. Hanno significato pubblico e sono manipolabili in assenza dell'oggetto reale.</p>
+      <span class="pill">Capitolo 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎭</div>
+      <h3>L'Atto Sociale</h3>
+      <p>Unità funzionale elementare del comportamento orientato a uno scopo. Originato da un impulso di disturbo, transita per la percezione significativa, la manipolazione fisica e termina nella consumazione della meta.</p>
+      <span class="pill">Capitolo 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🪞</div>
+      <h3>Dialettica del Sé</h3>
+      <p>Il Sé si struttura dinamicamente attraverso la tensione dialettica tra l'Io (l'attore immediato, impulsivo e spontaneo dell'istante) e il Me (lo specchio interiorizzato delle regole, aspettative e immagini altrui).</p>
+      <span class="pill">Capitolo 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🧸</div>
+      <h3>Play e Game</h3>
+      <p>Fasi evolutive del gioco infantile: nel Play il bambino assume ruoli singoli in successione costruendo Sé parziali; nel Game interiorizza le regole simultanee di tutti i partecipanti, scoprendo l'Altro Generalizzato.</p>
+      <span class="pill">Capitolo 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌍</div>
+      <h3>Sociocostruzionismo</h3>
+      <p>La mente umane e l'identità non derivano da istinti deterministici fissi, bensì sono interamente co-costruite. La società e la cultura modellano il comportamento e, allo stesso tempo, ne sono costantemente prodotte.</p>
+      <span class="pill">Conclusioni</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti cardine</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌍 1. Origini filosofiche e gli Assunti di Base</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'interazionismo simbolico è una grande prospettiva teorica fiorita nella sociologia statunitense, le cui radici affondano direttamente nel pragmatismo filosofico di <strong>Charles Peirce, William James, John Dewey</strong> e dello stesso <strong>George Herbert Mead</strong>.</p>
+        <p style="margin-top:0.5rem">I suoi assunti fondamentali sul comportamento umano stabiliscono che:</p>
+        <ul>
+          <li><strong>È socialmente strutturato:</strong> si ripete in maniera regolare perché segue binari condivisi.</li>
+          <li><strong>Dipende dal significato:</strong> il significato emerge attivamente negli scambi e non è rigido o imposto passivamente dalla società.</li>
+          <li><strong>È autoreferenziale:</strong> l'essere umano agisce contemporaneamente come soggetto attivo ed oggetto della sua stessa esperienza, cercando nel gruppo sicurezza e identità.</li>
+          <li><strong>Si forma in tempo reale:</strong> la condotta prende vita mentre gli individui coordinano sforzi congiunti. Le azioni sono prevalentemente sociali.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔤 2. La natura dei Segni e dei Simboli Convenzionali</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Gli psicologi interazionisti distinguono nettamente i modi in cui gli stimoli condizionano la risposta organica:</p>
+        <ul>
+          <li><strong>Segno Naturale:</strong> intrattiene una relazione fisica intrinseca data in natura con l'oggetto che rappresenta (es. il fumo che segnala fisicamente la presenza del fuoco). Esiste solo in compresenza del fenomeno reale.</li>
+          <li><strong>Simbolo Convenzionale:</strong> è un segno inventato dall'uomo, caratterizzato da una relazione del tutto <strong>arbitraria</strong> con il proprio referente (es. le parole del linguaggio umano).</li>
+        </ul>
+        <p style="margin-top:0.5rem">Le due proprietà fondamentali dei simboli sono il possesso di un <strong>significato pubblico</strong> (compreso simultaneamente dall'emittente e dal gruppo) e l'indipendenza referenziale, potendo essere impiegati e pensati anche in totale <strong>assenza delle cose fisiche</strong> che significano, portando il mondo esterno dentro la mente umana.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎭 3. L'Oggetto Sociale e le Fasi dell'Atto</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Un <strong>oggetto sociale</strong> nasce da un atto coordinato. Ad esempio, quando un bambino spaventato cerca i genitori, le azioni congiunte dei soggetti creano l'oggetto dinamico chiamato <em>"rassicurazione"</em>.</p>
+        <p style="margin-top:0.5rem">Mead scompone l'unità funzionale della condotta (<strong>l'atto</strong>) in quattro stadi sequenziali determinati da variabili biologiche e ambientali:</p>
+        <ol style="margin-left:1.5rem; margin-top:0.3rem;">
+          <li><strong>Impulso:</strong> si genera quando un corso ordinario di attività o uno stato d'equilibrio biologico viene disturbato.</li>
+          <li><strong>Percezione:</strong> gli oggetti ambientali esterni cominciano ad essere designati, nominati e valutati.</li>
+          <li><strong>Manipolazione:</strong> si intraprendono azioni fisiche e mosse concrete verso l'obiettivo mirato.</li>
+          <li><strong>Consumazione:</strong> la fase finale in cui l'equilibrio originario dell'organismo viene ripristinato con successo.</li>
+        </ol>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 4. La Critica di Mead al Comportamentismo di Watson</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Mead critica l'impostazione del comportamentismo radicale di <strong>John Watson</strong>. Watson riteneva che l'osservazione diretta delle associazioni Stimolo-Risposta (S-R) esterne fosse l'unica via scientifica, escludendo la mente dall'analisi perché considerata non osservabile direttamente.</p>
+        <p style="margin-top:0.5rem">Al contrario, Mead sostiene che gli <strong>eventi mentali interni sono cruciali</strong> per spiegare il comportamento e possono essere indagati scientificamente analizzando la loro interazione con la vita sociale. La mente umana possiede la straordinaria capacità di fondere l'esperienza interna autoriflessiva con la complessa tessitura dei rapporti e significati esterni del gruppo.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🪞 5. L'Architettura del Sé: Io, Me e lo specchio sociale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La personalità cosciente e l'identità dell'individuo si articolano attraverso la formazione e lo scambio continuo di tre costrutti psicologici:</p>
+        <ul>
+          <li><strong>L'Io:</strong> rappresenta l'istanza interna spontanea, l'attore immediato dell'istante che agisce e risponde d'impulso agli stimoli biologici e alle pressioni ambientali.</li>
+          <li><strong>Il Me:</strong> l'organizzazione interiorizzata delle immagini, dei giudizi, delle definizioni e delle aspettative normative che la società proietta sull'individuo. La dimensione propriamente socializzata della condotta.</li>
+          <li><strong>Il Sé:</strong> la macro-organizzazione strutturata, riflessiva e autonoma che emerge dallo scambio dialettico tra Io e Me. Consente l'autoriconoscimento e l'equilibrio dell'identità personale, usando lo scenario sociale come un vero e proprio specchio riflessivo.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧸 6. Lo Sviluppo del Sé infantile: Play, Game e l'Altro Generalizzato</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La costruzione dell'Altro Generalizzato avviene nell'infanzia attraverso l'assunzione progressiva dei ruoli nel gioco, divisa in due fasi distinte:</p>
+        <ul>
+          <li><strong>1. Fase del Play (Gioco semplice):</strong> Il bambino gioca da solo impersonando di volta in volta ruoli significativi isolati (il papà, la mamma, il dottore, la maestra), parlando a se stesso come farebbero loro. Genera <strong>Sé parziali</strong>, privi ancora di una struttura organica globale.</li>
+          <li><strong>2. Fase del Game (Gioco organizzato):</strong> Il bambino partecipa a giochi collettivi con regole codificate. Per agire efficacemente deve anticipare e avere in sé interiorizzati, <em>contemporaneamente</em>, i ruoli e gli atteggiamenti di tutti gli altri partecipanti al gioco.</li>
+        </ul>
+        <p style="margin-top:0.5rem">Attraverso il <em>game</em> si costituisce l'<strong>Altro Generalizzato</strong>: la comunità o il gruppo sociale inteso come referente simbolico e normativo continuo che garantisce l'unità complessiva e armonica del Sé.</p>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard di Ripasso</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda concettuale</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta e Modello teorico</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca sulla carta per ruotarla e scoprire la definizione</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 10</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di Autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia il Quiz</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Associazione Concetto → Modello Teorico</div>
+  <p class="match-intro">Associa ciascun autore, costrutto o concetto alla sua corretta specificazione teorica o definizione.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Concetto / Autore</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Definizione / Corrispondenza</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Rimescola e Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti Chiave ed Evoluzione Teorica</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Le Fondamenta Filosofiche</h4>
+      <p>L'Interazionismo simbolico nasce integrando il pragmatismo filosofico di Peirce, James e Dewey. Pone al centro l'idea che la conoscenza sia legata all'azione e all'utilità nel mondo reale.</p>
+      <div class="tl-source">Pragmatismo Americano</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Mediazione del Significato</h4>
+      <p>Gli esseri umani non rispondono a comportamenti appresi automatici, ma interpretano continuamente l'ambiente e gli scambi attraverso l'uso sociale di simboli condivisi.</p>
+      <div class="tl-source">Assunto Fondamentale dell'Interazione</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Unità Comportamentale dell'Atto</h4>
+      <p>L'atto viene definito come la più piccola parte significativa astratta dal flusso della condotta. Esso comincia sistematicamente quando un impulso disturba lo stato di fatto corrente dell'organismo.</p>
+      <div class="tl-source">Hewitt (1999) / Mead (1934)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Rottura col Comportamentismo Radicale</h4>
+      <p>Mead si contrappone a J. Watson e al modello Stimolo-Risposta (S-R), reinserendo a pieno titolo i processi mentali interni e autoriflessivi come passaggi osservabili e nodali dell'azione sociale.</p>
+      <div class="tl-source">Punto di Svolta Epistemologico</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Genesi dei Sé Parziali nel Play</h4>
+      <p>Durante la prima infanzia, l'assunzione di ruoli isolati (gioco semplice) permette la frammentazione iniziale dell'identità in prospettive slegate, senza un nucleo unificato.</p>
+      <div class="tl-source">Sviluppo Psicosociale Infantile</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Emergenza dell'Altro Generalizzato</h4>
+      <p>Nel gioco organizzato (Game), l'interiorizzazione simultanea delle aspettative del gruppo unifica le istanze dell'identità individuale nel costrutto integrato del Sé.</p>
+      <div class="tl-source">Mead (1934)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Ottica Sociocostruzionista</h4>
+      <p>Mente e Sé sono costituiti dall'interazione sociale. Si supera ogni determinismo biologico o eziologico a favore di una visione circolare e riflessiva dei rapporti persona-ambiente.</p>
+      <div class="tl-source">Amerio (1995) / Conclusioni</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Cosa intende Mead per 'simbolo significativo'?", a: "Un gesto vocale o di altro tipo che fa insorgere in chi lo usa la stessa identica risposta interna che si produce in colui al quale è indirizzato." },
+  { q: "Qual è la differenza sostanziale tra un segno naturale e un simbolo?", a: "Il segno naturale ha un legame intrinseco e dato in natura con l'oggetto (es. fumo/fuoco); il simbolo ha una relazione puramente arbitraria e convenzionale, creata e condivisa culturalmente." },
+  { q: "Quali sono i quattro stadi sequenziali che compongono l'Atto secondo Mead?", a: "1. Impulso (disturbo dell'equilibrio), 2. Percezione (denominazione degli oggetti), 3. Manipolazione (mosse concrete verso la meta), 4. Consumazione (ripristino dello stato originario)." },
+  { q: "In che cosa consiste la critica mossa da Mead al comportamentismo di J. Watson?", a: "Mead critica l'esclusione della mente dall'analisi del comportamento; sostiene che gli eventi mentali interni sono cruciali, scientificamente indagabili e intrinsecamente legati alla vita sociale." },
+  { q: "Come vengono definiti e articolati l'Io e il Me nell'architettura del Sé?", a: "L'Io è l'attore spontaneo e impulsivo dell'istante in corso; il Me è l'organizzazione socializzata e interiorizzata degli atteggiamenti, delle immagini e delle aspettative che gli altri hanno verso l'individuo." },
+  { q: "Cosa accade nella fase di sviluppo infantile denominata 'Play' (gioco semplice)?", a: "Il bambino impara ad assumere in successione temporale i ruoli di persone significative (mamma, papà, maestra), parlandosi dal loro punto di vista e costruendo dei 'Sé parziali'." },
+  { q: "Che cos'è l'Altro Generalizzato e in quale fase dello sviluppo emerge?", a: "È la comunità o il gruppo sociale organizzato interiorizzato dal soggetto come referente normativo continuo. Emerge nella fase del 'Game' (gioco organizzato)." },
+  { q: "Quali sono le due caratteristiche aggiuntive che rendono unici i simboli convenzionali?", a: "Hanno un significato pubblico (udito e compreso da tutti) e possono essere impiegati ed evocati in totale assenza fisica delle cose reali che significano." },
+  { q: "Perché l'ottica interazionista viene definita 'sociocostruzionista'?", a: "Perché rifiuta i determinismi eziologici e postula che la mente umana, l'identità e il Sé siano interamente generati e modellati dall'interazione sociale dinamica e circolare." },
+  { q: "Che cos'è un 'oggetto sociale' secondo la prospettiva dell'interazionismo?", a: "Un oggetto che prende vita e significato esclusivamente all'interno di un atto sociale cooperativo e coordinato tra più individui (es. la rassicurazione tra genitore e figlio)." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "In quale corrente filosofica affonda le sue radici storiche l'Interazionismo Simbolico?", opts:["Nell'idealismo tedesco","Nel pragmatismo filosofico americano","Nel positivismo logico europeo","Nel razionalismo cartesiano"], ans:1, expl:"L'approccio pone le sue basi nel pragmatismo identificabile negli studi di Peirce, James, Dewey e Mead." },
+  { q: "Secondo l'interazionismo simbolico, da cosa è prevalentemente mediato il comportamento umano?", opts:["Da istinti biologici immodificabili","Dai significati attribuiti dai soggetti alla situazione","Dalla pura osservazione degli stimoli meccanici","Da risposte riflesse innate"], ans:1, expl:"Il comportamento individuale risulta interamente mediato dai significati che i soggetti attribuiscono alla situazione e a se stessi." },
+  { q: "Un segno naturale (es. il fumo rispetto al fuoco) si differenzia da un simbolo perché:", opts:["È inventato e convenzionale","È sotto il totale controllo di chi lo usa","La sua relazione con ciò che significa è data intrinsecamente in natura","Può essere utilizzato anche in assenza dell'oggetto reale"], ans:2, expl:"I segni naturali hanno una relazione data in natura (fumo con fuoco) e appaiono solo quando la cosa reale è presente." },
+  { q: "Nel modello di Mead, l'unità funzionale della condotta dotata di inizio e fine viene chiamata:", opts:["Impulso biologico","Atto","Oggetto sociale","Riflesso condizionato"], ans:1, expl:"L'atto è l'unità funzionale della condotta, con inizio e fine identificabile con gli scopi dell'organismo ed orientato verso oggetti." },
+  { q: "Qual è il corretto ordine dei quattro stadi dell'atto teorizzati da Mead?", opts:["Percezione → Impulso → Consumazione → Manipolazione","Impulso → Percezione → Manipolazione → Consumazione","Manipolazione → Impulso → Percezione → Consumazione","Impulso → Manipolazione → Percezione → Consumazione"], ans:1, expl:"L'atto comincia con l'impulso, procede verso lo stadio della percezione, passa alla manipolazione e termina con la consumazione." },
+  { q: "Quale accusa fondamentale muove Mead al comportamentismo radicale di J. Watson?", opts:["Di aver dato troppa importanza alla mente interna","Di aver tralasciato lo studio degli eventi interni e mentali, considerandoli irrilevanti","Di aver studiato eccessivamente il gioco infantile","Di non aver utilizzato metodi sperimentali"], ans:1, expl:"Mead critica Watson perché esclude il concetto di mente e i pensieri dall'analisi, considerandoli non sottoponibili ad osservazione." },
+  { q: "Nell'architettura del Sé, quale istanza costituisce la dimensione interiorizzata delle aspettative e immagini del gruppo sociale?", opts:["L'Io","Il Me","L'Impulso","Il Sé parziale"], ans:1, expl:"Il Me rappresenta l'organizzazione interiorizzata degli atteggiamenti, delle immagini e delle definizioni degli altri nei confronti dell'individuo." },
+  { q: "Cosa differenzia principalmente la fase del 'Game' (gioco organizzato) da quella del 'Play' (gioco semplice)?", opts:["Nel Game il bambino gioca da solo","Nel Game il bambino assume i ruoli in successione temporale disorganizzata","Nel Game il bambino deve avere in sé contemporaneamente i ruoli e le regole di tutti i partecipanti","Il Game non ha alcuna importanza per la nascita del Sé"], ans:2, expl:"Nel game il bambino ha in sé contemporaneamente gli atteggiamenti di tutti i partecipanti coordinati tra loro, non più in successione temporale." },
+  { q: "Con quale celebre costrutto Mead definisce la comunità o il gruppo sociale vissuto come referente normativo unitario del Sé?", opts:["L'Alter-Ego strutturale","L'Altro Generalizzato","Il Sé Parziale riflesso","Il Segno Convenzionale"], ans:1, expl:"Con il concetto di Altro Generalizzato si intende la comunità o il gruppo sociale grazie al quale si costituisce l'unità del Sé." },
+  { q: "Chi ha definito l'ottica interazionista come 'sociocostruzionista', in cui mente e sé nascono dall'interazione sociale?", opts:["J. P. Hewitt","E. Becker","P. Amerio","J. Watson"], ans:2, expl:"P. Amerio (1995) definisce specificamente sociocostruzionista questa ottica in cui mente e sé sono costituiti dall'interazione sociale." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Errato. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi Risultato Finale →' : 'Prossima Domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Straordinario! Padronanza assoluta dell\'Interazionismo Simbolico.' :
+      pct >= 0.7 ? '👍 Ottimo lavoro! Hai assimilato ottimamente il pensiero di Mead.' :
+      '📚 Conviene fare un piccolo ripasso dei costrutti e riprovare!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "George H. Mead", right: "Considerato il padre fondatore dell'interazionismo simbolico" },
+  { left: "L'Io", right: "Istanza spontanea e attore dell'istante in corso" },
+  { left: "Il Me", right: "Organizzazione interiorizzata delle immagini e aspettative altrui" },
+  { left: "Fase del Play", right: "Gioco semplice in cui si assumono ruoli e si creano Sé parziali" },
+  { left: "Fase del Game", right: "Gioco organizzato in cui nasce l'Altro Generalizzato" },
+  { left: "L'Impulso", right: "Stadio iniziale dell'atto quando un equilibrio viene disturbato" },
+  { left: "John Watson", right: "Rappresentante del comportamentismo radicale criticato da Mead" },
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

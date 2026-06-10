@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psicologia Sociale e Comportamentismo — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4.5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.2;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 1000px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(0.95rem, 2.5vw, 1.2rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.9rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>Psicologia Sociale Nordamericana e Comportamentismo</h1>
+  <p>La svolta verso l'oggettività, il condizionamento classico e operante — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">👁️</div>
+      <h3>Rifiuto dell'Introspezione</h3>
+      <p>La psicologia scientifica si allontana dal metodo iperanalitico di Wundt basato sulla coscienza ed esperienza diretta, ritenuto troppo soggettivo e prono a interferenze mentali.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚖️</div>
+      <h3>Metodo Oggettivo (Watson)</h3>
+      <p>Watson promuove la psicologia come branca sperimentale obiettiva delle scienze naturali. Viene studiato esclusivamente il comportamento osservabile eliminando entità non verificabili.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🐕</div>
+      <h3>Condizionamento Classico</h3>
+      <p>Pavlov dimostra che associando ripetutamente uno stimolo neutro (campanello) a uno incondizionato (cibo), il cane emette una risposta condizionata (salivazione) allo stimolo nuovo.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👶</div>
+      <h3>Fobie Condizionate</h3>
+      <p>Gli esperimenti di Watson sul Piccolo Albert (paura del gatto/rumore) e il Piccolo Peter (superamento fobia coniglio) provano che le risposte emotive umane sono frutto di apprendimento.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🕊️</div>
+      <h3>Condizionamento Operante</h3>
+      <p>Skinner introduce il modellamento tramite rinforzi positivi (premi) e negativi (punizioni). Le risposte premiate si consolidano, quelle punite vengono eliminate.</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌍</div>
+      <h3>Ambientalismo Radicale</h3>
+      <p>Il comportamento umano è interamente spiegato dalle connessioni organismo-ambiente. I pensieri e le emozioni interne sono trascurati o considerati concetti troppo vaghi per la scienza.</p>
+      <span class="pill">Sezione 2 & 3</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔬 Wundt e la Psicologia Fisiologica</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'inizio della psicologia come scienza autonoma risale al <strong>1879</strong> con la fondazione del laboratorio di Lipsia da parte di Wilhelm Wundt. L'oggetto di studio era l'esperienza diretta o immediata attraverso l'introspezione rigorosa.</p>
+        <p>La teoria wundtiana del processo percettivo prevede tre fasi distinte:</p>
+        <ul>
+          <li><strong>Percezione:</strong> la sensazione impressiona l'organo di senso e si presenta alla coscienza.</li>
+          <li><strong>Appercezione:</strong> l'esperienza cosciente viene identificata, qualificata e sintetizzata dalla mente tramite un atto di sintesi creativa.</li>
+          <li><strong>Volontà di reazione:</strong> si giunge all'azione in ragione dei processi volitivi intervenienti.</li>
+        </ul>
+        <p style="margin-top:0.5rem">L'introspezione presentava forti limiti dovuti alla dipendenza dalla soggettività dei partecipanti e alle interferenze dell'atto introspettivo stesso.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎯 Le Premesse Teoriche del Comportamentismo</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La svolta naturalistica, supportata anche dall'anatomia comparata e dalla teoria evoluzionistica di Darwin, porta alla nascita del comportamentismo con i seguenti cardini essenziali:</p>
+        <ul>
+          <li>Spiegazione dei fenomeni psichici senza fare ricorso a entità non verificabili o metafisiche.</li>
+          <li>Abbandono totale di ogni richiamo introspezionistico e antropomorfico.</li>
+          <li>Ricerca di spiegazioni basate unicamente su materiali e comportamenti direttamente osservabili.</li>
+          <li>Rifiuto di spiegazioni analogiche a favore di indagini fisiologiche analitiche e dello sviluppo filogenetico.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👶 Gli Esperimenti Clinici di J.B. Watson</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>John B. Watson dimostrò l'applicabilità del condizionamento alle emozioni umane attraverso due noti studi clinici:</p>
+        <ul>
+          <li><strong>Il piccolo Albert (1925):</strong> un bambino che giocava serenamente con un gattino bianco venne condizionato associando il tocco dell'animale a un violento rumore (percussione di una sbarra metallica). Albert sviluppò una fobia intensa per l'animale. Questo studio solleva pesanti critiche etiche odierne poiché il bambino non fu riportato al suo stato emotivo originario.</li>
+          <li><strong>Il piccolo Peter (1920-1921):</strong> affetto da una paura innata per i conigli, fu sottoposto a un contro-condizionamento esponendolo gradualmente a un coniglio bianco insieme a esperienze piacevoli (somministrazione di latte), eliminando con successo la fobia.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔔 Pavlov e la Meccanica del Condizionamento Classico</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il fisiologo russo Ivan Pavlov dimostrò che gli stimoli in ingresso possono essere manipolati per generare risposte stabili staccate dai riflessi biologici originari. Il modello prevede:</p>
+        <ul>
+          <li><strong>Stimolo Incondizionato (SI):</strong> provoca naturalmente la risposta (es. il Cibo).</li>
+          <li><strong>Risposta Incondizionata (RI):</strong> reazione automatica allo SI (es. la Salivazione al cibo).</li>
+          <li><strong>Stimolo Neutro (SN):</strong> stimolo che inizialmente non evoca risposte (es. il Campanello).</li>
+          <li><strong>Associazione:</strong> la presentazione contigua di SN insieme a SI trasforma l'SN in uno <strong>Stimolo Condizionato (SC)</strong>.</li>
+          <li><strong>Risposta Condizionata (RC):</strong> la salivazione prodotta unicamente dall'ascolto dello SC (campanello).</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🕊️ Skinner e la Gabbia del Condizionamento Operante</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>B.F. Skinner ideò il condizionamento operante in cui non si evoca una risposta già esistente, ma se ne modella una completamente nuova.</p>
+        <p>Nell'esperimento del piccione in gabbia, l'animale riceveva un chicco di grano (rinforzo positivo) solo beccando un punto preciso della gabbia. I comportamenti premiati tendevano a consolidarsi stabilmente, mentre le risposte diverse venivano estinte o scoraggiate tramite punizioni o scosse elettriche (rinforzo negativo).</p>
+        <p>Questo dimostra che tutto il comportamento complesso può essere appreso e plasmato manipolando le contingenze di premio e punizione offerte dall'ambiente circostante.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📊 Critiche al Modello Comportamentista</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Nonostante la straordinaria influenza sulla psicologia globale tra le due guerre mondiali, il comportamentismo ha mostrato limiti evidenti:</p>
+        <ul>
+          <li><strong>Limitazioni Etiche:</strong> mancanza di tutele, assenza di consenso informato e danni permanenti emotivi (es. Piccolo Albert).</li>
+          <li><strong>Riduzionismo:</strong> completa mancanza di considerazione per la complessità della cognizione umana, dei pensieri e dei sentimenti interni.</li>
+          <li><strong>Evoluzione:</strong> l'insufficiente spiegazione dei fenomeni interiori ha aperto la strada alla nascita di paradigmi successivi come il cognitivismo e le teorie dell'apprendimento sociale.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 10</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → autore</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento corretto a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Teoria / Esperimento</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Autore di Riferimento</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 6</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1879 — Nascita della Psicologia Scientifica</h4>
+      <p>Wundt fonda il laboratorio di Lipsia. Lo studio si basa sulla psicologia fisiologica e l'introspezione iperanalitica dell'esperienza immediata.</p>
+      <div class="tl-source">Wilhelm Wundt</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Tre Fasi del Processo Percettivo Wundtiano</h4>
+      <p>Il percorso dello stimolo segue un ordine rigido: percezione cosciente dell'organo di senso, appercezione (sintesi creativa della mente) e infine la volontà di reazione che porta all'azione.</p>
+      <div class="tl-source">Del Miglio (2002)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1913 — Manifesto del Comportamentismo</h4>
+      <p>Watson pubblica l'articolo fondativo. La psicologia viene ridefinita come branca puramente obiettiva e sperimentale delle scienze naturali, bandendo la coscienza dal campo d'indagine.</p>
+      <div class="tl-source">J.B. Watson</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1920-1921 — Contro-condizionamento delle paure</h4>
+      <p>Attraverso l'esposizione graduale a un coniglio bianco associata al latte, viene eliminata con successo la fobia innata del piccolo Peter.</p>
+      <div class="tl-source">Watson & Rayner / Rolls & Rolls</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1925 — L'esperimento del Piccolo Albert</h4>
+      <p>Watson dimostra la genesi artificiale delle fobie umane accoppiando il gatto bianco a un forte rumore metallico. Lo studio lascia trasparire gravi lacune sul piano dell'etica scientifica.</p>
+      <div class="tl-source">J.B. Watson</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1927 — Meccanizzazione del Riflesso Condizionato</h4>
+      <p>Vengono pubblicati gli studi sui cani. Dimostrano sperimentalmente il Condizionamento Classico: la salivazione (risposta vecchia) viene indotta dal campanello (stimolo nuovo).</p>
+      <div class="tl-source">Ivan Pavlov</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1938 — La nascita della teoria Operante</h4>
+      <p>Viene pubblicata l'analisi sperimentale del comportamento. Attraverso scatole con piccioni e ratti viene formalizzato il ruolo dei rinforzi positivi e negativi nell'apprendimento di azioni inedite.</p>
+      <div class="tl-source">B.F. Skinner</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è l'oggetto di studio e il metodo della scuola di Wundt a Lipsia?", a: "L'oggetto è l'esperienza diretta o immediata; il metodo principale è l'introspezione iperanalitica." },
+  { q: "Quali sono le tre fasi della percezione secondo la teoria wundtiana?", a: "1) Percezione (presenza alla coscienza), 2) Appercezione (sintesi creativa della mente), 3) Volontà di reazione (azione)." },
+  { q: "Come definisce Watson la psicologia nel suo manifesto del 1913?", a: "Una branca sperimentale puramente obiettiva della scienza naturale, che esclude lo studio della coscienza." },
+  { q: "Quali sono i quattro principi fondamentali del comportamentismo?", a: "Orientamento oggettivo, abbandono dell'introspezione, studio di soli fenomeni osservabili, ricerca in senso naturalistico." },
+  { q: "In cosa consiste l'esperimento del piccolo Albert del 1925?", a: "Watson condiziona una fobia per un gatto bianco in un neonato associando la vista dell'animale a un violento rumore metallico." },
+  { q: "Qual è la differenza etica principale tra l'esperimento di Albert e quello di Peter?", a: "Albert non fu riportato al suo stato emotivo originario; Peter fu guarito dalla fobia tramite contro-condizionamento con il latte." },
+  { q: "Nel condizionamento classico di Pavlov, cos'è lo Stimolo Condizionato (SC)?", a: "È un ex stimolo neutro (es. campanello) che, associato allo stimolo incondizionato, evoca autonomamente la risposta." },
+  { q: "Cos'è il Condizionamento Operante introdotto da Skinner nel 1938?", a: "Un apprendimento in cui una nuova risposta viene modellata e consolidata tramite ricompense (rinforzi positivi) o punizioni." },
+  { q: "Perché il comportamentismo viene definito un ambientalismo radicale?", a: "Perché ritiene che tutto il comportamento sia determinato dai premi e dalle punizioni provenienti dall'ambiente esterno, trascurando la genetica interna." },
+  { q: "Quali sono le principali critiche mosse storicamente al comportamentismo?", a: "Mancanza di etica sperimentale e forte riduzionismo nel non considerare la complessità delle emozioni e della cognizione umana." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "In quale anno Wundt fonda la prima scuola di psicologia scientifica a Lipsia?", opts:["1913","1879","1925","1899"], ans:1, expl:"L'inizio della psicologia come scienza autonoma si fa risalire al 1879, anno di fondazione della scuola di Lipsia." },
+  { q: "Quale fase del processo wundtiano identifica e qualifica l'esperienza cosciente con un atto di sintesi creativa?", opts:["Percezione","Volontà di reazione","Appercezione","Introspezione"], ans:2, expl:"L'appercezione è il processo attraverso il quale l'esperienza viene identificata e sintetizzata creativamente dalla mente." },
+  { q: "Secondo Watson, a quale branca scientifica appartiene la psicologia?", opts:["Scienza naturale obiettiva e sperimentale","Filosofia speculativa","Fisiologia iperanalitica della coscienza","Antropologia comparata"], ans:0, expl:"Per Watson la psicologia costituisce una branca sperimentale puramente obiettiva della scienza naturale." },
+  { q: "Nell'esperimento del piccolo Albert, qual era lo stimolo incondizionato che provocava la paura?", opts:["Un gattino bianco","Un coniglio bianco","La percussione di una sbarra di metallo","Una scossa elettrica"], ans:2, expl:"Il rumore violento della sbarra di metallo percossa era lo stimolo naturale (incondizionato) che causava la paura." },
+  { q: "Chi dimostrò l'eliminazione della fobia dei conigli nel piccolo Peter (1920-1921)?", opts:["Pavlov","Skinner","Wundt","Watson e Rayner"], ans:3, expl:"Watson e la sua collega Rosalie Rayner pubblicarono i risultati sul successo del condizionamento nel piccolo Peter." },
+  { q: "Nel condizionamento di Pavlov, la salivazione del cane alla sola vista del cibo rappresenta la:", opts:["Risposta Condizionata","Risposta Incondizionata","Stimolo Neutro","Stimolo Condizionato"], ans:1, expl:"La salivazione alla vista del cibo è una risposta automatica e naturale, quindi una Risposta Incondizionata." },
+  { q: "Quale animale fu utilizzato da Skinner nel suo esperimento più conosciuto sul condizionamento operante?", opts:["Un cane in gabbia","Un piccione in gabbia","Un gatto bianco","Un topo albino"], ans:1, expl:"L'esperimento più celebre di Skinner descritto nel testo riguarda il piccione in gabbia rinforzato con chicchi di grano." },
+  { q: "Cos'è un rinforzo negativo nel condizionamento operante?", opts:["Un premio in cibo","L'assenza di stimoli","Una punizione (es. scossa elettrica) volta a eliminare un comportamento","Uno stimolo neutro associato al cibo"], ans:2, expl:"I comportamenti diversi da quelli attesi sono seguiti da punizioni, come ad esempio una scossa elettrica (rinforzo negativo)." },
+  { q: "Quale metodo di indagine viene categoricamente rifiutato dal comportamentismo?", opts:["Il metodo sperimentale","Il metodo introspettivo","L'osservazione naturalistica","L'indagine fisiologica"], ans:1, expl:"Il comportamentismo si propone espressamente di abbandonare ogni richiamo introspezionistico dell'esperienza cosciente." },
+  { q: "A quale evoluzione teorica successiva ha aperto la strada il comportamentismo?", opts:["Alla psicologia wundtiana","Al cognitivismo e all'apprendimento sociale","Alla metafisica pura","All'antropomorfismo radicale"], ans:1, expl:"Nonostante le critiche, ha fornito una base essenziale per lo sviluppo di teorie successive, come il cognitivismo e l'apprendimento sociale." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Eccellente! Conosci alla perfezione il comportamentismo.' :
+      pct >= 0.7 ? '👍 Ottimo punteggio! Ripassa i dettagli per il massimo.' :
+      '📚 Rileggi la dispensa e riprova il quiz!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Introspezione Iperanalitica", right: "W. Wundt" },
+  { left: "Fobia del Piccolo Albert", right: "J.B. Watson" },
+  { left: "Salivazione Condizionata", right: "I. Pavlov" },
+  { left: "Piccione e Rinforzi della Gabbia", right: "B.F. Skinner" },
+  { left: "Tre fasi del processo percettivo", right: "C.M. Del Miglio" },
+  { left: "Contro-condizionamento del Piccolo Peter", right: "Rosalie Rayner" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

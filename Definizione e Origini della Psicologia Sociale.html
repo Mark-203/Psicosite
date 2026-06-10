@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Definizioni e Origini della Psicologia Sociale — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 1000px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>Definizioni e Origini della Psicologia Sociale</h1>
+  <p>L'articolazione tra il mondo psichico e quello sociale — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Oggetto di Studio</h3>
+      <p>La psicologia sociale studia la complessa articolazione tra il mondo psichico individuale e quello sociale, analizzando come pensieri, emozioni e condotte siano influenzati dagli altri.</p>
+      <span class="pill">Definizioni</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👥</div>
+      <h3>Assiomi Fondamentali</h3>
+      <p>La disciplina si fonda su due pilastri essenziali: la costruzione soggettiva della realtà tramite processi cognitivi/sociali e la natura totalmente pervasiva dell'influenza sociale.</p>
+      <span class="pill">Assiomi</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚖️</div>
+      <h3>Due Grandi Approcci</h3>
+      <p>Le radici storiche si dividono tra l'approccio centrato sulla persona (processi individuali ed edonismo) e l'approccio centrato sul sociale (primato delle strutture sociali e della collettività).</p>
+      <span class="pill">Origini</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🚴</div>
+      <h3>Nascita Sperimentale</h3>
+      <p>Fissata nel 1897 con Triplett e lo studio sui ciclisti, scoprendo la facilitazione sociale. Ringelmann evidenziò invece l'effetto opposto della pigrizia sociale nei lavori di gruppo.</p>
+      <span class="pill">Esperimenti</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📚</div>
+      <h3>I Primi Manuali</h3>
+      <p>Nel 1908 McDougall pose l'accento sugli istinti innati dell'individuo, mentre Ross focalizzò l'attenzione sul ruolo determinante esercitato dalla società sul comportamento umano.</p>
+      <span class="pill">Storia</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌍</div>
+      <h3>Livelli di Analisi</h3>
+      <p>La ricerca si articola su quattro livelli strutturati: intrapsichico (cognizione), intragruppo (dinamiche interne), intergruppo (relazioni tra gruppi) e collettivo (contesto storico-culturale).</p>
+      <span class="pill">Metodologia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 Definizione scientifica ed Altro Sociale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'essere umano si confronta fin dalla nascita con l'<strong>"Altro/a Sociale"</strong>, cercando un costante adattamento in un percorso evolutivo influenzato da agenzie primarie (famiglia) e complesse (scuola, pari).</p>
+        <ul>
+          <li><strong>Gordon Allport (1985):</strong> definisce la disciplina come il tentativo di comprendere e spiegare come i pensieri, i sentimenti e i comportamenti siano influenzati dalla presenza reale, immaginaria o implicita degli altri.</li>
+          <li><strong>Piero Amerio (2007):</strong> evidenzia la connessione inscindibile tra l'analisi dei processi psicologici individuali e le dinamiche sociali reali e istituzionali.</li>
+          <li><strong>Studio Scientifico:</strong> La psicologia sociale esamina rigorosamente l'effetto combinato dei processi sociali e cognitivi sulla percezione e sulla relazione interpersonale.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔄 Interconnessione tra Processi Sociali e Cognitivi</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I pensieri e le azioni umane derivano da un legame ricorsivo continuo tra due tipologie di processi:</p>
+        <ul>
+          <li><strong>Processi Sociali:</strong> le modalità in cui le nostre condotte sono plasmate dalle persone circostanti, dai gruppi, dai modelli culturali e dalle pressioni esterne.</li>
+          <li><strong>Processi Cognitivi:</strong> il modo in cui ricordi, percezioni, affetti e motivazioni personali guidano attivamente la nostra comprensione del mondo circostante.</li>
+          <li>I due sistemi agiscono contemporaneamente, sia quando l'individuo si trova fisicamente solo, sia quando agisce all'interno di un gruppo collettivo.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⚖️ Radici Teoriche: Persona vs. Sociale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>L'evoluzione storica ha visto scontrarsi e integrarsi due grandi paradigmi di pensiero:</p>
+        <ul>
+          <li><strong>Approccio centrato sulla persona:</strong> Esamina le funzioni individuali. Si fonda sull'edonismo di <strong>Jeremy Bentham</strong>, che traduce il principio di piacere in "principio di utilità" (ottenere piacere ed evitare il dolore).</li>
+          <li><strong>Approccio centrato sul sociale:</strong> Considera determinanti le macro-strutture. <strong>Hegel</strong> concepisce lo Stato come incarnazione della mente sociale (anticipando la "mente di gruppo"); <strong>Auguste Comte</strong> sancisce la necessità di studiare scientificamente la società.</li>
+          <li><strong>Gustave Le Bon (1895):</strong> Con il testo <i>"La psicologia delle folle"</i> analizza i contesti di massa in cui le persone vengono dominate da una mente collettiva, gettando le fondamenta per le ricerche sull'influenza sociale.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🚴 Facilitazione vs. Pigrizia Sociale: I Primi Esperimenti</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Le origini della ricerca sperimentale controllata si collegano a due storiche indagini di segno opposto:</p>
+        <ul>
+          <li><strong>Norman Triplett (1897):</strong> Notò che la prestazione degli atleti era nettamente superiore in gara rispetto agli allenamenti solitari. Verificò l'ipotesi con bambini impegnati ad avvolgere lenze da pesca: la presenza altrui attiva l'istinto di competizione, velocizzando il compito (<strong>Social Labouring</strong> o facilitazione sociale).</li>
+          <li><strong>Max Ringelmann (1880):</strong> Scoprì che nel tiro alla fune il contributo di forza espresso dal singolo diminuiva all'aumentare dei membri del gruppo (<strong>Social Loafing</strong> o pigrizia sociale).</li>
+          <li><strong>Sintesi metodologica:</strong> La presenza altrui stimola la prestazione se l'apporto individuale rimane identificabile; genera deresponsabilizzazione e calo d'impegno se il singolo si sente parte di un gruppo anonimo.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📐 I Quattro Livelli di Analisi Psicosociale</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La disciplina organizza lo studio dei fenomeni sociali scomponendoli in quattro livelli di complessità crescente:</p>
+        <ul>
+          <li><strong>Livello Intrapsichico:</strong> focalizzato sulla cognizione sociale, ovvero sui meccanismi con cui la persona elabora la realtà e costruisce autonomamente le immagini del mondo.</li>
+          <li><strong>Livello Intragruppo:</strong> focalizzato sull'analisi approfondita delle dinamiche interpersonali dirette fra soggetti appartenenti allo stesso gruppo.</li>
+          <li><strong>Livello Intergruppo:</strong> analizza le relazioni, i conflitti, i pregiudizi e le forme di cooperazione tra gruppi sociali differenti.</li>
+          <li><strong>Livello Collettivo:</strong> prende in esame i grandi processi determinati dal contesto macro-sociale, culturale e storico di riferimento.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🪖 Impatto Storico della Seconda Guerra Mondiale e l'Ipotesi del Contatto</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I drammatici eventi del XX secolo hanno imposto alla disciplina una fortissima accelerazione pratica e applicativa:</p>
+        <ul>
+          <li><strong>Radici del Pregiudizio:</strong> Gli orrori bellici spinsero a indagare le cause degli stereotipi, del conformismo e dello sterminio delle minoranze etniche.</li>
+          <li><strong>Ricerche Applicate:</strong> Il governo statunitense reclutò psicologi sociali per risolvere problemi reali, come modificare le abitudini alimentari dei civili in tempi di razionamento o sostenere il morale delle truppe nei conflitti.</li>
+          <li><strong>Gordon Allport (1954):</strong> Nel volume classico <i>"La natura del pregiudizio"</i> formulò l'<strong>Ipotesi del Contatto</strong>, dimostrando che la vicinanza tra gruppi diversi riduce l'ostilità, a patto che sussistano determinate condizioni specifiche (es. cooperazione e obiettivi comuni, indagati anche da Sherif nei campi estivi).</li>
+          <li><strong>Rifiuto del Comportamentismo:</strong> Mentre la psicologia americana era dominata dal comportamentismo radicale, gli psicologi sociali difesero fermamente il ruolo cruciale di pensieri e sentimenti, aprendo le porte alla successiva rivoluzione cognitivista degli anni '60.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina autore → concetto</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Autore / Teoria</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Contributo Concettuale</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1880 — La scoperta della pigrizia sociale</h4>
+      <p>Nelle sue misurazioni sul tiro della fune, Ringelmann osserva che l'impegno individuale decresce vistosamente quando il compito viene svolto in un gruppo anonimo.</p>
+      <div class="tl-source">Max Ringelmann</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1895 — L'analisi delle masse e l'influenza sociale</h4>
+      <p>Viene pubblicato il volume "La psicologia delle folle", pietra miliare per lo studio dei comportamenti collettivi in cui l'individuo viene guidato dalla mente della massa.</p>
+      <div class="tl-source">Gustave Le Bon</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1897 — Primo esperimento di psicologia sociale</h4>
+      <p>Triplett dimostra sperimentalmente che la presenza di coattori stimola nei bambini una spinta competitiva innata, velocizzando l'esecuzione del compito (Social Labouring).</p>
+      <div class="tl-source">Norman Triplett</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1908 — I primi due manuali ufficiali della disciplina</h4>
+      <p>Escono contemporaneamente i testi di McDougall (incentrato sugli istinti innati dell'individuo) e di Ross (focalizzato sull'impatto modellante esercitato dalla società).</p>
+      <div class="tl-source">William McDougall & Edward Ross</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1935 — L'origine sperimentale delle norme sociali</h4>
+      <p>Attraverso un celebre esperimento di laboratorio, viene dimostrato in modo empirico come le norme sociali riescano a orientare e plasmare interamente la condotta umana.</p>
+      <div class="tl-source">Muzafer Sherif</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1954 — Nasce l'ipotesi del contatto contro il pregiudizio</h4>
+      <p>Viene dato alle stampe il testo classico "La natura del pregiudizio", in cui si teorizza formalmente che l'interazione e la vicinanza tra gruppi riducano le ostilità etniche.</p>
+      <div class="tl-source">Gordon Allport</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Anni '50 — Gli studi sui campi estivi</h4>
+      <p>Vengono condotti studi sperimentali intergruppo che provano l'efficacia di scopi sovraordinati e della cooperazione attiva per abbattere le barriere del pregiudizio.</p>
+      <div class="tl-source">Muzafer Sherif e collaboratori</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Anni '60 — La rivoluzione cognitivista</h4>
+      <p>Crolla l'egemonia radicale del comportamentismo negli Stati Uniti. La psicologia sociale si unisce alla svolta cognitivista, valorizzando l'interpretazione soggettiva della realtà.</p>
+      <div class="tl-source">Transizione Teorica Globale</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Fine XX Secolo — Consolidamento della svolta cross-culturale</h4>
+      <p>L'avvento di Internet evidenzia che anche i processi psicologici ritenuti universali (comprese le risposte alle illusioni ottiche) variano profondamente tra diverse culture globali.</p>
+      <div class="tl-source">Henrich (2008)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è la definizione classica di psicologia sociale data da Gordon Allport?", a: "È il tentativo di comprendere e spiegare come i pensieri, i sentimenti e i comportamenti degli individui siano influenzati dalla presenza reale, immaginaria o implicita di altre persone." },
+  { q: "Quali sono i due assiomi fondamentali della psicologia sociale?", a: "1) Le persone si costruiscono la propria realtà (mediante processi cognitivi e sociali). 2) L'influenza sociale è totalmente pervasiva in ogni nostro pensiero." },
+  { q: "Cosa si intende per 'Social Labouring' o facilitazione sociale (Triplett)?", a: "È il fenomeno per cui la presenza di altre persone attiva un istinto di competizione che induce a eseguire un compito più velocemente e meglio." },
+  { q: "In cosa consiste il 'Social Loafing' o pigrizia sociale scoperto da Ringelmann?", a: "È la tendenza a ridurre l'impegno individuale e la qualità del lavoro quando si agisce all'interno di un gruppo in cui si è anonimi." },
+  { q: "Su cosa si basava l'edonismo rielaborato da Jeremy Bentham?", a: "Sul 'principio di utilità', secondo il quale le azioni umane sono deliberatamente dirette a produrre piacere e ad evitare il dolore per l'individuo." },
+  { q: "Quale importante tesi sostiene Gustave Le Bon nel suo volume del 1895?", a: "Sostiene che quando le persone si radunano in folle numerose perdono il controllo individuale e vengono completamente dominate dalla mentalità collettiva della massa." },
+  { q: "Quali erano gli oggetti dei due storici manuali di psicologia sociale del 1908?", a: "Il manuale di McDougall focalizzava sull'individuo e sulle sue tendenze innate (istinti); quello di Ross studiava l'influenza determinante del sociale sul comportamento." },
+  { q: "Quali sono i 4 livelli di analisi stabiliti nella disciplina?", a: "Livello intrapsichico (cognizione sociale), livello intragruppo (dinamiche interne), livello intergruppo (relazioni tra gruppi diversi) e livello collettivo (processi storico-culturali)." },
+  { q: "In che modo la Seconda guerra mondiale ha influenzato la psicologia sociale?", a: "Ha spinto la ricerca a indagare le radici del pregiudizio e del conformismo, obbligando inoltre gli studiosi a occuparsi di problemi applicati immediati (morale, alimentazione)." },
+  { q: "Cosa afferma l'Ipotesi del Contatto formulata da Gordon Allport nel 1954?", a: "Afferma che la vicinanza fisica e l'interazione tra membri di gruppi differenti è in grado di ridurre significativamente il pregiudizio, a patto che sussistano specifiche condizioni." },
+  { q: "Cosa ha dimostrato la ricerca del 'campo estivo' condotta da Sherif?", a: "Che la cooperazione attiva e la condivisione di obiettivi comuni (scopi sovraordinati) sono condizioni fondamentali capaci di abbattere il conflitto intergruppi." },
+  { q: "Cosa ha evidenziato lo studio di Henrich (2008) alla fine del XX secolo?", a: "Ha dimostrato che persino i processi psicologici e percettivi di base (come la sensibilità alle illusioni ottiche) variano profondamente a seconda della cultura di appartenenza." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Secondo Gordon Allport, l'influenza degli altri può avvenire tramite la presenza reale, immaginaria o:", opts:["Forzata","Implicita","Biologica","Casuale"], ans:1, expl:"Allport include esplicitamente la presenza reale, immaginaria o implicita delle altre persone nella sua definizione classica." },
+  { q: "Quale fenomeno descrive la tendenza a impegnarsi meno quando il proprio contributo è anonimo nel gruppo?", opts:["Social Labouring","Social Loafing","Social Cognition","Conformismo"], ans:1, expl:"Si tratta del Social Loafing (pigrizia sociale), scoperto sperimentalmente da Max Ringelmann nel 1880." },
+  { q: "Chi tradusse il principio di piacere in 'principio di utilità' sostenendo l'approccio centrato sulla persona?", opts:["Hegel","Comte","Jeremy Bentham","Gordon Allport"], ans:2, expl:"Jeremy Bentham rielaborò l'edonismo spiegando le azioni umane in funzione del produrre utilità (piacere) ed evitare il dolore." },
+  { q: "Quale autore considerò lo Stato come l'incarnazione della mente sociale, anticipando la 'mente di gruppo'?", opts:["Auguste Comte","Norman Triplett","Edward Ross","Georg Wilhelm Friedrich Hegel"], ans:3, expl:"Il filosofo idealista tedesco Hegel propose questa visione del primato del sociale sul singolo individuo." },
+  { q: "Nel primo esperimento del 1897, Norman Triplett studiò la prestazione di quale categoria?", opts:["Bambini che tiravano la fune","Atleti ciclisti e bambini con lenze","Soldati in trincea","Studenti universitari"], ans:1, expl:"Triplett iniziò le sue osservazioni sui ciclisti in gara e in allenamento, verificandole poi con l'esperimento delle lenze da pesca." },
+  { q: "Il manuale di psicologia sociale del 1908 scritto da William McDougall aveva come focus:", opts:["Le dinamiche della folla","I processi culturali complessi","Le tendenze innate o istinti dell'individuo","L'influenza di internet sulla mente"], ans:2, expl:"McDougall sosteneva che tutti i comportamenti sociali derivassero da precisi istinti o tendenze innate del singolo." },
+  { q: "Quale livello di analisi studia specificamente i processi legati al contesto culturale e storico?", opts:["Livello Intrapsichico","Livello Intragruppo","Livello Intergruppo","Livello Collettivo"], ans:3, expl:"Il livello collettivo prende in carico i macro-processi sociali legati al preciso contesto storico-culturale." },
+  { q: "In quale anno Gordon Allport pubblicò il classico testo 'La natura del pregiudizio'?", opts:["1908","1897","1954","1935"], ans:2, expl:"Il volume fondamentale sull'ipotesi del contatto venne pubblicato da Allport nel 1954." },
+  { q: "Il rifiuto del comportamentismo da parte degli psicologi sociali americani era dovuto al fatto che:", opts:["Non usava metodi scientifici","Escludeva l'importanza fondamentale di pensieri e sentimenti","Studiava solo gli animali","Era nato in Europa"], ans:1, expl:"Gli psicologi sociali rifiutarono l'idea comportamentista radicale poiché ritenevano impossibile comprendere l'agire umano senza considerare la mente." },
+  { q: "Gli esperimenti sui campi estivi di Sherif provarono che il pregiudizio si riduce in presenza di:", opts:["Isolamento totale","Punizioni severe","Competizione sfrenata","Cooperazione e obiettivi comuni"], ans:3, expl:"Sherif dimostrò che gli scopi sovraordinati e la cooperazione attiva sono i soli fattori in grado di placare il conflitto intergruppo." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Hai padronanza assoluta della materia.' :
+      pct >= 0.7 ? '👍 Ottimo lavoro! Hai una solida preparazione di base.' :
+      '📚 Conviene rileggere le sezioni teoriche e riprovare!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Gordon Allport", right: "Presenza reale, immaginaria o implicita" },
+  { left: "Norman Triplett", right: "Social Labouring e rulli di lenza (1897)" },
+  { left: "Max Ringelmann", right: "Social Loafing e tiro della fune (1880)" },
+  { left: "Jeremy Bentham", right: "Edonismo tradotto in principio di utilità" },
+  { left: "Gustave Le Bon", right: "La Psicologia delle Folle e mente di massa" },
+  { left: "William McDougall", right: "Manuale focalizzato su istinti e tendenze innate" },
+  { left: "Edward Ross", right: "Manuale basato sul primato modellante del sociale" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

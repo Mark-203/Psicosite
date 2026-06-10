@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Cognizione Sociale — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>La Cognizione Sociale</h1>
+  <p>Radici filosofiche, modelli, euristiche e autori di riferimento — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Approccio Olistico</h3>
+      <p>Derivato da Kant. La mente non registra passivamente i dati sensoriali, ma organizza attivamente l'esperienza percependo le connessioni tra elementi e contesti.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🗺️</div>
+      <h3>Teoria del Campo</h3>
+      <p>Formulata da Kurt Lewin. Il comportamento è spiegato come funzione dell'interazione dinamica tra spazi di vita, persona e ambiente sociale mediante la formula $C=S(PA)$.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📐</div>
+      <h3>Modelli Comportamentali</h3>
+      <p>I modelli Valore-Aspettativa fondano le decisioni su aspettative e rischi. I Modelli Integrati (Conner e Norman) introducono invece 5 stadi includendo l'identità e la self-efficacy.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⏳</div>
+      <h3>Economizzatore di Risorse</h3>
+      <p>Modello di Taylor (1981). Sotto pressione ambientale o stress, le persone rinunciano ad analisi complesse e ricorrono a scorciatoie di pensiero per risparmiare energia.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚡</div>
+      <h3>Le Euristiche</h3>
+      <p>Scorciatoie mentali divise in: Rappresentatività (somiglianza a schemi), Disponibilità (facilità di recupero mnemonico) e Simulazione (pensiero controfattuale).</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👥</div>
+      <h3>Scienziato Ingenuo</h3>
+      <p>Modello degli anni '70. L'individuo raccoglie dati per trovare cause logiche agli eventi sociali (Kelley). Successivamente mitigato dal concetto di "Tattico Motivato".</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 Radici Filosofiche e la Mente Attiva</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Nella psicologia sociale moderna la cognizione è concepita come una forma complessa di consapevolezza ricercata attivamente per pianificare il comportamento.</p>
+        <ul>
+          <li><strong>Immanuel Kant:</strong> La conoscenza non avviene tramite registrazione passiva degli stimoli, ma è un'esperienza soggettiva strutturata cogliendo le connessioni tra l'oggetto e il suo contesto.</li>
+          <li><strong>Kurt Lewin (1951):</strong> Riprende la Gestalt ed elabora la <em>Teoria del Campo</em>. Dimostra che la cognizione interpreta la realtà e prevede i comportamenti altrui, mentre la motivazione ne è il motore effettivo.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📊 Modelli Cognitivi e Integrati del Comportamento</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I modelli moderni tentano di superare il bias individualistico analizzando le determinanti decisionali.</p>
+        <ul>
+          <li><strong>Modello Valore-Aspettativa:</strong> Si basa su due valutazioni fondamentali per l'azione: la probabilità del risultato (aspettativa) e il livello di rischio (valore). Include la Teoria del Comportamento Pianificato (TCP).</li>
+          <li><strong>Modello Integrato di Conner e Norman (1995):</strong> Unisce cognizione, emozioni e motivazione lungo la dimensione temporale, strutturandosi in 5 fasi: 1. Precontemplazione, 2. Fase motivazionale (intenzione), 3. Stadio della pianificazione, 4. Fase dell'azione, 5. Fase di mantenimento. Valuta costrutti chiave come la <strong>self-efficacy</strong>, l'identità personale e il senso di impegno.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⏳ Memoria, Bias ed Economizzatore di Risorse</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La memoria è un sistema dinamico di contenimento soggetto a possibili distorsioni (bias) nelle funzioni di ricezione, elaborazione, trattenimento e manipolazione degli input.</p>
+        <ul>
+          <li><strong>Shelley Taylor (1981):</strong> Sviluppa il modello dell'<em>Individuo come economizzatore di risorse cognitive</em>. Le persone, avendo una capacità cognitiva limitata, scelgono soluzioni rapide basate su pochi indizi anziché analisi accurate. Gli errori sistematici che ne derivano sono legati a vincoli strettamente cognitivi e non a fattori motivazionali.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⚡ Tassonomia delle Euristiche di Pensiero</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Le euristiche sono scorciatoie che consentono di risparmiare tempo ed energia a costo di produrre distorsioni nel giudizio sociale.</p>
+        <ul>
+          <li><strong>Rappresentatività:</strong> Categorizzazione di persone o oggetti in base alla somiglianza o rilevanza rispetto a schemi mentali precostituiti (es. credenze sull'efficacia e sugli effetti collaterali dei farmaci in età avanzata).</li>
+          <li><strong>Disponibilità:</strong> Stima della frequenza o probabilità di un evento basata sull'accessibilità e rapidità con cui si rievocano esempi alla mente (es. sovrastimare il proprio contributo domestico nei coniugi, poiché si ricordano più facilmente i propri comportamenti positivi).</li>
+          <li><strong>Simulazione (Pensiero Controfattuale):</strong> Immaginare scenari ipotetici passati o futuri ("se non fosse successo così... allora"). Produce reazioni emotive più intense davanti a eventi negativi se l'alternativa favorevole è facilmente simulabile.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👥 Modelli di Percezione Interpersonale e Attribuzione</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <ul>
+          <li><strong>Solomon Asch (1956):</strong> <em>Modello Configurazionale</em> di matrice Gestalt. Le persone assemblano le limitate informazioni disponibili per formare un'impressione della personalità altrui che sia coerente. I tratti <strong>centrali</strong> (es. caldo/freddo) strutturano la percezione globale a differenza dei tratti <strong>periferici</strong>.</li>
+          <li><strong>Effetto Primacy & Cambio di Significato:</strong> Le prime informazioni ricevute guidano stabilmente la valutazione temporale; inoltre, un singolo tratto modifica il proprio significato a seconda del contesto relazionale.</li>
+          <li><strong>Jerome Bruner (1957):</strong> I tratti di personalità vengono attivati in funzione degli scopi pratici che gli individui perseguono, al fine di orientare in modo efficace l'azione sociale.</li>
+          <li><strong>Harold Kelley (1972):</strong> <em>Modello della Covarianza (Scienziato Ingenuo)</em>. Per rintracciare la causa di un comportamento si valutano tre criteri scientifici: <strong>distintività</strong> (legata allo stimolo), <strong>coerenza</strong> (costante nel tempo) e <strong>consenso</strong> (stessa reazione in persone diverse).</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🏛️ Evoluzione Storica della Social Cognition</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I modelli di ricerca sulla cognizione sociale hanno attraversato tre grandi tappe:</p>
+        <ul>
+          <li><strong>Anni '50-'60:</strong> Ricerca della coerenza cognitiva. Lo stato di incoerenza genera ansia ed è lo stimolo motivazionale che spinge al cambiamento di atteggiamento per trovare sollievo.</li>
+          <li><strong>Anni '70:</strong> Fase dello <em>Scienziato Ingenuo</em> ed <em>Economizzatore di risorse</em>. L'attenzione si sposta sui processi puramente logico-cognitivi, evidenziando i limiti intrinseci nell'elaborazione contemporanea di più compiti.</li>
+          <li><strong>Fase Successiva:</strong> Riscoperta dei fattori motivazionali. L'individuo viene riconsiderato come un <strong>tattico motivato</strong>, capace di attivare in modo flessibile diverse strategie cognitive a seconda dei propri scopi, bisogni e contesti ambientali.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → dettaglio</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Concetto / Fonte</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Dettaglio / Dato</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Approccio Olistico e la mente costruttiva</h4>
+      <p>La mente organizza attivamente le esperienze cogliendo le connessioni tra elementi ed elementi del contesto. La conoscenza non è una registrazione passiva.</p>
+      <div class="tl-source">Pensiero filosofico di Immanuel Kant</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1951 — La Teoria del Campo</h4>
+      <p>Il comportamento è inteso come funzione interattiva degli spazi di vita generati da persone e ambienti: formula $C=S(PA)$. La cognizione interpreta la realtà, la motivazione è il motore.</p>
+      <div class="tl-source">Kurt Lewin</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1956 — Modello Configurazionale</h4>
+      <p>Le impressioni sugli altri avvengono tramite un'interazione dinamica delle informazioni in una configurazione coerente (Gestalt). I tratti centrali (caldo/freddo) strutturano il giudizio.</p>
+      <div class="tl-source">Solomon Asch</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1957 — Funzionalismo della percezione</h4>
+      <p>I tratti di personalità vengono categorizzati e messi in atto in base agli scopi specifici degli individui, creando costrutti accessibili che orientano l'agire sociale.</p>
+      <div class="tl-source">Jerome Bruner</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1972 — Il Modello della Covarianza</h4>
+      <p>L'individuo agisce come uno "Scienziato Ingenuo". Per attribuire le cause di un comportamento analizza scientificamente tre fattori: distintività, coerenza e consenso.</p>
+      <div class="tl-source">Harold Kelley</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1981 — L'Economizzatore di Risorse</h4>
+      <p>A causa di limitazioni intrinseche e pressioni della realtà, le persone preferiscono scorciatoie di pensiero rapide (euristiche) ad analisi accurate. Gli errori commessi hanno matrici cognitive.</p>
+      <div class="tl-source">Shelley Taylor</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1995 — I Modelli Integrati a 5 Stadi</h4>
+      <p>Il passaggio dall'intenzione all'azione attraversa: Precontemplazione, Motivazione, Pianificazione, Azione e Mantenimento. Ruolo cardine di self-efficacy e identità.</p>
+      <div class="tl-source">Conner e Norman</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La riscoperta del Tattico Motivato</h4>
+      <p>Evoluzione finale del modello teorico: l'essere umano sceglie in modo strategico e flessibile quali processi o euristiche adottare basandosi sui propri bisogni, motivi e scopi situazionali.</p>
+      <div class="tl-source">Modelli recenti di Social Cognition</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è il nucleo fondamentale dell'approccio olistico in psicologia sociale?", a: "Deriva da Kant e considera la mente come un luogo attivo dove le conoscenze si formano percependo le connessioni tra l'oggetto e il contesto, rifiutando la registrazione passiva." },
+  { q: "Cosa stabilisce la formula di Lewin C = S(PA)?", a: "Esprime che il Comportamento (C) è una funzione degli spazi di vita (S) formati dall'interazione tra Persone (P) e Ambienti (A)." },
+  { q: "Su quali valutazioni si fonda il Modello Valore-Aspettativa?", a: "Sulle aspettative (la probabilità che un'azione comporti un risultato) e sul valore attribuito (la valutazione del rischio legato all'azione)." },
+  { q: "Quali sono le 5 fasi del modello integrato di Conner e Norman (1995)?", a: "1. Precontemplazione, 2. Fase motivazionale (intenzione), 3. Stadio della pianificazione, 4. Fase dell'azione, 5. Fase di mantenimento." },
+  { q: "Cosa sostiene il modello dell'individuo come economizzatore di risorse (Taylor, 1981)?", a: "Sostiene che le persone possiedono capacità cognitive limitate e, sotto stress o pressione, usano scorciatoie di pensiero (euristiche) per risparmiare tempo ed energia." },
+  { q: "Come funziona l'euristica della rappresentatività?", a: "Categorizza persone o cose in base alla loro rilevanza o somiglianza rispetto a schemi mentali e categorie precostituite." },
+  { q: "Su cosa si basa l'euristica della disponibilità secondo Ross e Sicoly?", a: "Sulla facilità e rapidità con cui un esempio viene richiamato alla mente. Ad esempio, i coniugi sovrastimano il proprio lavoro domestico perché ricordano meglio i propri atti positivi." },
+  { q: "Cos'è il pensiero controfattuale nell'euristica della simulazione?", a: "È un processo di simulazione mentale ipotetica basato sul meccanismo del 'se non fosse successo così... allora', che amplifica le reazioni emotive agli eventi." },
+  { q: "Cosa postula il modello configurazionale di Asch (1956)?", a: "Che le persone si costruiscono impressioni di personalità globali e coerenti integrando dinamicamente i pochi tratti ricevuti, guidati da elementi centrali (caldo/freddo)." },
+  { q: "Cosa si intende per 'effetto primacy' e 'effetto del cambio di significato'?", a: "L'effetto primacy indica che le prime informazioni temporali guidano la percezione; il cambio di significato mostra che un tratto assume sfumature diverse a seconda del contesto." },
+  { q: "Quali sono i tre parametri del Modello della Covarianza di Kelley (1972)?", a: "La distintività (legata allo stimolo), la coerenza (costante nel tempo) e il consenso (stessa reazione tra persone diverse)." },
+  { q: "Chi è il 'Tattico Motivato' nella psicologia sociale moderna?", a: "È il modello di individuo che sostituisce l'economizzatore puro: una persona che sceglie in modo flessibile e strategico le opzioni cognitive in base ai propri scopi e bisogni emotivi." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "La concezione kantiana della mente attiva fa parte di quale approccio?", opts:["Approccio olistico","Modello individualista","Modello della covarianza","Comportamentismo puro"], ans:0, expl:"L'approccio olistico trova le sue radici in Kant e nella concezione della mente che percepisce attivamente le connessioni dell'oggetto e del contesto." },
+  { q: "Nella Teoria del Campo di Lewin, la motivazione agisce come:", opts:["Elemento interpretativo passivo","Il motore del comportamento e delle sue manifestazioni","Un bias strettamente cognitivo","Un fattore che produce unicamente distorsioni mentali"], ans:1, expl:"Secondo Lewin, la cognizione permette di interpretare la realtà e prevedere le azioni, mentre la motivazione funge da vero motore del comportamento." },
+  { q: "Quali costrutti sono centrali nel modello integrato di Conner e Norman (1995)?", opts:["Rappresentatività e simulazione","Self-efficacy, identità personale e senso di impegno","Punti di QI e stimoli acustici","Distintività e stili neon"], ans:1, expl:"Il modello di Conner e Norman attribuisce un valore rilevante ai costrutti di self-efficacy, identità personale e senso di impegno nel passaggio da intenzione a comportamento." },
+  { q: "L'uso delle euristiche ha come principale svantaggio:", opts:["Un eccessivo consumo di energia","La totale cancellazione della memoria a lungo termine","Il rischio di condurre a distorsioni ed errori nel giudizio sociale","L'impossibilità di prendere decisioni rapide"], ans:2, expl:"Le euristiche consentono di risparmiare tempo ed energie cognitive, ma hanno lo svantaggio di condurre a distorsioni ed errori (biases) nel ragionamento sociale." },
+  { q: "Quale euristica spiega la tendenza dei coniugi a sovrastimare il proprio contributo domestico?", opts:["Euristica della simulazione","Euristica della rappresentatività","Euristica della disponibilità","Pensiero controfattuale"], ans:2, expl:"Si tratta dell'euristica della disponibilità, legata alla facilità con cui le persone recuperano dalla memoria esempi personali positivi." },
+  { q: "Secondo il modello dell'economizzatore di risorse (Taylor, 1981), gli errori di giudizio derivano da:", opts:["Fattori unicamente motivazionali","Fattori strettamente cognitivi legati alla capacità limitata","Mancanza di intelligenza emotiva","Scarsa scolarizzazione degli individui"], ans:1, expl:"Taylor evidenzia che gli errori sono legati a fattori strettamente cognitivi e ai limiti intrinseci del nostro sistema computazionale, non a carenze motivazionali." },
+  { q: "Nel modello configurazionale di Asch, quali tratti strutturano principalmente la percezione della personalità?", opts:["I tratti periferici","I tratti centrali (es. caldo o freddo)","I tratti cromatici brillanti","I tratti esclusivamente causali ed esterni"], ans:1, expl:"Per Asch, l'effetto di centralità dimostra che alcuni tratti stabili (come 'caldo' o 'freddo') hanno il potere di strutturare l'intera Gestalt della personalità percepita." },
+  { q: "Il modello della covarianza di Harold Kelley (1972) paragona l'individuo a un:", opts:["Economizzatore avaro","Tattico motivato","Scienziato ingenuo","Registratore passivo"], ans:2, expl:"Kelley considera l'individuo come uno 'scienziato ingenuo' che raccoglie dati e compie un'analisi razionale e logica delle cause di un evento." },
+  { q: "Cosa stabilisce il criterio della distintività nel modello di Kelley?", opts:["Se lo stimolo produce la stessa reazione in persone diverse","Se lo stimolo è costante nel tempo","Se lo stimolo è l'unico a produrre quel determinato evento","Se il comportamento dipende da fattori ansiosi"], ans:2, expl:"La distintività valuta se un determinato stimolo è l'unico a produrre un preciso evento, differenziandosi da altri contesti." },
+  { q: "Il modello del 'Tattico Motivato' descrive una persona che:", opts:["Non commette mai errori cognitivi","Usa strategie logiche rigide a prescindere dal contesto","Attiva flessibilmente strategie cognitive in base a scopi e bisogni","Agisce mossa unicamente dall'ansia da incoerenza"], ans:2, expl:"Il Tattico Motivato è un pensatore flessibile, capace di calibrare e selezionare le proprie risorse cognitive in funzione delle motivazioni e degli obiettivi situazionali." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Perfetto! Hai risposto correttamente a tutto la social cognition.' :
+      pct >= 0.7 ? '👍 Ben fatto! Ottima conoscenza dei modelli psicologici.' :
+      '📚 Continua a studiare il documento — riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Kurt Lewin (1951)", right: "Teoria del Campo e formula C=S(PA)" },
+  { left: "Conner & Norman (1995)", right: "Modello integrato a 5 stadi temporali" },
+  { left: "Shelley Taylor (1981)", right: "Individuo come economizzatore di risorse" },
+  { left: "Solomon Asch (1956)", right: "Modello configurazionale e tratti centrali" },
+  { left: "Harold Kelley (1972)", right: "Modello della covarianza e scienziato ingenuo" },
+  { left: "Jerome Bruner (1957)", right: "Tratti di personalità attivati in base agli scopi" },
+  { left: "Kahneman & Tversky (1982)", right: "Studio sul pensiero controfattuale ed emozioni" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

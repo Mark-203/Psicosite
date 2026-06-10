@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Rappresentazioni Sociali — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>Le Rappresentazioni Sociali</h1>
+  <p>Teorie, processi generatori, strutture interne e metodi d'indagine sperimentale</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">👥</div>
+      <h3>Definizione e Origine</h3>
+      <p>Introdotte da Moscovici, sono elaborazioni cognitive collettive che un gruppo crea su un oggetto sociale per comunicare in modo comprensibile, ricostruendo attivamente la realtà.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚙️</div>
+      <h3>Ancoraggio e Oggettivazione</h3>
+      <p>I due processi fondamentali: l'Ancoraggio inserisce il nuovo in schemi noti del passato; l'Oggettivazione traduce concetti astratti in un nucleo figurativo concreto e visivo.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎯</div>
+      <h3>Il Nucleo Centrale</h3>
+      <p>La componente non negoziabile, stabile e collettiva che determina il significato e l'organizzazione della rappresentazione, svolgendo funzioni stabilizzatrici e generatrici.</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌐</div>
+      <h3>Elementi Periferici</h3>
+      <p>Interfacce flessibili che collegano il nucleo alla realtà quotidiana. Prescrivono i comportamenti, accolgono le variazioni individuali e proteggono il nucleo dai cambiamenti diretti.</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🔬</div>
+      <h3>Metodi di Ricerca</h3>
+      <p>Strumenti empirici per mappare le rappresentazioni: il metodo del rifiuto (Flament), lo scenario ambiguo (Abric & Tafani) e la tecnica della messa in discussione.</p>
+      <span class="pill">Sezione 4</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📊</div>
+      <h3>Poli Descrittivi e Valutativi</h3>
+      <p>Modello di Moliner (1995): sia il nucleo che la periferia possiedono una funzione descrittiva (definizioni e descrizioni) e una valutativa (norme e aspettative desiderabili).</p>
+      <span class="pill">Sezione 4</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👥 1. Caratteristiche storiche e funzioni sociali</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Nel contesto moderno caratterizzato da mass media e globalizzazione, l'essere umano si trova sommerso da informazioni complesse. Le rappresentazioni sociali nascono come una teoria del senso comune condivisa per rendere comprensibile il mondo.</p>
+        <ul>
+          <li><strong>Il contributo di S. Moscovici (1961):</strong> Ha studiato come la teoria scientifica della psicoanalisi si sia trasformata, diffondendosi nella società, in un sistema di immagini quotidiane per interpretare la realtà delle relazioni sociali.</li>
+          <li><strong>Natura Collettiva:</strong> La conoscenza ha determinanti sociali; la cognizione non è solo individuale, ma condivisa da un soggetto collettivo. Le rappresentazioni non creano la realtà da zero, ma riorganizzano e ricostruiscono ciò che è stato formulato in altri contesti.</li>
+          <li><strong>Le Tre Ipotesi di Moscovici (e loro limiti):</strong> 
+            <br>1. <em>Ipotesi dell'interesse:</em> Creazione di immagini distorte per accordare obiettivi contrapposti favorendo chi ha più potere.
+            <br>2. <em>Ipotesi dell'equilibrio:</em> Compensazioni immaginarie per risolvere tensioni emotive causate da mancata integrazione.
+            <br>3. <em>Ipotesi del controllo:</em> Filtri usati dai gruppi per manipolare il pensiero e verificare la lealtà dei membri.
+            <br><em>Critiche:</em> Sono considerate troppo generali, difficilmente falsificabili e meccanicistiche.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>⚙️ 2. I Processi Generatori: Ancoraggio e Oggettivazione</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I processi cognitivi sociali mirano a ridurre l'ansia e la paura dell'ignoto, rendendo familiare e gestibile ciò che è strano o estraneo.</p>
+        <ul>
+          <li><strong>L'Ancoraggio:</strong> Presuppone che si possa assimilare un concetto nuovo solo agganciandolo a schemi categoriali preesistenti. Coinvolge la denominazione, la classificazione e l'etichettamento. Moscovici sottolinea che in questo processo la memoria predomina sulla logica, usando il passato per interpretare il presente (es. assimilare il setting psicanalitico alla confessione religiosa).</li>
+          <li><strong>L'Oggettivazione:</strong> Costituisce l'aspetto iconico e visivo di una categoria. Traduce l'astratto in sembianze fisiche concrete (un nucleo figurativo, un simbolo o un segno). Nella psicoanalisi si attua tramite la ritenzione selettiva delle informazioni, la loro decontestualizzazione e la riorganizzazione in uno schema grafico figurativo immediato.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🎯 3. Struttura Interna: Nucleo Centrale ed Elementi Periferici</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Ogni rappresentazione è organizzata gerarchicamente intorno a componenti strutturali ben definite.</p>
+        <ul>
+          <li><strong>Il Nucleo Centrale:</strong> È la componente stabile, collettiva e non negoziabile della rappresentazione su cui vi è un consenso unanime. Svolge tre funzioni cruciali:
+            <br>- <em>Stabilizzatrice:</em> Assicura coerenza e stabilità nel tempo.
+            <br>- <em>Generatrice:</em> Crea o trasforma il significato degli altri elementi.
+            <br>- <em>Organizzatrice:</em> Regola e struttura i legami con la periferia.
+          </li>
+          <li><strong>Gli Elementi Periferici:</strong> Rappresentano le concretizzazioni del nucleo. Hanno la funzione di prescrivere comportamenti, consentire la personalizzazione delle idee e assorbire l'eterogeneità del pensiero del gruppo. I cambiamenti storici si verificano sempre prima a livello periferico e solo successivamente toccano il nucleo.</li>
+          <li><strong>Esempio del lavoro:</strong> Se il nucleo centrale del lavoro è l'idea di "retribuzione", gli elementi periferici possono essere la "famiglia" o la "gerarchia", collegati dinamicamente tra loro.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🔬 4. Metodi per indagare le Strutture Empiriche</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Nel corso degli anni sono stati standardizzati vari metodi scientifici per isolare sperimentalmente gli elementi centrali da quelli periferici:</p>
+        <ul>
+          <li><strong>Metodo del Rifiuto (Flament, 1982):</strong> Chiede ai soggetti di immaginare l'oggetto della rappresentazione senza una determinata caratteristica. Nello studio del "gruppo ideale", eliminando l'assenza di gerarchia il gruppo crollava (dimostrando che l'assenza di gerarchia era un elemento del nucleo centrale), mentre la convergenza di opinioni risultò sacrificabile (elemento periferico).</li>
+          <li><strong>Metodo dello Scenario Ambiguo (Abric & Tafani, 1995):</strong> Sviluppato in tre fasi (raccolta opinioni, proposta di una descrizione vaga e giudizio su dimensioni estratte). Applicato a un'impresa, ha isolato come nucleo centrale: gerarchia, profitto, lavoro e produzione. Limite: coglie gli aspetti descrittivi ma tralascia quelli valutativi.</li>
+          <li><strong>Metodo della Messa in Discussione:</strong> Utilizza doppie negazioni (es. "Se un'attività non è legata alla ricerca, è scientifica?") per forzare un'elaborazione cognitiva profonda, evitando risposte superficiali e socialmente desiderabili, garantendo massima variabilità.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📊 5. Il Modello Bidimensionale di Moliner (1995)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Moliner ha introdotto una distinzione funzionale cruciale per comprendere la natura qualitativa dei contenuti presenti in una rappresentazione sociale:</p>
+        <ul>
+          <li><strong>All'interno del Nucleo Centrale:</strong>
+            <br>- <em>Polo Descrittivo (Definizioni):</em> Le caratteristiche che identificano e descrivono oggettivamente l'essenza della rappresentazione.
+            <br>- <em>Polo Valutativo (Norme):</em> I criteri valoriali e morali utilizzati dal gruppo per giudicare l'oggetto.
+          </li>
+          <li><strong>All'interno degli Elementi Periferici:</strong>
+            <br>- <em>Polo Descrittivo (Descrizioni):</em> Le caratteristiche empiriche più frequenti, probabili e riscontrabili nella quotidianità.
+            <br>- <em>Polo Valutativo (Aspettative):</em> Le caratteristiche considerate desiderabili o attese rispetto all'oggetto della rappresentazione.
+          </li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 12</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/12</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina autore/concetto → definizione</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento corretto a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Autore / Concetto</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Definizione / Risultato</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave e tappe teoriche</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1961 — Serge Moscovici e l'atto di nascita</h4>
+      <p>Moscovici pubblica il suo studio fondamentale sulla diffusione della psicoanalisi nella società francese, tracciando il passaggio di una teoria scientifica in un sistema del senso comune.</p>
+      <div class="tl-source">Moscovici (1961)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Ancoraggio: il primato della memoria</h4>
+      <p>Il processo per cui la mente inserisce fenomeni ignoti all'interno di categorie già note del passato. Nel fare questo, la memoria tende stabilmente a predominare sulla logica astratta.</p>
+      <div class="tl-source">Processi Generatori</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Oggettivazione: la materializzazione iconica</h4>
+      <p>I concetti astratti vengono decontestualizzati e riorganizzati in schemi figurativi concreti. Ogni rappresentazione si associa a un simbolo visivo, a un segno o a sembianze fisiche accessibili.</p>
+      <div class="tl-source">Processi Generatori</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1982 — Flament e il metodo del rifiuto</h4>
+      <p>Studio sperimentale sulla struttura del "gruppo ideale": l'assenza di gerarchia emerge come elemento fondamentale e irrinunciabile del nucleo centrale della rappresentazione.</p>
+      <div class="tl-source">Flament (1982)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1995 — Lo studio sull'impresa di Abric e Tafani</h4>
+      <p>Tramite l'uso di scenari ambigui, i due studiosi identificano i quattro pilastri del nucleo centrale di un'organizzazione aziendale: gerarchia, profitto, lavoro e produzione.</p>
+      <div class="tl-source">Abric & Tafani (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>1995 — Moliner e la bidimensionalità strutturale</h4>
+      <p>Viene teorizzata l'esistenza contemporanea di poli descrittivi (definizioni/descrizioni) e poli valutativi (norme/aspettative) sia per i nuclei centrali che per gli elementi della periferia.</p>
+      <div class="tl-source">Moliner (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Dinamica del Cambiamento Strutturale</h4>
+      <p>Le rappresentazioni si evolvono nel tempo in modo adattivo. Le trasformazioni e le rinegoziazioni avvengono prima nei flessibili elementi periferici e solo in seguito modificano il nucleo.</p>
+      <div class="tl-source">Strutture Interne</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Come vengono definite le rappresentazioni sociali secondo la psicologia sociale europea?", a: "L'elaborazione che un gruppo o una comunità crea di un oggetto sociale in modo da permettere ai membri di comunicare in modo comprensibile." },
+  { q: "Quale importante teoria scientifica è stata studiata da Moscovici nel 1961 per analizzare le rappresentazioni?", a: "La teoria psicanalitica (psicoanalisi), osservando come si trasformava in conoscenza quotidiana diffusa." },
+  { q: "Quali sono i due processi generatori delle rappresentazioni sociali?", a: "L'ancoraggio e l'oggettivazione, utili a ridurre la paura o lo stupore verso i fenomeni nuovi." },
+  { q: "In cosa consiste il processo di ancoraggio?", a: "Nell'utilizzare schemi categoriali preesistenti per agganciare oggetti sconosciuti. Qui la memoria predomina sulla logica." },
+  { q: "In cosa consiste l'oggettivazione?", a: "Nel dare sembianze fisiche e accessibili ad un concetto astratto, evidenziandone il nucleo figurativo e associandolo ad un simbolo o segno." },
+  { q: "Quali sono le tre funzioni del nucleo centrale di una rappresentazione?", a: "Funzione stabilizzatrice (assicura coerenza), funzione generatrice (crea il significato) e funzione organizzatrice (regola i legami periferici)." },
+  { q: "Qual è il ruolo degli elementi periferici?", a: "Prescrivono i comportamenti concreti, permettono la personalizzazione delle rappresentazioni e proteggono il nucleo centrale." },
+  { q: "Cosa ha dimostrato lo studio di Flament (1982) sul gruppo ideale tramite il metodo del rifiuto?", a: "Che l'assenza di gerarchia è un elemento del nucleo centrale, mentre la convergenza di opinioni è un elemento periferico." },
+  { q: "Quali elementi del nucleo centrale dell'impresa sono emersi nello studio di Abric e Tafani (1995)?", a: "La gerarchia, il profitto, il lavoro e la produzione." },
+  { q: "Qual è il limite principale del metodo dello scenario ambiguo?", a: "Coglie esclusivamente gli aspetti descrittivi delle rappresentazioni sociali, tralasciando completamente quelli valutativi." },
+  { q: "Perché nel metodo della messa in discussione si usano domande con doppia negazione?", a: "Perché inducono a una maggiore elaborazione cognitiva, superando le risposte salienti e socialmente desiderabili." },
+  { q: "Nel modello di Moliner (1995), quali sono le funzioni del nucleo centrale?", a: "Il polo descrittivo riguarda le definizioni (caratteristiche base); il polo valutativo riguarda le norme (criteri per valutare l'oggetto)." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Chi ha introdotto il concetto di rappresentazioni sociali nella psicologia sociale europea?", opts:["Abric","Flament","Moscovici","Moliner"], ans:2, expl:"Moscovici (1961) ha fondato lo studio delle rappresentazioni sociali analizzando la diffusione della psicoanalisi." },
+  { q: "Nel processo di ancoraggio, quale facoltà tende a predominare secondo Moscovici?", opts:["La logica matematica","La memoria e il passato","L'istinto biologico","La percezione visiva immediata"], ans:1, expl:"Moscovici sostiene che nell'ancoraggio la memoria predomina sulla logica, collegando il presente al passato." },
+  { q: "Quale processo evidenzia l'aspetto iconico e il nucleo figurativo di una categoria astratta?", opts:["Ancoraggio","Oggettivazione","Classificazione","Denominazione"], ans:1, expl:"L'oggettivazione attribuisce sembianze fisiche accessibili e simboli visivi a ciò che è sconosciuto." },
+  { q: "Quale funzione del nucleo centrale assicura stabilità e coerenza in quanto parte non negoziabile?", opts:["Funzione generatrice","Funzione organizzatrice","Funzione stabilizzatrice","Funzione valutativa"], ans:2, expl:"La funzione stabilizzatrice garantisce la persistenza e la coerenza della rappresentazione nel tempo." },
+  { q: "Dove si verificano inizialmente i cambiamenti storici di una rappresentazione sociale?", opts:["Nel nucleo centrale","Nei processi di oggettivazione","Negli elementi periferici","Nelle norme collettive"], ans:2, expl:"I cambiamenti avvengono prima negli elementi periferici (più flessibili) e solo successivamente colpiscono il nucleo centrale." },
+  { q: "Nello studio di Flament (1982) sul gruppo ideale, qual era l'elemento del nucleo centrale?", opts:["La convergenza di opinioni","L'assenza di gerarchia tra i membri","Il profitto economico","Il lavoro e la produzione"], ans:1, expl:"L'assenza di gerarchia risultò essere l'elemento irrinunciabile del nucleo centrale del gruppo ideale." },
+  { q: "Quale metodo d'indagine è stato proposto da Abric e Tafani nel 1995?", opts:["Metodo del rifiuto","Metodo della messa in discussione","Metodo dello scenario ambiguo","Analisi del discorso"], ans:2, expl:"Abric e Tafani (1995) hanno proposto il metodo dello scenario ambiguo per studiare la rappresentazione dell'impresa." },
+  { q: "Quali elementi costituiscono il nucleo centrale dell'impresa secondo Abric e Tafani?", opts:["Gerarchia, profitto, lavoro, produzione","Famiglia, svago, comunicazione, stipendio","Solidarietà, amicizia, uguaglianza, etica","Ricerca, innovazione, scienza, progresso"], ans:0, expl:"I quattro elementi centrali identificati sperimentalmente sono gerarchia, profitto, lavoro e produzione." },
+  { q: "Qual è il limite del metodo dello scenario ambiguo?", opts:["È troppo costoso","Coglie solo gli aspetti descrittivi tralasciando quelli valutativi","Non è replicabile","Usa troppe doppie negazioni"], ans:1, expl:"Il metodo coglie unicamente la parte descrittiva della struttura, escludendo la componente di valutazione." },
+  { q: "Perché si usano domande con doppia negazione nel metodo della messa in discussione?", opts:["Per confondere il soggetto","Per ottenere risposte socialmente desiderabili","Per indurre una maggiore elaborazione cognitiva evitando risposte superficiali","Per ridurre la variabilità delle risposte"], ans:2, expl:"Le doppie negazioni spingono a un ragionamento profondo, riducendo i bias di desiderabilità sociale." },
+  { q: "Nel modello di Moliner (1995), a cosa corrisponde il polo valutativo del nucleo centrale?", opts:["Alle definizioni","Alle aspettative","Alle descrizioni","Alle norme"], ans:3, expl:"Nel nucleo centrale, il polo descrittivo è composto dalle definizioni, mentre il polo valutativo è composto dalle norme." },
+  { q: "Quale delle seguenti NON è un'ipotesi originaria formulata da Moscovici sulle funzioni delle rappresentazioni?", opts:["Ipotesi dell'interesse","Ipotesi dell'equilibrio","Ipotesi del controllo","Ipotesi della razionalizzazione logica"], ans:3, expl:"Le tre ipotesi classiche limitate di Moscovici sono: dell'interesse, dell'equilibrio e del controllo." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Eccellente! Conosco perfetto della materia.' :
+      pct >= 0.7 ? '👍 Ottimo punteggio! Qualche piccolo dettaglio da rifinire.' :
+      '📚 Conviene rileggere i paragrafi sulle metodologie. Riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Moscovici (1961)", right: "Studio della psicoanalisi nella società" },
+  { left: "Flament (1982)", right: "Metodo del rifiuto e assenza di gerarchia" },
+  { left: "Abric e Tafani (1995)", right: "Scenario ambiguo applicato all'impresa" },
+  { left: "Moliner (1995)", right: "Modello strutturale con polo descrittivo e valutativo" },
+  { left: "Ancoraggio", right: "Assimila il nuovo agli schemi del passato" },
+  { left: "Oggettivazione", right: "Materializza un concetto astratto in figura o icona" },
+  { left: "Elementi Periferici", right: "Flessibili, evolutivi, proteggono il nucleo centrale" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

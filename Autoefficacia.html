@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Autoefficacia — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 1200px; }
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>L'Autoefficacia</h1>
+  <p>Costrutti, funzioni psicologiche e applicazioni nei contesti specifici — studio interattivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del costrutto</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Definizione e Sé</h3>
+      <p>L'autoefficacia (self-efficacy) è la percezione della propria competenza nell'ambiente. A differenza del concetto di Sé, non è un giudizio globale di valore sulla personalità, ma è strettamente specifica per compiti e contesti.</p>
+      <span class="pill">Capitolo 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🌊</div>
+      <h3>Le 6 Fonti Generative</h3>
+      <p>L'autoefficacia si costruisce gradualmente lungo la vita attingendo da sei canali: successi/fallimenti passati, esperienze vicarie (imitazione), capacità immaginativa, persuasione verbale, stato fisiologico e stato emotivo.</p>
+      <span class="pill">Capitolo 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📊</div>
+      <h3>Le 3 Dimensioni</h3>
+      <p>Le aspettative di efficacia variano lungo tre parametri psicometrici fondamentali: la Grandezza (numero di difficoltà crescenti affrontabili), la Forza (il grado di convincimento e persistenza) e la Generalizzazione (estensione a compiti simili).</p>
+      <span class="pill">Capitolo 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎯</div>
+      <h3>Problem Solving</h3>
+      <p>Il senso di autoefficacia incrementa direttamente la motivazione e il pensiero strategico, amplificando le abilità personali di problem solving cognitivo e interpersonale. Alti livelli determinano una forte persistenza nelle azioni critiche.</p>
+      <span class="pill">Capitolo 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🏫</div>
+      <h3>Ambito Scolastico</h3>
+      <p>Regola le aspirazioni, l'interesse intellettuale e lo sviluppo cognitivo. Gli studenti con alta autoefficacia lavorano più a lungo, mostrano comportamenti pro-sociali sviluppati e sono più popolari tra i pari, mentre una bassa efficacia predice ansia e aggressività.</p>
+      <span class="pill">Capitolo 3</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🩺</div>
+      <h3>Salute e Emozioni</h3>
+      <p>Esercita effetti protettivi mediando i sistemi biologici tra salute e malattia. L'autoefficacia emotiva regola le strategie con cui affrontiamo gli affetti: si misura in clinica con scale specifiche a 5 posizioni per emozioni positive e negative.</p>
+      <span class="pill">Capitolo 3</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 1. L'Autoefficacia nello Sviluppo Sociale (Bandura, 1986)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il senso di autoefficacia, o <em>self-efficacy</em>, costituisce un pilastro della teoria socio-cognitiva. Essa viene definita secondo tre coordinate:</p>
+        <ul>
+          <li>La <strong>percezione</strong> che una persona possiede della propria competenza nel proprio ambiente di appartenenza.</li>
+          <li>Un fondamentale fattore di influenzamento e di <strong>mediazione della motivazione</strong>.</li>
+          <li>Un elemento che orienta e <strong>influenza la scelta dei comportamenti</strong> concreti adottati tra quelli a disposizione.</li>
+        </ul>
+        <p style="margin-top:0.6rem"><strong>Differenza col concetto di Sé (Zimmerman, 1995):</strong> L'autoefficacia non comporta un giudizio di valore sulla propria personalità o sulle capacità globali dell'individuo. È rigorosamente una <strong>credenza contesto e compito specifica</strong>.</p>
+        <p style="margin-top:0.6rem"><strong>Evoluzione temporale (Flammer, 1995):</strong> Non è innata, ma viene costruita gradatamente nel ciclo di vita. Ricerche (Zimmerman & Martinez-Pons, 1990) mostrano che tende a crescere dalla prima alla tarda adolescenza, per poi mostrare un declino dalla prima alla tarda maturità.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌊 2. Le Sei Fonti dell'Autoefficacia (Bandura, 1989a)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Gli individui strutturano la conoscenza della propria efficacia basandosi su sei tipologie di informazioni dal vivo:</p>
+        <ul>
+          <li><strong>1. I successi o i fallimenti:</strong> sperimentati nell'esperienza passata diretta del soggetto (la fonte più solida).</li>
+          <li><strong>2. Le esperienze vicarie:</strong> apprese tramite l'osservazione attiva e l'imitazione di modelli esterni.</li>
+          <li><strong>3. La capacità immaginativa:</strong> che permette all'individuo di anticipare cognitivamente le situazioni, le proprie reazioni comportamentali ed emotive, nonché le conseguenze delle azioni.</li>
+          <li><strong>4. La persuasione verbale:</strong> incoraggiamenti o feedback da parte dell'ambiente sociale.</li>
+          <li><strong>5. Lo stato fisiologico:</strong> i segnali somatici letti dal corpo (es. battito cardiaco accelerato).</li>
+          <li><strong>6. Lo stato emotivo:</strong> l'umore e l'affettività che accompagnano l'esecuzione di un compito.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📊 3. Dimensioni psicometriche e Problem Solving</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Nota e Soresi (2000) evidenziano tre dimensioni essenziali lungo cui variano le aspettative di autoefficacia:</p>
+        <ul>
+          <li><strong>Grandezza:</strong> Si riferisce al numero complessivo di difficoltà in crescendo che la persona si considera capace di affrontare.</li>
+          <li><strong>Forza:</strong> L'ammontare del convincimento profondo. È correlata alla <em>persistenza</em>: anche davanti a condizioni avverse ed emozioni negative, l'individuo ad alta forza continua a nutrire fiducia negli sforzi per ottenere i risultati auspicati.</li>
+          <li><strong>Generalizzazione:</strong> La misura in cui le autovalutazioni espresse per una prestazione specifica influenzano le credenze di efficacia per compiti e contesti simili.</li>
+        </ul>
+        <p style="margin-top:0.6rem"><strong>Meccanismi cognitivi e distorsioni:</strong> L'autoefficacia è legata all'elaborazione delle informazioni. Se avvengono distorsioni, sottolineature e ricordi selettivi degli aspetti negativi della performance, il soggetto rischia di sottostimare la propria efficacia.</p>
+        <p style="margin-top:0.6rem"><strong>Azione sul Problem Solving (Dodge, 2000; Di Nuovo et al., 1999):</strong> L'autoefficacia incrementa la motivazione e il pensiero strategico, potenziando la risoluzione dei problemi cognitivi e interpersonali, poiché mappa la convinzione di poter controllare attivamente i comportamenti determinanti.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🏫 4. Autoefficacia Collettiva e Contesto Scolastico</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p><strong>Autoefficacia Collettiva (Bandura, 1994b; Zaccaro et al., 1995):</strong> Senso di competenza condiviso tra individui che integrano e coordinano le loro risorse per fornire una risposta di successo a domande situazionali (es. gruppi scolastici ad alti standard).</p>
+        <p style="margin-top:0.6rem">Nello snodo scolastico, le convinzioni operano su tre livelli integrati (Bandura, 1995):</p>
+        <ul>
+          <li>Le convinzioni degli <strong>studenti</strong> di regolare l'apprendimento e affrontare le materie.</li>
+          <li>Le convinzioni degli <strong>insegnanti</strong> di saper motivare e promuovere l'apprendimento degli alunni.</li>
+          <li>Il senso di <strong>efficacia collettivo del corpo docente</strong> sulla capacità della scuola di favorire processi culturali significativi.</li>
+        </ul>
+        <p style="margin-top:0.6rem">Il <strong>feedback sociale e valutativo</strong> associato all'<strong>istruzione metacognitiva</strong> innalza l'autoefficacia, la quale aumenta lo sforzo e la persistenza, determinando lo sviluppo delle competenze e l'accuratezza della performance (Zimmerman, 1995b; Bouffard-Bouchard, 1991).</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📈 5. Impatto Clinico, Sociale e Analisi dei Dati Educativi</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I dati empirici confermano dinamiche sociali e protettive cruciali:</p>
+        <ul>
+          <li><strong>Dinamiche relazionali a scuola:</strong> Gli studenti con alta autoefficacia mostrano comportamenti pro-sociali più sviluppati e sono più popolari e accettati dai pari (Bandura, 1995). Al contrario, un basso livello di efficacia cognitiva si associa a condotte di aggressività fisica e verbale.</li>
+          <li><strong>La metanalisi di Multon et al. (1991):</strong> Esaminando 68 ricerche, emerge che l'autoefficacia spiega il <strong>14% della varianza del rendimento scolastico</strong> e il <strong>12% della persistenza</strong>. L'effetto causale è massimamente di rilievo negli studenti con scarso rendimento pregresso.</li>
+          <li><strong>Matematica e Attitudine (Randhawa et al., 1993):</strong> L'autoefficacia determina causalmente l'atteggiamento verso la matematica, ma non viceversa. Se gli studenti dubitano delle proprie capacità, il mero interesse/attrazione per la materia non basta a motivarli.</li>
+          <li><strong>Ansia scolastica (Meece et al., 1990):</strong> Una bassa autoefficacia accresce la vulnerabilità all'ansia scolastica. I fallimenti pregressi alimentano l'angoscia intaccando l'autoefficacia percepita.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🩺 6. Benessere, Tutela della Salute e Competenze Emotive</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p><strong>Fronteggiamento dello Stress e Biologia (Bandura, 1986):</strong> Le credenze di controllo sulle minacce ambientali evitano l'attivazione disfunzionale di sistemi biologici che mediano tra salute e malattia. Chi crede di non poter controllare gli eventi negativi vive stati ansiosi acuti e mette in atto azioni inefficaci.</p>
+        <p style="margin-top:0.6rem"><strong>La Competenza Emotiva Individuale:</strong> Capacità di moderare, diluire e superare le emozioni negative (collera, paura, tristezza) e di godere e condividere i benefici delle emozioni positive (gioia, soddisfazione della riuscita).</p>
+        <p style="margin-top:0.6rem"><strong>Scale di Misurazione Psicometrica per Adolescenti:</strong> Strumenti diagnostici su scala a 5 posizioni per mappare le risorse affettive e tarare sostegni mirati:</p>
+        <ul>
+          <li><strong>Scala APEN/G:</strong> Autoefficacia Percepita nella Gestione delle Emozioni Negative (composta da <strong>8 item</strong>).</li>
+          <li><strong>Scala APEP/G:</strong> Autoefficacia Percepita nella Gestione delle Emozioni Positive (composta da <strong>7 item</strong>).</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="width:100%"><div class="label">Domanda</div></div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="width:100%"><div class="label">Risposta</div></div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 12</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/12</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → autore / dato</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento corretto a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Concetto / Teoria</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Autore / Validazione</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 7</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Teoria Socio-Cognitiva — Fondazione del Costrutto</h4>
+      <p>L'autoefficacia viene formalizzata come giudizio sulle proprie capacità di eseguire corsi di azione in contesti circoscritti, mediando la spinta motivazionale e la scelta comportamentale.</p>
+      <div class="tl-source">Bandura (1986)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Specificità del compito</h4>
+      <p>Viene sancita la separazione netta tra il concetto globale del Sé (valutazione generale della personalità) e l'autoefficacia, intesa esclusivamente come credenza legata a compiti e contesti precisi.</p>
+      <div class="tl-source">Zimmerman (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Evoluzione dell'efficacia nel ciclo di vita</h4>
+      <p>Viene dimostrato empiricamente che l'autoefficacia non è presente alla nascita: si sviluppa e cresce costantemente dalla prima alla tarda adolescenza, registrando poi un declino regressivo dalla prima alla tarda maturità.</p>
+      <div class="tl-source">Zimmerman & Martinez-Pons (1990); Flammer (1995)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Le 3 Dimensioni delle Aspettative</h4>
+      <p>Vengono codificate le tre direttrici di variazione dell'autoefficacia: la Grandezza (grado di difficoltà crescenti), la Forza (resistenza emotiva e persistenza) e la Generalizzazione (trasferibilità dei giudizi a compiti affini).</p>
+      <div class="tl-source">Nota & Soresi (2000)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La Varianza del Rendimento Scolastico: 14% e 12%</h4>
+      <p>Una imponente metanalisi condotta su 68 ricerche dimostra che l'autoefficacia spiega il 14% della varianza del successo nello studio e il 12% della persistenza. L'impatto causale è massimo negli studenti con basso rendimento.</p>
+      <div class="tl-source">Multon, Brown & Lent (1991)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Accuratezza e Flessibilità nel Problem Solving</h4>
+      <p>Esperimenti su compiti concettuali in età evolutiva provano che incrementare il senso di efficacia produce obiettivi più alti, maggiore flessibilità strategica e accresciuta rapidità e accuratezza nella risoluzione.</p>
+      <div class="tl-source">Bouffard-Bouchard (1991)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Predittività asimmetrica nella Matematica</h4>
+      <p>Si evince che l'autoefficacia determina in modo causale e unidirezionale l'atteggiamento verso la matematica. Se lo studente dubita di sé, la sola attrazione o interesse astratto per la materia fallisce nel motivarlo.</p>
+      <div class="tl-source">Randhawa, Beamer & Lundberg (1993)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Strumentazione psicometrica per Emozioni: APEN/G e APEP/G</h4>
+      <p>Vengono introdotte le scale per adolescenti a 5 posizioni per mappare la regolazione affettiva: la scala per la gestione delle emozioni negative (8 item) e quella per le emozioni positive (7 item).</p>
+      <div class="tl-source">Petruccelli, Scale di Autoefficacia Percepita nella Gestione delle Emozioni</div>
+    </div>
+  </div>
+</section>
+
+<script>
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Qual è la differenza sostanziale tra l'autoefficacia e il concetto di Sé?", a: "Il concetto di Sé implica un giudizio di valore globale sulla personalità, mentre l'autoefficacia è una credenza specifica per contesto e compito." },
+  { q: "Quali sono le tre caratteristiche fondamentali del costrutto secondo Bandura (1986)?", a: "Percezione della propria competenza ambientale, fattore di mediazione della motivazione e determinante nella scelta dei comportamenti adottati." },
+  { q: "Quali sono i sei canali informativi definiti come fonti dell'autoefficacia?", a: "1) Successi/fallimenti passati, 2) esperienze vicarie (imitazione), 3) capacità immaginativa, 4) persuasione verbale, 5) stato fisiologico, 6) stato emotivo." },
+  { q: "Quali sono le tre dimensioni delle aspettative di autoefficacia di Nota e Soresi (2000)?", a: "La Grandezza (difficoltà crescenti affrontabili), la Forza (convinzione profonda e persistenza) e la Generalizzazione (influenza su compiti simili)." },
+  { q: "Cosa si intende per 'Autoefficacia Collettiva' e come opera nei gruppi?", a: "È il senso di competenza condiviso tra individui che coordinano e integrano le risorse per fornire risposte di successo a specifiche domande situazionali." },
+  { q: "Quale combinazione di elementi promuove efficacemente lo sviluppo delle competenze scolastiche?", a: "Il feedback sociale e valutativo associato all'istruzione metacognitiva, che va a innalzare direttamente l'autoefficacia." },
+  { q: "In che misura l'autoefficacia incide sul rendimento secondo la metanalisi di Multon et al. (1991)?", a: "Spiega circa il 14% della varianza del rendimento scolastico e il 12% di quella relativa alla persistenza nel compito." },
+  { q: "Per quale categoria di studenti l'autoefficacia risulta avere un impatto predittivo più consistente?", a: "Per gli studenti con scarso rendimento scolastico rispetto a quelli con un rendimento nella media." },
+  { q: "Come interagiscono l'autoefficacia e l'atteggiamento verso la matematica secondo Randhawa (1993)?", a: "L'autoefficacia determina l'atteggiamento, ma non il contrario. Se gli studenti dubitano di sé, l'attrazione per la materia non basta a motivarli." },
+  { q: "Quali condotte sociali si associano rispettivamente ad alti e bassi livelli di efficacia cognitiva a scuola?", a: "Alti livelli predicono comportamenti pro-sociali e popolarità; bassi livelli sono associati ad aggressività fisica e verbale." },
+  { q: "Cosa postula Bandura (1986) circa il legame tra autoefficacia e reazioni biologiche allo stress?", a: "La percezione di controllo evita l'attivazione nociva di sistemi biologici; chi crede di non poter controllare gli eventi attiverà risposte stressogene e azioni non efficaci." },
+  { q: "Quanti item compongono le scale APEN/G e APEP/G per adolescenti e cosa misurano?", a: "La scala APEN/G (emozioni negative) ha 8 item; la scala APEP/G (emozioni positive) ha 7 item. Entrambe valutano la regolazione emotiva su scala a 5 posizioni." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "A differenza del concetto del Sé, l'autoefficacia è definita come:", opts:["Un tratto della personalità innato","Una credenza contesto e compito specifica","Un giudizio di valore globale e immutabile","Una capacità legata esclusivamente al QI"], ans:1, expl:"Zimmerman (1995) evidenzia che l'autoefficacia non valuta la personalità generale, ma è specifica per compiti e contesti." },
+  { q: "Secondo gli studi evolutivi (Zimmerman e Martinez-Pons, 1990), l'autoefficacia tende a:", opts:["Rimanere stabile dalla nascita alla morte","Crescere dall'infanzia alla prima maturità e poi stabilizzarsi","Svilupparsi dalla prima alla tarda adolescenza e declinare dalla prima alla tarda maturità","Decrescere costantemente nell'adolescenza"], ans:2, expl:"I dati mostrano una traiettoria di crescita fino alla tarda adolescenza e un progressivo declino nella tarda maturità." },
+  { q: "Quale dimensione si riferisce all'ammontare del convincimento e alla persistenza di fronte alle difficoltà?", opts:["La grandezza dell'autoefficacia","La forza dell'autoefficacia","La generalizzazione dell'autoefficacia","L'efficacia vicarie"], ans:1, expl:"La forza definisce la tenuta del convincimento e la capacità di continuare a nutrire fiducia nei propri sforzi anche in condizioni difficili." },
+  { q: "Quale di queste NON è inclusa da Bandura tra le 6 fonti dell'autoefficacia?", opts:["L'ereditabilità genetica dei tratti","Le esperienze vicarie tramite imitazione","La persuasione verbale","Lo stato fisiologico ed emotivo"], ans:0, expl:"Le sei fonti sono empirico-esperienziali e psicologiche: i tratti biologici o ereditari non fanno parte del modello di Bandura." },
+  { q: "La metanalisi di Multon et al. (1991) ha determinato che l'autoefficacia spiega:", opts:["Il 50% del QI globale degli studenti","Circa il 14% della varianza del rendimento scolastico e il 12% della persistenza","Solo il 2% dei risultati d'esame complessivi","La varianza del rendimento solo per gli studenti eccellenti"], ans:1, expl:"L'autoefficacia spiega il 14% del rendimento e il 12% della persistenza, con picchi di rilevanza negli studenti con bassi risultati pregressi." },
+  { q: "Gli studenti con un alto senso di efficacia nel regolare l'apprendimento mostrano:", opts:["Una spiccata tendenza all'isolamento sociale","Un comportamento pro-sociale più sviluppato e maggiore popolarità","Alti livelli di ansia scolastica e vulnerabilità","Aggressività verbale controllata"], ans:1, expl:"Bandura (1995) dimostra che l'efficacia nell'autoregolazione scolastica correla positivamente con comportamenti pro-sociali e accettazione tra pari." },
+  { q: "Un basso livello di efficacia cognitiva risulta statisticamente associato a:", opts:["Un'ottima attitudine per le discipline scientifiche","Aggressività fisica e verbale","Bassi livelli di ansia da prestazione","Un incremento spontaneo della motivazione estrinseca"], ans:1, expl:"Il testo evidenzia che carenze strutturali nell'autoefficacia cognitiva sono collegate a condotte disfunzionali quali l'aggressività." },
+  { q: "Nelle ricerche di Bouffard-Bouchard (1991), i bambini indotti ad avere un'alta autoefficacia mostravano:", opts:["Maggiore rigidità e ansia esecutiva","Capacità di risolvere più problemi in minor tempo e aspirazioni più elevate","La medesima performance dei bambini a bassa efficacia","Minore accuratezza nell'autovalutazione"], ans:1, expl:"I soggetti ad alta efficacia dimostrano più flessibilità strategica, maggiore rapidità e un alto grado di accuratezza valutativa." },
+  { q: "Nel modello di Randhawa et al. (1993) sulla matematica, emerge che:", opts:["L'attrazione per la matematica determina l'autoefficacia","L'autoefficacia determina l'atteggiamento verso la materia, ma non viceversa","Le due variabili non hanno alcuna correlazione statistica","L'atteggiamento positivo risolve i dubbi sulle proprie capacità"], ans:1, expl:"L'autoefficacia esercita un ruolo causale e di mediazione. Se lo studente dubita delle proprie abilità, l'interesse da solo non basta." },
+  { q: "Le reazioni allo stress biologico si attivano quando il soggetto percepisce:", opts:["Un elevato supporto della persuasione verbale","Scarso controllo sulle minacce e sulle condizioni ambientali nocive","Un'eccellente capacità immaginativa anticipatoria","Un livello eccessivo di autoefficacia collettiva"], ans:1, expl:"Secondo Bandura lo stress biologico è mediato dalla convinzione di non poter controllare gli eventi negativi e le minacce esterne." },
+  { q: "La Scala di Autoefficacia Percepita nella Gestione delle Emozioni Negative (APEN/G) per adolescenti consta di:", opts:["5 item complessivi","8 item con valutazione su scala a 5 posizioni","12 item strutturati dicotomicamente","7 item per la gestione della collera"], ans:1, expl:"La scala APEN/G è composta esattamente da 8 item strutturati su una griglia di risposta a 5 posizioni." },
+  { q: "La scala APEP/G è deputata alla misurazione delle convinzioni su compiti di:", opts:["Regolazione delle emozioni negative","Regolazione adeguata delle emozioni positive","Prevenzione dell'aggressività scolastica","Calcolo matematico complesso"], ans:1, expl:"La scala APEP/G misura in modo specifico le abilità percepite di gestione e moderazione degli affetti e delle emozioni positive (7 item)." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Straordinario! Padronanza assoluta delle teorie di Bandura.' :
+      pct >= 0.7 ? '👍 Ottimo punteggio! Hai assimilato i concetti chiave dell\'autoefficacia.' :
+      '📚 Conviene rileggere i dettagli analitici delle fonti e delle scale e riprovare!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Bandura (1986)", right: "Teoria Socio-Cognitiva e Self-Efficacy" },
+  { left: "Zimmerman (1995)", right: "Autoefficacia compito e contesto specifica" },
+  { left: "Nota e Soresi (2000)", right: "Grandezza, Forza e Generalizzazione" },
+  { left: "Zaccaro et al. (1995)", right: "Definizione di competenza collettiva condivisa" },
+  { left: "Multon et al. (1991)", right: "Spiegazione del 14% della varianza scolastica" },
+  { left: "Randhawa et al. (1993)", right: "L'autoefficacia determina l'atteggiamento in matematica" },
+  { left: "Scala APEN/G", right: "Misurazione di 8 item per le emozioni negative" },
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>

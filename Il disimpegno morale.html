@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il Disimpegno Morale — Studio Interattivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #221f35;
+    --accent: #e53935;
+    --gold: #f5c842;
+    --teal: #00bfa5;
+    --lavender: #a78bfa;
+    --text: #ede9fe;
+    --muted: #7c7a9a;
+    --border: rgba(167,139,250,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #1a1028 0%, #0f0e17 60%);
+    z-index: 1;
+  }
+  header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3em 0.9em;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(120deg, #ede9fe 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ─── NAV TABS ─── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  nav button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    padding: 0.5em 1.1em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--lavender); }
+  nav button.active {
+    background: var(--lavender);
+    color: var(--bg);
+    border-color: var(--lavender);
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; padding: 2.5rem 1rem 4rem; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title span.emoji { font-size: 1.5rem; }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .summary-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .summary-card .card-icon { font-size: 2rem; margin-bottom: 0.7rem; }
+  .summary-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--lavender); }
+  .summary-card p { font-size: 0.88rem; color: #bbb8d4; line-height: 1.65; }
+  .summary-card .pill {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(167,139,250,0.12);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25em 0.7em;
+    border-radius: 100px;
+  }
+
+  /* ─── ACCORDION ─── */
+  .accordion { display: flex; flex-direction: column; gap: 0.7rem; }
+  .acc-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .acc-header:hover { background: rgba(167,139,250,0.07); }
+  .acc-arrow { transition: transform 0.3s; color: var(--lavender); font-size: 1.1rem; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .acc-item.open .acc-body { max-height: 800px; } /* Aumentato per contenuti corposi */
+  .acc-body-inner { padding: 0.2rem 1.2rem 1.2rem; color: #bbb8d4; font-size: 0.88rem; line-height: 1.75; }
+  .acc-body-inner strong { color: var(--gold); }
+  .acc-body-inner ul { margin: 0.5rem 0 0 1rem; }
+  .acc-body-inner li { margin-bottom: 0.4rem; }
+
+  /* ─── QUIZ ─── */
+  .quiz-container { max-width: 680px; margin: 0 auto; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--lavender), var(--teal)); transition: width 0.4s; }
+  .quiz-counter { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .quiz-question { font-size: 1.15rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.65rem; }
+  .quiz-option {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Literata', serif;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--lavender); background: rgba(167,139,250,0.08); }
+  .quiz-option.correct { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #fff; }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(229,57,53,0.12); color: #fff; }
+  .quiz-option:disabled { cursor: default; }
+  .quiz-feedback { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(0,191,165,0.1); border: 1px solid rgba(0,191,165,0.3); color: #a7f3d0; }
+  .quiz-feedback.wrong-fb { background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.3); color: #fca5a5; }
+  .quiz-next {
+    margin-top: 1.5rem;
+    background: var(--lavender);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    padding: 0.75em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s;
+  }
+  .quiz-next:hover { transform: scale(1.04); }
+  .quiz-next.show { display: inline-block; }
+  .quiz-result { text-align: center; padding: 2rem 0; }
+  .quiz-result .score { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--gold); }
+  .quiz-result p { color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+  .quiz-result .restart-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--lavender);
+    color: var(--lavender);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.7em 2em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-result .restart-btn:hover { background: var(--lavender); color: var(--bg); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 580px; margin: 0 auto; }
+  .flashcard {
+    width: 100%;
+    aspect-ratio: 16/10;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8rem;
+    text-align: center;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #2a2545 0%, #1a1828 100%);
+    border: 1.5px solid var(--border);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a2e2a 0%, #0f1e1b 100%);
+    border: 1.5px solid rgba(0,191,165,0.25);
+    transform: rotateY(180deg);
+  }
+  .card-front .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 0.8rem; }
+  .card-front .question { font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 500; line-height: 1.5; }
+  .card-back .label { font-family: 'Syne', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.8rem; }
+  .card-back .answer { font-size: 0.95rem; line-height: 1.65; color: #a7f3d0; }
+  .card-hint { text-align: center; margin-top: 0.8rem; font-size: 0.75rem; color: var(--muted); font-style: italic; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .fc-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    padding: 0.55em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .fc-btn:hover { border-color: var(--lavender); color: var(--lavender); }
+  .fc-counter { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── MEMORY MATCH ─── */
+  .match-intro { text-align: center; margin-bottom: 1.5rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 750px; margin: 0 auto; }
+  .match-col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .match-col h4 { font-family: 'Syne', sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+  .match-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.45;
+  }
+  .match-item:hover { border-color: var(--lavender); background: rgba(167,139,250,0.07); }
+  .match-item.selected { border-color: var(--lavender); background: rgba(167,139,250,0.15); }
+  .match-item.matched { border-color: var(--teal); background: rgba(0,191,165,0.12); color: #a7f3d0; cursor: default; opacity: 0.8; }
+  .match-item.wrong-sel { border-color: var(--accent); background: rgba(229,57,53,0.12); animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .match-score { text-align: center; margin-top: 1.2rem; font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--muted); }
+  .match-score span { color: var(--gold); font-weight: 700; }
+  .match-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: transparent;
+    border: 1.5px solid var(--muted);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5em 1.4em;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .match-reset:hover { border-color: var(--lavender); color: var(--lavender); }
+
+  /* ─── TIMELINE ─── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--lavender), var(--teal)); border-radius: 2px; }
+  .tl-item { position: relative; margin-bottom: 1.8rem; }
+  .tl-dot {
+    position: absolute;
+    left: -1.6rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--lavender);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+  .tl-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--lavender); margin-bottom: 0.3rem; }
+  .tl-item p { font-size: 0.87rem; color: #bbb8d4; line-height: 1.65; }
+  .tl-item .tl-source { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .flashcard { aspect-ratio: 4/3; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Università Mercatorum · Irene Petruccelli</div>
+  <h1>Il Disimpegno Morale</h1>
+  <p>Determinismo triadico reciproco e strategie cognitive di svincolo della responsabilità</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('riepilogo',this)">📋 Riepilogo</button>
+  <button onclick="showSection('approfondisci',this)">🔍 Approfondisci</button>
+  <button onclick="showSection('flashcard',this)">🃏 Flashcard</button>
+  <button onclick="showSection('quiz',this)">🧠 Quiz</button>
+  <button onclick="showSection('abbina',this)">🔗 Abbina</button>
+  <button onclick="showSection('cronologia',this)">⏱ Punti chiave</button>
+</nav>
+
+<!-- ════════════════════════════════ RIEPILOGO ════════════════════════════════ -->
+<section id="riepilogo" class="section active">
+  <div class="section-title"><span class="emoji">📋</span> Panoramica del documento</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon">🌀</div>
+      <h3>Determinismo Triadico</h3>
+      <p>La condotta umana si spiega attraverso tre elementi interagenti: l'agentività umana (human agency), l'autoefficacia percepita e i meccanismi di disimpegno morale.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">👤</div>
+      <h3>Human Agency</h3>
+      <p>La facoltà cosciente di generare azioni mirate a scopi precisi. Si basa su capacità umane fondamentali come la simbolizzazione, l'anticipazione, l'autoregolazione e l'autoriflessione.</p>
+      <span class="pill">Sezione 1</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🛡️</div>
+      <h3>Disimpegno Morale</h3>
+      <p>Insieme di strategie socio-cognitive usate dall'individuo per svincolarsi dalle norme sociali e dalle sanzioni interne della responsabilità, ridefinendo la propria condotta dannosa.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🧠</div>
+      <h3>Ristrutturazione Cognitiva</h3>
+      <p>Raggruppa i meccanismi che agiscono sulla condotta: giustificazione morale (fini superiori), etichettamento eufemistico (linguaggio edulcorato) e confronto vantaggioso.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">⚖️</div>
+      <h3>Spostamento delle Colpe</h3>
+      <p>Processi che distorcono la causalità: dislocamento della responsabilità (ordine dall'alto), diffusione della responsabilità (agire nel gruppo) e distorsione delle conseguenze.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">🎯</div>
+      <h3>Focus sulla Vittima</h3>
+      <p>Strategie che agiscono sul bersaglio dell'azione: attribuzione di colpa alla vittima (ritenuta provocatrice) e deumanizzazione (privazione della dignità dell'altro).</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📉</div>
+      <h3>Azione Graduale</h3>
+      <p>La trasformazione in individui spietati non è improvvisa, ma avviene tramite un allentamento progressivo delle sanzioni interne e una progressiva tolleranza dell'autocensura.</p>
+      <span class="pill">Sezione 2</span>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">📊</div>
+      <h3>Scala del Disimpegno</h3>
+      <p>Strumento ideato da Bandura composto da 32 affermazioni su scala Likert. Se applicato a contesti criminali o sex offender, è suscettibile a falsificazione (desiderabilità sociale).</p>
+      <span class="pill">Sezione 3</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ APPROFONDISCI ════════════════════════════════ -->
+<section id="approfondisci" class="section">
+  <div class="section-title"><span class="emoji">🔍</span> Approfondisci i concetti</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🌀 La Teoria del Determinismo Triadico Reciproco</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Elaborata da <strong>Albert Bandura (1997)</strong>, questa prospettiva teorica spiega che il funzionamento psicosociale e la condotta delle persone sono determinati dall'interazione reciproca di fattori personali, comportamentali e ambientali.</p>
+        <p style="margin-top:0.5rem">I tre pilastri fondamentali su cui si articola la spiegazione della condotta sono:</p>
+        <ul>
+          <li><strong>Human agency (Agentività umana):</strong> La capacità attiva dei soggetti di influenzare i propri comportamenti e gli eventi.</li>
+          <li><strong>Perceived self-efficacy (Autoefficacia percepita):</strong> La convinzione nelle proprie capacità di organizzare ed eseguire le azioni necessarie per produrre determinati risultati.</li>
+          <li><strong>Moral disengagement (Disimpegno morale):</strong> I meccanismi di svincolo dai criteri morali interiorizzati.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>👤 L'Agentività Umana (Human Agency): Caratteristiche e Funzioni</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>La <strong>human agency</strong> riguarda specificamente gli atti compiuti in modo <strong>intenzionale</strong>. Essa costituisce il principio secondo cui la mente umana reagisce agli stimoli esterni e biologici ma, contemporaneamente, agisce in modo attivo nell'ambiente circostante.</p>
+        <p style="margin-top:0.5rem">Le persone non determinano completamente ciò che accade loro, ma vi contribuiscono attivamente grazie a cinque capacità fondamentali:</p>
+        <ul>
+          <li><strong>Capacità di simbolizzazione:</strong> Elaborazione di codici visivi e verbali per interpretare la realtà.</li>
+          <li><strong>Anticipazione:</strong> Capacità di prevedere le conseguenze delle proprie e altrui azioni future.</li>
+          <li><strong>Autoregolazione:</strong> Processo composto da automonitoraggio, autovalutazione e reazioni del sé.</li>
+          <li><strong>Autoriflessione:</strong> Analisi critica delle proprie esperienze e dei propri processi di pensiero.</li>
+          <li><strong>Apprendimento per imitazione:</strong> Acquisizione di comportamenti osservando modelli stabili.</li>
+        </ul>
+        <p style="margin-top:0.5rem"><em>Nota metodologica:</em> Occorre sempre distinguere la produzione personale di un'azione (mirata a un fine) dagli effetti effettivi che produce, i quali possono rivelarsi non previsti o non voluti.</p>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🛡️ Il Controllo Morale e l'Efficacia Autoregolatrice</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Il pensiero morale non è un blocco rigido, ma un processo dinamico in cui vengono usati criteri multidimensionali per giudicare la condotta. La condotta trasgressiva è regolata sia dalle sanzioni sociali esterne sia dalle <strong>sanzioni interiorizzate</strong>, che fungono da controlli preventivi e anticipatori.</p>
+        <ul>
+          <li><strong>Alto senso di efficacia autoregolatrice:</strong> Genera un alto livello di autocontrollo. La persona persevera negli sforzi personali e manifesta una solida <strong>resistenza alle pressioni sociali</strong> a comportarsi in modo contrario ai propri valori.</li>
+          <li><strong>Basso senso di efficacia autoregolatrice:</strong> Determina un debole livello di autocontrollo, incrementando considerevolmente la <strong>vulnerabilità alle pressioni ambientali</strong> e sociali che spingono verso la condotta trasgressiva.</li>
+          <li><strong>Differenze di genere:</strong> Le ricerche sullo sviluppo evidenziano che i <strong>maschi</strong> tendono a mettere in atto i meccanismi di disimpegno morale in misura significativamente maggiore rispetto alle femmine (Bandura, 2000).</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>🧠 Gli 8 Meccanismi di Disimpegno Morale (Bandura)</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Bandura identifica 8 strategie cognitive-sociali che l'individuo attiva per aggirare l'autocensura e svincolarsi dal senso di colpa:</p>
+        <ol>
+          <li><strong>Giustificazione morale:</strong> La condotta dannosa viene nobilitata e resa accettabile poiché posta al servizio di scopi ritenuti meritevoli o fini superiori (agisce sull'interpretazione del comportamento).</li>
+          <li><strong>Etichettamento eufemistico:</strong> Utilizzo di un linguaggio edulcorato e migliorativo per mascherare la gravità di un'azione deviante o di un reato, conferendogli uno status di rispettabilità.</li>
+          <li><strong>Confronto vantaggioso:</strong> Sfrutta il principio del contrasto cognitivo per sminuire la propria colpa paragonandola ad azioni altrui ritenute assai più barbare o oltraggiose.</li>
+          <li><strong>Diffusione della responsabilità:</strong> Tipica delle azioni di gruppo; la responsabilità viene frammentata tra i membri, secondo la logica del "se tutti sono responsabili, nessuno lo è veramente".</li>
+          <li><strong>Dislocamento della responsabilità:</strong> Riduzione del coinvolgimento personale scaricando la colpa su un'autorità esterna o sul volere di figure apicali e leader del gruppo.</li>
+          <li><strong>Distorsione delle conseguenze:</strong> Strategia volta a svalutare, minimizzare o ignorare l'entità dei danni provocati dalle proprie azioni, evitando deliberatamente di guardare in faccia gli effetti nocivi.</li>
+          <li><strong>Attribuzione di colpa alla vittima:</strong> La persona si autopercepisce come vittima innocente e ridefinisce la propria aggressione come una reazione obbligata e difensiva a una provocazione o alle circostanze.</li>
+          <li><strong>Deumanizzazione della vittima:</strong> Spoglia l'altro delle sue qualità umane elementari, riducendolo a un oggetto subumano per azzerare ogni forma di empatia, identificazione o solidarietà.</li>
+        </ol>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📉 L'Azione Graduale e l'Indebolimento delle Sanzioni Interni</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>Un concetto cardine della teoria di Bandura riguarda la <strong>gradualità del cambiamento comportamentale</strong>. La transizione da un individuo onesto ad uno spietato non si verifica mai in modo repentino o improvviso.</p>
+        <p style="margin-top:0.5rem">Il processo segue una sequenza definita:</p>
+        <ul>
+          <li>All'inizio l'individuo viene indotto a compiere atti lievemente discutibili, che tollera sperimentando solo una <strong>minima autocensura</strong>.</li>
+          <li>Con il ripetersi delle azioni dannose, il senso di disagio psicologico e l'autoriprovazione emotiva tendono a <strong>ridursi volta per volta</strong>.</li>
+          <li>Si assiste a un <strong>progressivo innalzamento della soglia di reprensibilità</strong>.</li>
+          <li>Infine, azioni che in origine erano considerate abominevoli ed egoisticamente inaccettabili vengono eseguite stabilmente <strong>senza provare sentimenti di angoscia o disagio</strong>.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span>📊 Applicazioni Clinico-Forensi, Ricerche e Limiti della Valutazione</span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body"><div class="acc-body-inner">
+        <p>I meccanismi di disimpegno si applicano concretamente allo studio delle condotte aggressive e devianti. Ad esempio, è ampiamente dimostrato che gli <strong>autori di reati a sfondo sessuale (sex offender)</strong> si servono costantemente di distorsioni cognitive e di meccanismi difensivi (in primis la <em>deumanizzazione</em> e l'<em>attribuzione di colpa alla vittima</em>) per facilitare e giustificare i loro crimini (Bandura, 1999).</p>
+        <p style="margin-top:0.5rem"><strong>La Scala del Disimpegno Morale (Caprara et al., 1996):</strong></p>
+        <ul>
+          <li>Costruita operazionalizzando gli 8 meccanismi teorizzati da Bandura.</li>
+          <li>Composta da <strong>32 item</strong> (esattamente 4 affermazioni per ciascun meccanismo).</li>
+          <li>Utilizza una scala di risposta Likert a 5 punti (da 1 = "Completamente in disaccordo" a 5 = "Completamente d'accordo").</li>
+          <li><strong>Limiti strutturali:</strong> Quando viene impiegata su popolazioni specifiche di criminali o sex offender, lo strumento mostra una forte vulnerabilità ai tentativi di alterazione deliberata delle risposte dettati dalla <strong>desiderabilità sociale</strong> (falsificazione del test per apparire socialmente accettabili).</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════ FLASHCARD ════════════════════════════════ -->
+<section id="flashcard" class="section">
+  <div class="section-title"><span class="emoji">🃏</span> Flashcard — clicca per girare</div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="fc" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="label">Domanda</div>
+        <div class="question" id="fc-q">Caricamento…</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="label">Risposta</div>
+        <div class="answer" id="fc-a">—</div>
+      </div>
+    </div>
+  </div>
+  <p class="card-hint">👆 Clicca la carta per vedere la risposta</p>
+  <div class="flashcard-nav">
+    <button class="fc-btn" onclick="prevCard()">← Precedente</button>
+    <span class="fc-counter" id="fc-counter">1 / 12</span>
+    <button class="fc-btn" onclick="nextCard()">Successiva →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ QUIZ ════════════════════════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title"><span class="emoji">🧠</span> Quiz di autovalutazione</div>
+  <div class="quiz-container">
+    <div id="quiz-game">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qpf"></div></div>
+      <div class="quiz-counter" id="qc">Domanda 1 di 10</div>
+      <div class="quiz-question" id="qq">—</div>
+      <div class="quiz-options" id="qo"></div>
+      <div class="quiz-feedback" id="qf"></div>
+      <button class="quiz-next" id="qn" onclick="nextQuestion()">Prossima domanda →</button>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="score" id="final-score">0/10</div>
+      <p id="result-msg">—</p>
+      <button class="restart-btn" onclick="restartQuiz()">Ricomincia</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════ ABBINA ════════════════════════════════ -->
+<section id="abbina" class="section">
+  <div class="section-title"><span class="emoji">🔗</span> Abbina concetto → dettaglio</div>
+  <p class="match-intro">Seleziona un elemento da sinistra e poi il suo abbinamento a destra.</p>
+  <div class="match-grid">
+    <div class="match-col">
+      <h4>Meccanismo / Costrutto</h4>
+      <div id="match-left"></div>
+    </div>
+    <div class="match-col">
+      <h4>Definizione / Esempio clinico</h4>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="match-score">Abbinamenti corretti: <span id="match-score-val">0</span> / 8</div>
+  <button class="match-reset" onclick="resetMatch()">🔄 Ricomincia</button>
+</section>
+
+<!-- ════════════════════════════════ CRONOLOGIA ════════════════════════════════ -->
+<section id="cronologia" class="section">
+  <div class="section-title"><span class="emoji">⏱</span> Punti chiave da ricordare</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La cornice teorica: Determinismo Triadico Reciproco</h4>
+      <p>I comportamenti umani derivano da interazioni reciproche e costanti tra tre fattori: l'ambiente esterno, le caratteristiche biologico-cognitive della persona e la condotta agita.</p>
+      <div class="tl-source">Albert Bandura (1997)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'Intenzionalità e le Sottofunzioni dell'Agentività</h4>
+      <p>La mente umana opera attivamente sul mondo circostante mediante funzioni chiave: la simbolizzazione, la capacità di anticipare le conseguenze, l'autoriflessione e l'autoregolazione affettiva.</p>
+      <div class="tl-source">Human Agency</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Differenze di genere nello sviluppo psicosociale</h4>
+      <p>I bambini interiorizzano norme da una molteplicità di fonti mediali e sociali. Nel corso della crescita, i maschi mostrano una tendenza significativamente maggiore a ricorrere al disimpegno morale rispetto alle femmine.</p>
+      <div class="tl-source">Bandura (2000)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Il ruolo protettivo dell'Efficacia Autoregolatrice</h4>
+      <p>Un forte senso di efficacia personale produce maggiore autocontrollo e accresce la capacità di resistere attivamente alle pressioni del gruppo che spingono verso comportamenti trasgressivi.</p>
+      <div class="tl-source">Resistenza socio-cognitiva</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>Gli otto meccanismi di disattivazione del controllo</h4>
+      <p>Bandura mappa le 8 deviazioni cognitive raggruppandole in base al focus: sulla ristrutturazione della condotta, sulla distorsione del nesso di causa-effetto o sulla svalutazione della vittima.</p>
+      <div class="tl-source">I pilastri del Moral Disengagement</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La scala del cambiamento: La Diminuzione del Disagio</h4>
+      <p>Il disimpegno morale agisce come uno scivolo logico. Gli atti inizialmente ritenuti ingiusti riducono l'angoscia a ogni ripetizione, portando a tollerare gradualmente condotte riprovevoli.</p>
+      <div class="tl-source">Modulazione delle sanzioni interne</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>L'applicazione nei Sex Offender</h4>
+      <p>I rei di crimini sessuali ricorrono massicciamente alle strategie di deumanizzazione e attribuzione di colpa alla vittima ("ha provocato") per neutralizzare i sentimenti di empatia e auto-condanna.</p>
+      <div class="tl-source">Bandura (1999)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <h4>La standardizzazione psicometrica e i suoi limiti</h4>
+      <p>Viene pubblicata la Scala del Disimpegno Morale composta da 32 item. Nelle valutazioni forensi e cliniche dei criminali risente pesantemente del fenomeno della desiderabilità sociale.</p>
+      <div class="tl-source">Caprara, Barbaranelli, Vicino, Bandura (1996)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── NAVIGATION ─── */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleAcc(header) {
+  const item = header.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ─── FLASHCARDS ─── */
+const flashcards = [
+  { q: "Quali sono i tre elementi chiave della teoria del Determinismo Triadico Reciproco?", a: "L'agentività umana (human agency), l'autoefficacia percepita e il disimpegno morale (moral disengagement)." },
+  { q: "Cosa si intende per 'human agency' (agentività umana)?", a: "La facoltà cosciente dell'essere umano di generare intenzionalmente azioni mirate a determinati scopi e risultati." },
+  { q: "Quali sono le 5 capacità fondamentali attraverso cui opera la mente secondo la human agency?", a: "Capacità di simbolizzazione, di anticipazione delle conseguenze, di autoregolazione, di autoriflessione e apprendimento per imitazione." },
+  { q: "In cosa differisce la definizione di disimpegno psicologico di Boekaerts/Pekrun da quella di Bandura?", a: "Per i primi è una difesa dell'autostima; per Bandura è un insieme di strategie socio-cognitive per svincolarsi dalle norme e dalle responsabilità." },
+  { q: "Quale differenza di genere è emersa nelle ricerche di Bandura (2000) sull'attivazione del disimpegno morale?", a: "I maschi tendono a mettere in atto i meccanismi di disimpegno morale significativamente più delle femmine." },
+  { q: "Che legame c'è tra l'efficacia autoregolatrice percepita e la condotta trasgressiva?", a: "Un'alta efficacia aumenta l'autocontrollo e la resistenza alle pressioni sociali; un basso senso di efficacia accresce la vulnerabilità alle trasgressioni." },
+  { q: "Come agisce il meccanismo dell'etichettamento eufemistico?", a: "Utilizza il linguaggio per dare un significato positivo o migliorativo ad un'azione deviante o a un reato, mascherandone la gravità." },
+  { q: "Qual è la differenza tra dislocamento e diffusione della responsabilità?", a: "Il dislocamento rinvia la colpa ad un'autorità esterna o leader; la diffusione ripartisce la colpa tra tutti i membri di un gruppo (se tutti sono responsabili, nessuno lo è)." },
+  { q: "Spiega come avviene il cambiamento graduale della condotta morale secondo Bandura.", a: "Avviene per un lento allentamento delle sanzioni interne: piccoli atti discutibili riducono progressivamente il disagio e l'autocensura, fino a compiere atrocità senza angoscia." },
+  { q: "Quali meccanismi di disimpegno morale sono particolarmente evidenti negli autori di reato a sfondo sessuale?", a: "La deumanizzazione della vittima (privata di dignità) e l'attribuzione di colpa alla vittima (accusata di atteggiamenti provocatori)." },
+  { q: "Com'è strutturata la Scala del Disimpegno Morale sviluppata da Caprara e colleghi (1996)?", a: "È composta da 32 affermazioni (4 per ciascuno degli 8 meccanismi), valutate su scala Likert a 5 punti." },
+  { q: "Qual è il principale limite metodologico della Scala del Disimpegno Morale quando applicata a categorie criminali?", a: "È fortemente suscettibile a tentativi di falsificazione e manipolazione delle risposte a causa del fenomeno della desiderabilità sociale." }
+];
+
+let fcIndex = 0;
+function updateCard() {
+  const card = flashcards[fcIndex];
+  document.getElementById('fc-q').textContent = card.q;
+  document.getElementById('fc-a').textContent = card.a;
+  document.getElementById('fc-counter').textContent = `${fcIndex+1} / ${flashcards.length}`;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex+1) % flashcards.length; updateCard(); }
+function prevCard() { fcIndex = (fcIndex-1+flashcards.length) % flashcards.length; updateCard(); }
+updateCard();
+
+/* ─── QUIZ ─── */
+const questions = [
+  { q: "Chi è l'autore principale della teoria del Determinismo Triadico Reciproco?", opts:["Boekaerts","Albert Bandura","Pekrun","Caprara"], ans:1, expl:"Albert Bandura (1997) ha formulato questa concezione integrando human agency, autoefficacia e disimpegno morale." },
+  { q: "Quale sottofunzione NON appartiene alle capacità della human agency secondo il testo?", opts:["Simbolizzazione","Anticipazione delle conseguenze","Isolamento affettivo sociale","Autoregolazione"], ans:2, expl:"L'isolamento affettivo non è una capacità della human agency; le capacità includono invece simbolizzazione, anticipazione, autoregolazione, autoriflessione e imitazione." },
+  { q: "Secondo le ricerche sullo sviluppo (Bandura, 2000), i meccanismi di disimpegno morale vengono attivati maggiormente da:", opts:["Dalle femmine","In modo identico tra maschi e femmine","Dai maschi","Esclusivamente dagli adulti"], ans:2, expl:"Il testo evidenzia differenze di genere significative: i maschi tendono a utilizzare questi meccanismi più delle femmine." },
+  { q: "Un alto senso di efficacia autoregolatrice percepita comporta:", opts:["Una maggiore vulnerabilità alle pressioni dei gruppi","Una forte resistenza alle pressioni sociali a compiere trasgressioni","La totale assenza di sanzioni morali interiorizzate","L'immediato ricorso all'etichettamento eufemistico"], ans:1, expl:"Più è forte l'efficacia autoregolatrice, più le persone perseverano nell'autocontrollo resistendo alle spinte sociali contrarie ai propri valori." },
+  { q: "Quale meccanismo consiste nel giustificare la condotta nociva in nome di scopi meritevoli o superiori?", opts:["Confronto vantaggioso","Giustificazione morale","Etichettamento eufemistico","Deumanizzazione"], ans:1, expl:"La giustificazione morale agisce ridefinendo la condotta dannosa come accettabile o doverosa in virtù di fini etici considerati più alti." },
+  { q: "Il meccanismo del 'confronto vantaggioso' si basa sul principio cognitivo del:", opts:["Contrasto","Dislocamento","Isolamento","Riconoscimento"], ans:0, expl:"Sfruttando il principio del contrasto con azioni altrui enormemente più gravi, la propria condotta riprovevole appare irrilevante o persino benefica." },
+  { q: "Cosa dice la logica della 'diffusione della responsabilità'?", opts:["La colpa è interamente del leader del gruppo","Se tutti sono responsabili, nessuno si sente veramente colpevole","La colpa ricade sempre sull'atteggiamento della vittima","La sanzione interna aumenta repentinamente"], ans:1, expl:"La diffusione avviene tipicamente quando si agisce in un gruppo: frammentando la colpa tra i membri si attenua il senso di responsabilità del singolo." },
+  { q: "Come avviene il cambiamento psicologico che porta a compiere azioni disumane senza troppa angoscia?", opts:["Attraverso un trauma improvviso e radicale","In modo graduale, mediante la riduzione progressiva dell'autocensura","A causa dell'abbassamento del QI","Esclusivamente per via di ordini legali"], ans:1, expl:"Il processo è graduale. Atti inizialmente intollerabili vengono ripetuti riducendo di volta in volta il disagio, innalzando la soglia di reprensibilità." },
+  { q: "Nei reati a sfondo sessuale, l'attribuzione di colpa alla vittima si manifesta quando il reo:", opts:["Considera la vittima un oggetto subumano privo di dignità","Ritiene la propria condotta una reazione obbligata a una provocazione della vittima","Spostala colpa sui superiori gerarchici","Falsifica interamente le risposte al test psicometrico"], ans:1, expl:"Con l'attribuzione di colpa alla vittima, l'aggressore si vede come una parte lesa e dichiara che la colpa è della provocazione del bersaglio." },
+  { q: "Da quanti item è composta la Scala del Disimpegno Morale (Caprara et al., 1996) e quale limite presenta?", opts:["10 item; è troppo breve per scopi forensi","32 item; risente del rischio di desiderabilità sociale (falsificazione)","100 item; richiede troppo tempo per l'elaborazione dei punteggi Likert","8 item; analizza un solo meccanismo cognitivo"], ans:1, expl:"La scala ha 32 item (4 per ognuno degli 8 meccanismi) e nelle popolazioni forensi soffre il problema della desiderabilità sociale, in cui il soggetto mente per apparire migliore." }
+];
+
+let qIndex = 0, qScore = 0, qAnswered = false;
+function loadQuestion() {
+  const q = questions[qIndex];
+  document.getElementById('qc').textContent = `Domanda ${qIndex+1} di ${questions.length}`;
+  document.getElementById('qpf').style.width = `${((qIndex)/questions.length)*100}%`;
+  document.getElementById('qq').textContent = q.q;
+  const container = document.getElementById('qo');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('qf').className = 'quiz-feedback';
+  document.getElementById('qf').textContent = '';
+  document.getElementById('qn').classList.remove('show');
+  qAnswered = false;
+}
+function selectAnswer(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('qf');
+  if (i === q.ans) {
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb show';
+    fb.textContent = '✅ Corretto! ' + q.expl;
+    qScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb show';
+    fb.textContent = '❌ Non corretto. ' + q.expl;
+  }
+  document.getElementById('qn').classList.add('show');
+  const isLast = qIndex === questions.length - 1;
+  document.getElementById('qn').textContent = isLast ? 'Vedi risultato →' : 'Prossima domanda →';
+}
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= questions.length) {
+    document.getElementById('quiz-game').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = `${qScore}/${questions.length}`;
+    const pct = qScore / questions.length;
+    document.getElementById('result-msg').textContent =
+      pct === 1 ? '🏆 Eccellente! Conosci alla perfezione le dinamiche del disimpegno morale.' :
+      pct >= 0.7 ? '👍 Ottimo punteggio! Hai assimilato la quasi totalità dei meccanismi di Bandura.' :
+      '📚 Ti consigliamo un ripasso accurato dei singoli meccanismi cognitivi — Riprova!';
+  } else {
+    loadQuestion();
+  }
+}
+function restartQuiz() {
+  qIndex = 0; qScore = 0;
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  loadQuestion();
+}
+loadQuestion();
+
+/* ─── MATCHING ─── */
+const matchPairs = [
+  { left: "Giustificazione morale", right: "Riconduce gli atti brutali a fini nobili o superiori" },
+  { left: "Etichettamento eufemistico", right: "Usa termini puliti e attenuati per mascherare i reati" },
+  { left: "Confronto vantaggioso", right: "Sminuisce l'atto accostandolo a barbarie peggiori" },
+  { left: "Dislocamento responsabilità", right: "Attribuisce le colpe ad ordini impartiti da autorità" },
+  { left: "Diffusione responsabilità", right: "Diluisce la colpa personale all'interno del gruppo" },
+  { left: "Distorsione conseguenze", right: "Ignora o sminuisce l'impatto e il danno reale arrecato" },
+  { left: "Deumanizzazione", right: "Riduce la vittima a un oggetto privandola di empatia" },
+  { left: "Attribuzione colpa alla vittima", right: "Incolpa la vittima definendola provocatrice" }
+];
+
+let matchSelected = null, matchCorrect = 0;
+function buildMatch() {
+  const shuffledRight = [...matchPairs].sort(() => Math.random()-0.5);
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchPairs.forEach((p,i) => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.left;
+    el.dataset.id = i;
+    el.dataset.side = 'left';
+    el.onclick = () => selectMatch(el);
+    left.appendChild(el);
+  });
+  shuffledRight.forEach(p => {
+    const origIdx = matchPairs.indexOf(p);
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = p.right;
+    el.dataset.id = origIdx;
+    el.dataset.side = 'right';
+    el.onclick = () => selectMatch(el);
+    right.appendChild(el);
+  });
+  matchSelected = null; matchCorrect = 0;
+  document.getElementById('match-score-val').textContent = '0';
+}
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    if (matchSelected) matchSelected.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = el;
+  } else {
+    if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+    if (matchSelected.dataset.side === el.dataset.side) {
+      matchSelected.classList.remove('selected');
+      el.classList.add('selected');
+      matchSelected = el;
+      return;
+    }
+    if (matchSelected.dataset.id === el.dataset.id) {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchCorrect++;
+      document.getElementById('match-score-val').textContent = matchCorrect;
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('wrong-sel');
+      el.classList.add('wrong-sel');
+      const s = matchSelected, e = el;
+      setTimeout(() => { s.classList.remove('wrong-sel'); e.classList.remove('wrong-sel'); }, 500);
+    }
+    matchSelected = null;
+  }
+}
+function resetMatch() { buildMatch(); }
+buildMatch();
+</script>
+</body>
+</html>
